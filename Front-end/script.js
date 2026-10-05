@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ================= 1. ELEMEN SELEKTOR =================
   const viewBeranda = document.getElementById('viewBeranda');
   const viewSignup = document.getElementById('viewSignup');
+  const viewDetailResep = document.getElementById('viewDetailResep');
 
   const navBeranda = document.getElementById('navBeranda');
   const navBookmark = document.getElementById('navBookmark');
@@ -15,8 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputLainnya = document.getElementById('inputBahanLainnya');
   const counterEl = document.querySelector('.counter');
   const btnAdd = document.querySelector('.btn-add');
-  const btnFilter = document.getElementById('btnFilter');
   const pageButtons = document.querySelectorAll('.page-btn');
+
+  // Tombol Bar Aksi
+  const btnYukCek = document.getElementById('btnYukCek');
+  const btnCariMenu = document.getElementById('btnCariMenu');
 
   // Elemen Popup Filter Overlay
   const filterOverlay = document.getElementById('filterOverlay');
@@ -25,17 +29,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const chipButtons = document.querySelectorAll('.chip-btn');
   const btnCloseFilter = document.getElementById('btnCloseFilter');
   const btnExecuteSearch = document.getElementById('btnExecuteSearch');
+  const btnFilter = document.getElementById('btnFilter');
 
-  // Elemen Modal Custom
+  // Elemen Detail Resep
+  const recipeCards = document.querySelectorAll('.recipe-card-compact');
+  const btnBackFromDetail = document.getElementById('btnBackFromDetail');
+  const btnCopyMissing = document.getElementById('btnCopyMissing');
+  const btnLihatLangkah = document.getElementById('btnLihatLangkah');
+
+  // Elemen Modal Pemberitahuan Custom
   const modal = document.getElementById('customModal');
   const modalTitle = document.getElementById('modalTitle');
   const modalMessage = document.getElementById('modalMessage');
   const modalCloseBtn = document.getElementById('modalCloseBtn');
 
-  const MAX_BAHAN_PER_INPUT = 3;
+  // Elemen Modal Cari Menu Pop-up
+  const modalCariMenu = document.getElementById('modalCariMenu');
+  const btnCloseCariMenu = document.getElementById('btnCloseCariMenu');
 
-  // Set untuk menyimpan tag filter terpilih (Awal: KACANG & SEAFOOD)
-  let selectedFilterTags = new Set(['KACANG', 'SEAFOOD']);
+  const MAX_BAHAN_PER_INPUT = 3;
+  const MAX_DYNAMIC_ROWS = 1;
+
+  let selectedFilterTags = new Set();
 
   // ================= 2. FUNGSI CUSTOM MODAL =================
   function showCustomModal(message, title = "Pemberitahuan") {
@@ -70,9 +85,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     viewBeranda.classList.add('hidden');
     viewSignup.classList.add('hidden');
+    if (viewDetailResep) viewDetailResep.classList.add('hidden');
 
     if (targetView === 'signup') {
       viewSignup.classList.remove('hidden');
+    } else if (targetView === 'detailResep' && viewDetailResep) {
+      viewDetailResep.classList.remove('hidden');
     } else {
       viewBeranda.classList.remove('hidden');
     }
@@ -90,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (navBookmark) {
     navBookmark.addEventListener('click', (e) => {
       e.preventDefault();
-      showCustomModal('Halaman Bookmark belum tersedia.', 'Informasi');
+      showCustomModal('Halaman Bookmark belum tersedia. Silahkan Login terlebih dahulu.', 'Informasi');
     });
   }
 
@@ -103,7 +121,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ================= 4. LOGIKA FILTER & INLINE TAGS =================
+  // ================= 4. LOGIKA DETAIL RESEP =================
+  recipeCards.forEach(card => {
+    card.addEventListener('click', () => {
+      switchView('detailResep');
+    });
+  });
+
+  if (btnBackFromDetail) {
+    btnBackFromDetail.addEventListener('click', () => {
+      switchView('beranda');
+    });
+  }
+
+  if (btnCopyMissing) {
+    btnCopyMissing.addEventListener('click', () => {
+      const missingText = `- Ayam\n- Telor\n- Sapi\n- Udang\n- Cabai`;
+      navigator.clipboard.writeText(missingText).then(() => {
+        showCustomModal('Daftar bahan yang tidak tersedia telah disalin!', 'Berhasil Disalin');
+      }).catch(() => {
+        showCustomModal(missingText, 'Daftar Bahan Tidak Tersedia');
+      });
+    });
+  }
+
+  if (btnLihatLangkah) {
+    btnLihatLangkah.addEventListener('click', () => {
+      showCustomModal('Menampilkan langkah-langkah memasak Nasi Goreng...', 'Langkah Memasak');
+    });
+  }
+
+  // ================= 5. LOGIKA FILTER & INLINE TAGS =================
   function renderActiveFilterTags() {
     activeTagsContainer.innerHTML = '';
 
@@ -113,14 +161,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (placeholderText) placeholderText.style.display = 'inline';
     }
 
+    activeTagsContainer.style.display = 'flex';
+    activeTagsContainer.style.flexWrap = 'wrap';
+    activeTagsContainer.style.gap = '8px';
+    activeTagsContainer.style.alignItems = 'center';
+
     selectedFilterTags.forEach(tag => {
       const tagEl = document.createElement('span');
       tagEl.className = 'tag-active';
       tagEl.dataset.tag = tag;
-      tagEl.innerHTML = `${tag} <i class="fa-solid fa-xmark remove-tag"></i>`;
+      tagEl.textContent = tag;
       
-      tagEl.querySelector('.remove-tag').addEventListener('click', (e) => {
-        e.stopPropagation();
+      tagEl.addEventListener('click', () => {
         selectedFilterTags.delete(tag);
         updateChipState();
         renderActiveFilterTags();
@@ -145,6 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnFilter) {
     btnFilter.addEventListener('click', () => {
+      if (modalCariMenu) modalCariMenu.classList.add('hidden');
       filterOverlay.classList.toggle('hidden');
     });
   }
@@ -183,7 +236,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderActiveFilterTags();
 
-  // ================= 5. LOGIKA FORM SIGN UP =================
+  // ================= 6. INTERAKSI TOMBOL YUK CEK & CARI MENU =================
+  if (btnYukCek) {
+    btnYukCek.addEventListener('click', () => {
+      const bahan = dapatkanDaftarBahan();
+      if (bahan.length === 0) {
+        showCustomModal('Silakan masukkan bahan terlebih dahulu!', 'Peringatan');
+      } else {
+        showCustomModal(`Mengecek resep dengan bahan: ${bahan.join(', ')}`, 'Mengecek Resep');
+      }
+    });
+  }
+
+  // Event Listener Modal Cari Menu (Pop-up Resep)
+  if (btnCariMenu && modalCariMenu) {
+    btnCariMenu.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (filterOverlay) filterOverlay.classList.add('hidden');
+      modalCariMenu.classList.remove('hidden');
+    });
+  }
+
+  if (btnCloseCariMenu && modalCariMenu) {
+    btnCloseCariMenu.addEventListener('click', () => {
+      modalCariMenu.classList.add('hidden');
+    });
+  }
+
+  if (modalCariMenu) {
+    modalCariMenu.addEventListener('click', (e) => {
+      if (e.target === modalCariMenu) {
+        modalCariMenu.classList.add('hidden');
+      }
+    });
+  }
+
+  // ================= 7. LOGIKA FORM SIGN UP =================
   if (signupForm) {
     signupForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -195,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ================= 6. FUNGSI HITUNG & VALIDASI BAHAN KOMA =================
+  // ================= 8. FUNGSI HITUNG & VALIDASI BAHAN KOMA =================
   function handleInputCounter(inputElement, counterElement = null) {
     if (!inputElement) return;
 
@@ -210,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (jumlahBahan > MAX_BAHAN_PER_INPUT) {
         showCustomModal(
-          "Maksimal 3 bahan per baris! Klik tombol plus (+) untuk menambah baris input baru.", 
+          "Maksimal 3 bahan per-baris! Silahkan Klik tombol (+) disebelah kiri untuk menambahkan form baru.", 
           "Batas Maksimal Bahan"
         );
         
@@ -228,9 +316,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (inputUtama) handleInputCounter(inputUtama);
   if (inputLainnya && counterEl) handleInputCounter(inputLainnya, counterEl);
 
-  // ================= 7. TOMBOL PLUS (+) TAMBAH INPUT BARU =================
+  // ================= 9. TOMBOL PLUS (+) TAMBAH INPUT BARU =================
   if (btnAdd && inputSection) {
     btnAdd.addEventListener('click', () => {
+      const currentDynamicRows = inputSection.querySelectorAll('.btn-remove').length;
+
+      if (currentDynamicRows >= MAX_DYNAMIC_ROWS) {
+        showCustomModal(
+          "Penambahan baris input sudah mencapai batas maksimal (1 baris)!", 
+          "Batas Maksimal Form"
+        );
+        return;
+      }
+
       const newRow = document.createElement('div');
       newRow.className = 'input-row';
 
@@ -268,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ================= 8. MENGUMPULKAN BAHAN DARI SEMUA INPUT =================
+  // ================= 10. MENGUMPULKAN BAHAN DARI SEMUA INPUT =================
   function dapatkanDaftarBahan() {
     const inputs = document.querySelectorAll('.input-section input[type="text"]');
     const daftarBahan = [];
@@ -284,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return [...new Set(daftarBahan)];
   }
 
-  // ================= 9. INTERAKSI PAGINASI =================
+  // ================= 11. INTERAKSI PAGINASI =================
   pageButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       pageButtons.forEach(b => b.classList.remove('active'));
@@ -292,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ================= 10. FITUR VOICE INPUT (WEB SPEECH API) =================
+  // ================= 12. FITUR VOICE INPUT (WEB SPEECH API) =================
   function initVoiceRecognition(btnMic, targetInput) {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       btnMic.addEventListener('click', () => {

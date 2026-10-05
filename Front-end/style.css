@@ -31,6 +31,7 @@ body {
 /* ================= PAGE SWITCHING STYLES ================= */
 .page-view {
   display: block;
+  position: relative;
   animation: fadeIn 0.25s ease-in-out;
 }
 
@@ -54,7 +55,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .input-row {
@@ -129,55 +130,39 @@ body {
   flex-shrink: 0;
 }
 
-/* ================= ACTION BAR & PAGINATION ================= */
+/* ================= TOMBOL YUK CEK ================= */
+.cek-button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.btn-yuk-cek {
+  background-color: #f7f5ee;
+  border: 2px solid #4a4a4a;
+  padding: 8px 24px;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: 14px;
+  color: #222222;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px #4a4a4a;
+  transition: all 0.15s ease;
+}
+
+.btn-yuk-cek:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px #4a4a4a;
+}
+
+/* ================= ACTION BAR (CARI MENU & FILTER) ================= */
 .action-bar {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 16px;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  margin-bottom: 16px;
   position: relative;
   z-index: 5;
-}
-
-.pagination-box {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background-color: #ffffff;
-  border: 2px solid #4a4a4a;
-  padding: 3px 6px;
-  border-radius: 2px;
-}
-
-.page-btn {
-  width: 24px;
-  height: 24px;
-  border: 1px solid #777;
-  background: #ffffff;
-  font-weight: 800;
-  font-size: 13px;
-  color: #000;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.page-btn.active {
-  background-color: #ffffff;
-  border: 2px solid #000;
-}
-
-.page-dots {
-  padding: 0 2px;
-  font-size: 12px;
-  font-weight: 800;
-  background: #ffffff;
-  border: 1px solid #777;
-  height: 24px;
-  display: flex;
-  align-items: center;
 }
 
 .btn-action {
@@ -199,11 +184,13 @@ body {
   font-size: 16px;
 }
 
-/* ================= FILTER OVERLAY POPUP (MOCKUP STYLE) ================= */
+/* ================= FILTER OVERLAY ================= */
 .filter-overlay {
-  position: relative;
+  position: absolute;
+  top: 135px;
+  left: 0;
+  right: 0;
   z-index: 50;
-  margin-bottom: 20px;
   animation: slideDown 0.2s ease-out;
 }
 
@@ -214,7 +201,7 @@ body {
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-8px);
   }
   to {
     opacity: 1;
@@ -224,13 +211,13 @@ body {
 
 .filter-panel {
   background-color: #f5f2e9;
-  border: 2px dashed #666;
+  border: 2px solid #4a4a4a;
   border-radius: 4px;
-  padding: 16px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  padding: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .filter-header-bar {
@@ -250,10 +237,11 @@ body {
   cursor: pointer;
 }
 
-.active-tags-row {
+.active-tags-inline {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
+  align-items: center;
 }
 
 .tag-active {
@@ -268,43 +256,29 @@ body {
   color: #333;
   border-radius: 2px;
   box-shadow: 1px 1px 0px rgba(0,0,0,0.1);
-}
-
-.tag-active i {
   cursor: pointer;
-  font-size: 14px;
-}
-
-.tag-active i:hover {
-  color: #dc2626;
 }
 
 .filter-category-title {
-  display: flex;
-  margin-top: 4px;
-}
-
-.badge-title {
-  background-color: #e2ded3;
-  border: 1px solid #888;
-  padding: 4px 14px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
-  color: #444;
-  border-radius: 2px;
+  color: #333333;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+  margin-bottom: 2px;
 }
 
 .filter-chips-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .chip-btn {
   background-color: #e2ded3;
   border: 1px solid #777;
-  padding: 6px 14px;
-  font-size: 13px;
+  padding: 6px 12px;
+  font-size: 12px;
   font-weight: 800;
   color: #333;
   cursor: pointer;
@@ -325,7 +299,7 @@ body {
 .filter-footer-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .btn-apply-filter {
@@ -348,6 +322,8 @@ body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+  position: relative;
+  z-index: 1;
 }
 
 .recipe-card-compact {
@@ -356,6 +332,12 @@ body {
   border-radius: 2px;
   padding: 12px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.recipe-card-compact:hover {
+  transform: translateY(-2px);
 }
 
 .card-header {
@@ -401,40 +383,170 @@ body {
   font-size: 14px;
 }
 
+/* ================= HALAMAN DETAIL RESEP STYLES ================= */
+.detail-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.btn-back {
+  background-color: #f7f5ee;
+  border: 2px solid #4a4a4a;
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 0px #4a4a4a;
+}
+
+.btn-back:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0px 0px 0px #4a4a4a;
+}
+
+.detail-header-bar h2 {
+  font-size: 18px;
+  font-weight: 900;
+  color: #1a1a1a;
+}
+
+.detail-card {
+  background-color: #f7f5ee;
+  border: 2px solid #4a4a4a;
+  border-radius: 4px;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.detail-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: #111;
+  border-bottom: 2px solid #4a4a4a;
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.detail-section h4 {
+  font-size: 13px;
+  font-weight: 800;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.detail-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #222;
+}
+
+.detail-list.missing li {
+  color: #d97706;
+}
+
+.detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-detail-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #ffffff;
+  border: 2px solid #4a4a4a;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #222;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px #4a4a4a;
+  transition: all 0.15s ease;
+}
+
+.btn-detail-action.primary {
+  background-color: #f5f1e5;
+}
+
+.btn-detail-action:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0px 0px 0px #4a4a4a;
+}
+
+/* ================= PAGINASI BAWAH ================= */
+.pagination-bottom {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.pagination-box {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #ffffff;
+  border: 2px solid #4a4a4a;
+  padding: 3px 6px;
+  border-radius: 2px;
+}
+
+.page-btn {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #777;
+  background: #ffffff;
+  font-weight: 800;
+  font-size: 13px;
+  color: #000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-btn.active {
+  background-color: #ffffff;
+  border: 2px solid #000;
+}
+
+.page-dots {
+  padding: 0 2px;
+  font-size: 12px;
+  font-weight: 800;
+  background: #ffffff;
+  border: 1px solid #777;
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+
 /* ================= SIGN UP PAGE STYLES ================= */
 #viewSignup {
   padding-top: 10px;
 }
 
-.signup-top-bar {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 20px;
-  padding-left: 10px;
-}
-
-/* Badge Avatar Pin Biru Kiri Atas */
-.avatar-badge {
-  width: 50px;
-  height: 50px;
-  background-color: #3b82f6;
-  border-radius: 50% 50% 50% 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-  transform: rotate(-10deg);
-}
-
-.avatar-badge img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-/* Header Scan Icon & Text SIGN UP */
 .signup-header {
   display: flex;
   flex-direction: column;
@@ -472,7 +584,6 @@ body {
   color: #1a1a1a;
 }
 
-/* Form Group & Input Styling */
 .signup-form {
   display: flex;
   flex-direction: column;
@@ -579,7 +690,6 @@ body {
   justify-content: center;
   z-index: 1000;
   padding: 16px;
-  transition: opacity 0.2s ease-in-out;
 }
 
 .modal-overlay.hidden {
@@ -652,4 +762,176 @@ body {
 .btn-modal:active {
   transform: translate(2px, 2px);
   box-shadow: 0px 0px 0px #4a4a4a;
+}
+
+/* ================= POPUP OVERLAY CARI MENU (PRESISI FIGMA GAMBAR 1) ================= */
+.modal-overlay-cari {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(1px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.modal-overlay-cari.hidden {
+  display: none !important;
+}
+
+/* Card Utama Cream Melayang */
+.modal-card-cari {
+  background-color: #f5f1e5;
+  border: 1px solid #c0b9a6;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 360px;
+  max-height: 82vh;
+  padding: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18), 0 3px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  gap: 8px;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header Box Text RESEP */
+.modal-header-box {
+  border: 1.5px solid #4a4a4a;
+  background-color: #f7f4ea;
+  text-align: center;
+  padding: 5px 0;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #222;
+  border-radius: 2px;
+  position: relative;
+}
+
+.btn-close-modal {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #444;
+  line-height: 1;
+}
+
+/* Container Scrollable Resep */
+.resep-scroll-container {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 2px;
+  max-height: 380px;
+}
+
+/* Individual Card Resep */
+.item-resep-card {
+  background-color: #f7f4ea;
+  border: 1.5px solid #666;
+  border-radius: 3px;
+  padding: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+}
+
+/* Box Judul Resep */
+.item-resep-title {
+  border: 1.5px solid #4a4a4a;
+  text-align: center;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 3px;
+  margin-bottom: 6px;
+  color: #111;
+  background-color: #f7f4ea;
+  border-radius: 2px;
+}
+
+/* Content Body Card */
+.item-resep-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.label-bahan-terpakai {
+  font-weight: 800;
+  font-size: 11px;
+  line-height: 1.2;
+  color: #222;
+  width: 60px;
+  flex-shrink: 0;
+}
+
+/* Grid Bahan Centang 2 Kolom */
+.grid-bahan {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px 8px;
+  flex-grow: 1;
+}
+
+.bahan-check {
+  font-size: 10px;
+  font-weight: 800;
+  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bahan-check i {
+  font-size: 11px;
+  color: #222;
+}
+
+/* Box Pagination Modal */
+.pagination-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border: 1.5px solid #4a4a4a;
+  padding: 2px 12px;
+  width: fit-content;
+  margin: 2px auto 0 auto;
+  background-color: #ffffff;
+  border-radius: 2px;
+}
+
+.page-num {
+  font-size: 11px;
+  font-weight: 800;
+  color: #111;
+  cursor: pointer;
+}
+
+.page-num.active {
+  text-decoration: underline;
 }

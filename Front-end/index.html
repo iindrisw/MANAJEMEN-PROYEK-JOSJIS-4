@@ -56,19 +56,20 @@
         </div>
       </div>
 
-      <!-- Bagian Bar Aksi & Paginasi -->
+      <!-- Tombol Yuk Cek (Tengah) -->
+      <div class="cek-button-wrapper">
+        <button type="button" id="btnYukCek" class="btn-yuk-cek">YUK CEK</button>
+      </div>
+
+      <!-- Bagian Bar Aksi (CARI MENU & FILTER) -->
       <div class="action-bar">
-        <div class="pagination-box">
-          <button class="page-btn active">1</button>
-          <button class="page-btn">2</button>
-          <button class="page-btn">3</button>
-          <button class="page-btn">4</button>
-          <span class="page-dots">...</span>
-        </div>
+        <button id="btnCariMenu" type="button" class="btn-action">
+          <span>CARI MENU</span>
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
 
         <button id="btnFilter" type="button" class="btn-action">
           <span>FILTER</span>
-          <i class="fa-solid fa-magnifying-glass"></i>
         </button>
       </div>
 
@@ -108,7 +109,7 @@
       <div id="recipeList" class="recipe-grid">
         <article class="recipe-card-compact">
           <header class="card-header">
-            <h2>Nasi Goreng</h2>
+            <h2>Nasi Goreng Mas Hilal loh ya</h2>
           </header>
           <div class="card-body">
             <h3>Bahan Terpakai</h3>
@@ -123,7 +124,7 @@
 
         <article class="recipe-card-compact">
           <header class="card-header">
-            <h2>Nasi Goreng</h2>
+            <h2>Nasi Goreng Mas Hilal loh ya</h2>
           </header>
           <div class="card-body">
             <h3>Bahan Terpakai</h3>
@@ -138,7 +139,7 @@
 
         <article class="recipe-card-compact">
           <header class="card-header">
-            <h2>Nasi Goreng</h2>
+            <h2>Nasi Goreng Mas Hilal loh ya</h2>
           </header>
           <div class="card-body">
             <h3>Bahan Terpakai</h3>
@@ -153,7 +154,7 @@
 
         <article class="recipe-card-compact">
           <header class="card-header">
-            <h2>Nasi Goreng</h2>
+            <h2>Nasi Goreng Mas Hilal loh ya</h2>
           </header>
           <div class="card-body">
             <h3>Bahan Terpakai</h3>
@@ -168,7 +169,7 @@
 
         <article class="recipe-card-compact">
           <header class="card-header">
-            <h2>Nasi Goreng</h2>
+            <h2>Nasi Goreng Mas Hilal loh ya</h2>
           </header>
           <div class="card-body">
             <h3>Bahan Terpakai</h3>
@@ -183,7 +184,7 @@
 
         <article class="recipe-card-compact">
           <header class="card-header">
-            <h2>Nasi Goreng</h2>
+            <h2>Nasi Goreng Mas Hilal loh ya</h2>
           </header>
           <div class="card-body">
             <h3>Bahan Terpakai</h3>
@@ -197,9 +198,66 @@
         </article>
       </div>
 
+      <!-- Paginasi di Bawah Resep -->
+      <div class="pagination-bottom">
+        <div class="pagination-box">
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">4</button>
+          <span class="page-dots">...</span>
+        </div>
+      </div>
+
     </section>
 
-    <!-- ================= 2. HALAMAN SIGN UP ================= -->
+    <!-- ================= 2. HALAMAN DETAIL RESEP ================= -->
+    <section id="viewDetailResep" class="page-view hidden">
+      <div class="detail-header-bar">
+        <button type="button" id="btnBackFromDetail" class="btn-back" title="Kembali">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h2>Detail Resep</h2>
+      </div>
+
+      <div class="detail-card">
+        <h3 class="detail-title">Nasi Goreng Mas Hilal loh ya</h3>
+        
+        <div class="detail-section">
+          <h4>Bahan - Bahan</h4>
+          <ul class="detail-list">
+            <li><i class="fa-solid fa-square-check"></i> <span>KENTANG</span></li>
+            <li><i class="fa-solid fa-square-check"></i> <span>WORTEL</span></li>
+            <li><i class="fa-solid fa-square-check"></i> <span>SLEDRI</span></li>
+            <li><i class="fa-solid fa-square-check"></i> <span>CICAK</span></li>
+          </ul>
+        </div>
+
+        <div class="detail-section" style="margin-top: 14px;">
+          <h4>Bahan - Bahan Tidak Tersedia:</h4>
+          <ul class="detail-list missing">
+            <li><i class="fa-regular fa-square"></i> <span>Ayam</span></li>
+            <li><i class="fa-regular fa-square"></i> <span>Telor</span></li>
+            <li><i class="fa-regular fa-square"></i> <span>Sapi</span></li>
+            <li><i class="fa-regular fa-square"></i> <span>Udang</span></li>
+            <li><i class="fa-regular fa-square"></i> <span>Cabai</span></li>
+          </ul>
+        </div>
+
+        <div class="detail-actions">
+          <button type="button" id="btnCopyMissing" class="btn-detail-action">
+            <i class="fa-solid fa-copy"></i>
+            <span>Salin Bahan Tak Tersedia</span>
+          </button>
+          <button type="button" id="btnLihatLangkah" class="btn-detail-action primary">
+            <i class="fa-solid fa-utensils"></i>
+            <span>Lihat Langkah Memasak</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 3. HALAMAN SIGN UP ================= -->
     <section id="viewSignup" class="page-view hidden">
 
       <!-- Header Icon & Judul -->
@@ -228,6 +286,7 @@
           <input type="password" id="signupPassword" required />
         </div>
 
+        
         <button type="submit" class="btn-signup-submit">DAFTAR</button>
       </form>
 
@@ -261,6 +320,113 @@
       <div class="modal-footer">
         <button id="modalCloseBtn" class="btn-modal" type="button">Mengerti</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ================= POPUP OVERLAY RESEP (CARI MENU) ================= -->
+  <div id="modalCariMenu" class="modal-overlay-cari hidden">
+    <div class="modal-card-cari">
+      
+      <!-- Header Popup RESEP -->
+      <div class="modal-header-box">
+        <span>RESEP</span>
+        <button type="button" id="btnCloseCariMenu" class="btn-close-modal" title="Tutup">&times;</button>
+      </div>
+
+      <!-- Container Scrollable Resep -->
+      <div class="resep-scroll-container">
+        
+        <!-- Card Item Resep 1 -->
+        <article class="item-resep-card">
+          <div class="item-resep-title">Nasi Goreng Mas Hilal loh ya</div>
+          <div class="item-resep-body">
+            <div class="label-bahan-terpakai">Bahan<br>Terpakai</div>
+            <div class="grid-bahan">
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> SLEDRI</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> SLEDRI</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card Item Resep 2 -->
+        <article class="item-resep-card">
+          <div class="item-resep-title">Nasi Goreng Mas Hilal loh ya</div>
+          <div class="item-resep-body">
+            <div class="label-bahan-terpakai">Bahan<br>Terpakai</div>
+            <div class="grid-bahan">
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> SLEDRI</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> SLEDRI</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card Item Resep 3 -->
+        <article class="item-resep-card">
+          <div class="item-resep-title">Nasi Goreng Mas Hilal loh ya</div>
+          <div class="item-resep-body">
+            <div class="label-bahan-terpakai">Bahan<br>Terpakai</div>
+            <div class="grid-bahan">
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> SLEDRI</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> SLEDRI</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card Item Resep 4 -->
+        <article class="item-resep-card">
+          <div class="item-resep-title">Nasi Goreng Mas Hilal loh ya</div>
+          <div class="item-resep-body">
+            <div class="label-bahan-terpakai">Bahan<br>Terpakai</div>
+            <div class="grid-bahan">
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> SLEDRI</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> SLEDRI</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card Item Resep 5 -->
+        <article class="item-resep-card">
+          <div class="item-resep-title">Nasi Goreng Mas Hilal loh ya</div>
+          <div class="item-resep-body">
+            <div class="label-bahan-terpakai">Bahan<br>Terpakai</div>
+            <div class="grid-bahan">
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> SLEDRI</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> SLEDRI</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+              <div class="bahan-check"><i class="fa-regular fa-square-check"></i> CICAK</div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Pagination Dalam Popup -->
+      <div class="pagination-modal">
+        <span class="page-num active">1</span>
+        <span class="page-num">2</span>
+        <span class="page-num">3</span>
+        <span class="page-num">4</span>
+        <span class="page-num">...</span>
+      </div>
+
     </div>
   </div>
 
