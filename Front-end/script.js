@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ================= 1. ELEMEN SELEKTOR =================
   const viewBeranda = document.getElementById('viewBeranda');
   const viewSignup = document.getElementById('viewSignup');
+  const viewDetailResep = document.getElementById('viewDetailResep');
 
   const navBeranda = document.getElementById('navBeranda');
   const navBookmark = document.getElementById('navBookmark');
@@ -15,8 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputLainnya = document.getElementById('inputBahanLainnya');
   const counterEl = document.querySelector('.counter');
   const btnAdd = document.querySelector('.btn-add');
-  const btnFilter = document.getElementById('btnFilter');
   const pageButtons = document.querySelectorAll('.page-btn');
+
+  // Tombol Bar Aksi
+  const btnYukCek = document.getElementById('btnYukCek');
+  const btnCariMenu = document.getElementById('btnCariMenu');
 
   // Elemen Popup Filter Overlay
   const filterOverlay = document.getElementById('filterOverlay');
@@ -25,17 +29,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const chipButtons = document.querySelectorAll('.chip-btn');
   const btnCloseFilter = document.getElementById('btnCloseFilter');
   const btnExecuteSearch = document.getElementById('btnExecuteSearch');
+  const btnFilter = document.getElementById('btnFilter');
 
-  // Elemen Modal Custom
+  // Elemen Detail Resep
+  const recipeCards = document.querySelectorAll('.recipe-card-compact');
+  const btnBackFromDetail = document.getElementById('btnBackFromDetail');
+  const btnCopyMissing = document.getElementById('btnCopyMissing');
+  const btnLihatLangkah = document.getElementById('btnLihatLangkah');
+
+  // Elemen Modal Pemberitahuan Custom
   const modal = document.getElementById('customModal');
   const modalTitle = document.getElementById('modalTitle');
   const modalMessage = document.getElementById('modalMessage');
   const modalCloseBtn = document.getElementById('modalCloseBtn');
 
-  const MAX_BAHAN_PER_INPUT = 3;
+  // Elemen Modal Cari Menu Pop-up
+  const modalCariMenu = document.getElementById('modalCariMenu');
+  const btnCloseCariMenu = document.getElementById('btnCloseCariMenu');
 
-  // Set untuk menyimpan tag filter terpilih
-  let selectedFilterTags = new Set(['KACANG', 'SEAFOOD']);
+  // Container Resep di HTML
+  const recipeListContainer = document.getElementById('recipeList');
+
+  // Konfigurasi Input & Filter
+  const MAX_BAHAN_PER_INPUT = 3;
+  const MAX_DYNAMIC_ROWS = 1;
+  let selectedFilterTags = new Set();
 
   // ================= 2. FUNGSI CUSTOM MODAL =================
   function showCustomModal(content, title = "Pemberitahuan", isHtml = false) {
@@ -74,9 +92,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     viewBeranda.classList.add('hidden');
     viewSignup.classList.add('hidden');
+    if (viewDetailResep) viewDetailResep.classList.add('hidden');
 
     if (targetView === 'signup') {
       viewSignup.classList.remove('hidden');
+    } else if (targetView === 'detailResep' && viewDetailResep) {
+      viewDetailResep.classList.remove('hidden');
     } else {
       viewBeranda.classList.remove('hidden');
     }
@@ -94,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (navBookmark) {
     navBookmark.addEventListener('click', (e) => {
       e.preventDefault();
-      showCustomModal('Halaman Bookmark belum tersedia.', 'Informasi');
+      showCustomModal('Halaman Bookmark belum tersedia. Silahkan Login terlebih dahulu.', 'Informasi');
     });
   }
 
@@ -107,8 +128,40 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ================= 4. LOGIKA FILTER & INLINE TAGS =================
+  // ================= 4. LOGIKA DETAIL RESEP =================
+  recipeCards.forEach(card => {
+    card.addEventListener('click', () => {
+      switchView('detailResep');
+    });
+  });
+
+  if (btnBackFromDetail) {
+    btnBackFromDetail.addEventListener('click', () => {
+      switchView('beranda');
+    });
+  }
+
+  if (btnCopyMissing) {
+    btnCopyMissing.addEventListener('click', () => {
+      // Diperbaiki agar string teks tidak terpotong error
+      const missingText = "- Ayam\n- Telor\n- Sapi\n- Udang\n- Cabai";
+      navigator.clipboard.writeText(missingText).then(() => {
+        showCustomModal('Daftar bahan yang tidak tersedia telah disalin!', 'Berhasil Disalin');
+      }).catch(() => {
+        showCustomModal(missingText, 'Daftar Bahan Tidak Tersedia');
+      });
+    });
+  }
+
+  if (btnLihatLangkah) {
+    btnLihatLangkah.addEventListener('click', () => {
+      showCustomModal('Menampilkan langkah-langkah memasak resep...', 'Langkah Memasak');
+    });
+  }
+
+  // ================= 5. LOGIKA FILTER & INLINE TAGS =================
   function renderActiveFilterTags() {
+    if (!activeTagsContainer) return;
     activeTagsContainer.innerHTML = '';
 
     if (selectedFilterTags.size > 0) {
@@ -117,14 +170,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (placeholderText) placeholderText.style.display = 'inline';
     }
 
+    activeTagsContainer.style.display = 'flex';
+    activeTagsContainer.style.flexWrap = 'wrap';
+    activeTagsContainer.style.gap = '8px';
+    activeTagsContainer.style.alignItems = 'center';
+
     selectedFilterTags.forEach(tag => {
       const tagEl = document.createElement('span');
       tagEl.className = 'tag-active';
       tagEl.dataset.tag = tag;
-      tagEl.innerHTML = `${tag} <i class="fa-solid fa-xmark remove-tag"></i>`;
+      tagEl.textContent = tag;
       
-      tagEl.querySelector('.remove-tag').addEventListener('click', (e) => {
-        e.stopPropagation();
+      tagEl.addEventListener('click', () => {
         selectedFilterTags.delete(tag);
         updateChipState();
         renderActiveFilterTags();
@@ -149,7 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnFilter) {
     btnFilter.addEventListener('click', () => {
-      jalankanPencarianBackend();
+      if (modalCariMenu) modalCariMenu.classList.add('hidden');
+      filterOverlay.classList.toggle('hidden');
     });
   }
 
@@ -181,7 +239,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderActiveFilterTags();
 
-  // ================= 5. LOGIKA FORM SIGN UP =================
+  // ================= 6. INTERAKSI TOMBOL YUK CEK & CARI MENU =================
+  if (btnYukCek) {
+    btnYukCek.addEventListener('click', () => {
+      const bahan = dapatkanDaftarBahan();
+      if (bahan.length === 0) {
+        showCustomModal('Silakan masukkan bahan terlebih dahulu!', 'Peringatan');
+      } else {
+        jalankanPencarianBackend();
+      }
+    });
+  }
+
+  if (btnCariMenu && modalCariMenu) {
+    btnCariMenu.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (filterOverlay) filterOverlay.classList.add('hidden');
+      modalCariMenu.classList.remove('hidden');
+    });
+  }
+
+  if (btnCloseCariMenu && modalCariMenu) {
+    btnCloseCariMenu.addEventListener('click', () => {
+      modalCariMenu.classList.add('hidden');
+    });
+  }
+
+  if (modalCariMenu) {
+    modalCariMenu.addEventListener('click', (e) => {
+      if (e.target === modalCariMenu) {
+        modalCariMenu.classList.add('hidden');
+      }
+    });
+  }
+
+  // ================= 7. LOGIKA FORM SIGN UP =================
   if (signupForm) {
     signupForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -193,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ================= 6. FUNGSI HITUNG & VALIDASI BAHAN KOMA =================
+  // ================= 8. FUNGSI HITUNG & VALIDASI BAHAN KOMA =================
   function handleInputCounter(inputElement, counterElement = null) {
     if (!inputElement) return;
 
@@ -208,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (jumlahBahan > MAX_BAHAN_PER_INPUT) {
         showCustomModal(
-          "Maksimal 3 bahan per baris! Klik tombol plus (+) untuk menambah baris input baru.", 
+          "Maksimal 3 bahan per-baris! Silahkan Klik tombol (+) disebelah kiri untuk menambahkan form baru.", 
           "Batas Maksimal Bahan"
         );
         
@@ -232,9 +324,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (inputUtama) handleInputCounter(inputUtama);
   if (inputLainnya && counterEl) handleInputCounter(inputLainnya, counterEl);
 
-  // ================= 7. TOMBOL PLUS (+) TAMBAH INPUT BARU =================
+  // ================= 9. TOMBOL PLUS (+) TAMBAH INPUT BARU =================
   if (btnAdd && inputSection) {
     btnAdd.addEventListener('click', () => {
+      const currentDynamicRows = inputSection.querySelectorAll('.btn-remove').length;
+
+      if (currentDynamicRows >= MAX_DYNAMIC_ROWS) {
+        showCustomModal(
+          "Penambahan baris input sudah mencapai batas maksimal (1 baris)!", 
+          "Batas Maksimal Form"
+        );
+        return;
+      }
+
       const newRow = document.createElement('div');
       newRow.className = 'input-row';
 
@@ -272,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ================= 8. MENGUMPULKAN BAHAN DARI SEMUA INPUT =================
+  // ================= 10. MENGUMPULKAN BAHAN DARI SEMUA INPUT =================
   function dapatkanDaftarBahan() {
     const inputs = document.querySelectorAll('.input-section input[type="text"]');
     const daftarBahan = [];
@@ -288,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return [...new Set(daftarBahan)];
   }
 
-  // ================= 9. RENDER KE CARD UTAMA (KLIK UNTUK DETAIL PENUH) =================
+  // ================= 11. INTEGRASI PENCARIAN BACKEND FLASK =================
   async function jalankanPencarianBackend() {
     const daftarBahan = dapatkanDaftarBahan();
     
@@ -299,57 +401,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const keywordQuery = daftarBahan.join(',');
 
+    if (recipeListContainer) {
+      recipeListContainer.innerHTML = `<p style="text-align:center; grid-column: span 2; font-weight:bold; padding: 20px;"><i class="fa-solid fa-spinner fa-spin"></i> Mencari resep...</p>`;
+    }
+
     try {
       const response = await fetch(`http://127.0.0.1:5000/api/search-bahan?q=${encodeURIComponent(keywordQuery)}`);
       const result = await response.json();
 
       if (result.total_ditemukan > 0) {
-        const containerBeranda = document.querySelector('#viewBeranda') || document.body;
-        
-        let gridContainer = document.getElementById('dynamicCardContainer');
-        if (!gridContainer) {
-          gridContainer = document.createElement('div');
-          gridContainer.id = 'dynamicCardContainer';
-          gridContainer.style.cssText = "display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px;";
-          
-          const inputSec = document.querySelector('.input-section');
-          if (inputSec && inputSec.parentNode) {
-            inputSec.parentNode.insertBefore(gridContainer, inputSec.nextSibling);
-          } else {
-            containerBeranda.appendChild(gridContainer);
-          }
-        }
-
-        gridContainer.innerHTML = '';
+        if (!recipeListContainer) return;
+        recipeListContainer.innerHTML = '';
 
         result.data.forEach((resep) => {
-          const card = document.createElement('div');
-          card.style.cssText = "background: #fff; border: 2px solid #4a4a4a; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: transform 0.2s;";
-          
-          card.onmouseover = () => card.style.transform = "translateY(-3px)";
-          card.onmouseout = () => card.style.transform = "translateY(0)";
+          const card = document.createElement('article');
+          card.className = 'recipe-card-compact';
+          card.style.cursor = 'pointer';
 
           let previewBahanHtml = '';
           if (resep.bahan_terpakai && resep.bahan_terpakai.length > 0) {
-            resep.bahan_terpakai.slice(0, 3).forEach(b => {
-              previewBahanHtml += `<li style="font-size: 0.85em; margin-bottom: 3px;"><i class="fa-solid fa-check"></i> ${b.nama_bahan} <span style="color:#666;">(${b.takaran})</span></li>`;
+            resep.bahan_terpakai.forEach(b => {
+              previewBahanHtml += `<li><i class="fa-solid fa-square-check"></i> <span>${b.nama_bahan} (${b.takaran})</span></li>`;
             });
           } else {
-            previewBahanHtml = '<li style="font-size: 0.85em;">Bahan tidak tersedia</li>';
+            previewBahanHtml = '<li><span>Bahan tidak tersedia</span></li>';
           }
 
           card.innerHTML = `
-            <div>
-              <h3 style="font-size: 1.1em; font-weight: bold; margin-bottom: 8px; border-bottom: 2px solid #333; padding-bottom: 5px;">${resep.nama_resep}</h3>
-              <div style="font-size: 0.85em; font-weight: bold; margin-bottom: 5px; color: #e11d48;"><i class="fa-solid fa-heart"></i> ${resep.jumlah_like} Suka</div>
-              <p style="font-size: 0.9em; font-weight: bold; margin: 10px 0 5px 0;">Bahan Utama:</p>
-              <ul style="margin: 0; padding-left: 15px; list-style-type: none;">
+            <header class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <h2>${resep.nama_resep}</h2>
+              <span style="font-size: 0.8em; color: #e11d48; font-weight: bold;"><i class="fa-solid fa-heart"></i> ${resep.jumlah_like} Suka</span>
+            </header>
+            <div class="card-body">
+              <h3>Bahan Terpakai</h3>
+              <ul>
                 ${previewBahanHtml}
               </ul>
-              <p style="font-size: 0.75em; color: #2563eb; margin-top: 8px; font-style: italic;">*Klik card untuk melihat resep lengkap</p>
-            </div>
-            <div style="margin-top: 15px;">
-              <span style="display: block; text-align: center; background: #333; color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 0.85em; font-weight: bold;">Pilih Resep Ini</span>
             </div>
           `;
 
@@ -357,36 +444,33 @@ document.addEventListener('DOMContentLoaded', () => {
             let detailBahanHtml = '';
             if (resep.bahan_terpakai && resep.bahan_terpakai.length > 0) {
               resep.bahan_terpakai.forEach(b => {
-                detailBahanHtml += `<li style="margin-bottom: 5px; font-size: 0.95em;">✅ <strong>${b.nama_bahan}</strong> - <span style="color: #444;">${b.takaran}</span></li>`;
+                detailBahanHtml += `<li><i class="fa-solid fa-square-check"></i> <span>${b.nama_bahan} - ${b.takaran}</span></li>`;
               });
-            } else {
-              detailBahanHtml = '<li>Tidak ada detail bahan</li>';
             }
 
             const detailContent = `
-              <div style="text-align: left; max-height: 400px; overflow-y: auto; padding-right: 5px;">
-                <h2 style="font-size: 1.3em; font-weight: bold; margin-bottom: 10px; color: #111;">${resep.nama_resep}</h2>
-                <div style="font-size: 0.9em; color: #e11d48; font-weight: bold; margin-bottom: 15px;"><i class="fa-solid fa-heart"></i> ${resep.jumlah_like} Suka</div>
-                
-                <h4 style="font-size: 1.05em; font-weight: bold; margin-bottom: 8px; border-bottom: 2px solid #ccc; padding-bottom: 4px;">Daftar Bahan Lengkap:</h4>
-                <ul style="margin: 0 0 20px 15px; padding: 0; list-style-type: none;">
+              <div style="text-align: left; max-height: 400px; overflow-y: auto;">
+                <h3 style="margin-bottom: 8px;">${resep.nama_resep}</h3>
+                <p style="color: #e11d48; font-weight: bold; margin-bottom: 12px;"><i class="fa-solid fa-heart"></i> ${resep.jumlah_like} Suka</p>
+                <h4>Daftar Bahan Lengkap:</h4>
+                <ul style="margin-bottom: 15px; padding-left: 15px; list-style-type: none;">
                   ${detailBahanHtml}
                 </ul>
-
-                <div style="text-align: center; margin-top: 20px;">
-                  <a href="https://cookpad.com${resep.url}" target="_blank" style="display: inline-block; background: #2563eb; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.9em;">Buka Panduan di Cookpad ↗</a>
+                <div style="text-align: center;">
+                  <a href="https://cookpad.com${resep.url}" target="_blank" style="background: #2563eb; color: #fff; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold;">Buka Panduan di Cookpad ↗</a>
                 </div>
               </div>
             `;
-
-            showCustomModal(detailContent, 'Detail Lengkap Resep', true);
+            showCustomModal(detailContent, 'Detail Resep', true);
           });
 
-          gridContainer.appendChild(card);
+          recipeListContainer.appendChild(card);
         });
 
       } else {
-        showCustomModal(`Tidak ditemukan resep untuk bahan "${keywordQuery}".`, 'Hasil Pencarian');
+        if (recipeListContainer) {
+          recipeListContainer.innerHTML = `<p style="text-align:center; grid-column: span 2; padding: 20px;">Tidak ditemukan resep untuk bahan "${keywordQuery}".</p>`;
+        }
       }
     } catch (error) {
       console.error("Gagal terhubung ke backend:", error);
@@ -394,7 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ================= 10. INTERAKSI PAGINASI =================
+  // ================= 12. INTERAKSI PAGINASI =================
   pageButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       pageButtons.forEach(b => b.classList.remove('active'));
@@ -402,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ================= 11. FITUR VOICE INPUT (WEB SPEECH API) =================
+  // ================= 13. FITUR VOICE INPUT (WEB SPEECH API) =================
   function initVoiceRecognition(btnMic, targetInput) {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       btnMic.addEventListener('click', () => {

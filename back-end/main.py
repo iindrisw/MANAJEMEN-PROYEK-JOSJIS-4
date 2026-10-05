@@ -16,30 +16,48 @@ engine = create_engine(db_url)
 
 @app.route("/api/search-bahan", methods=["GET"])
 def cari_resep_berdasarkan_bahan():
-    keyword = request.args.get("q", "").strip().lower()
+    raw_query = request.args.get("q", "").strip()
 
-    if not keyword:
+    if not raw_query:
         return jsonify({"status": "error", "message": "Kata kunci bahan tidak boleh kosong!"}), 400
 
-    # LIMIT 6 di subquery dihapus agar pencarian benar-benar akurat sesuai bahan yang diketik
-    query = text("""
+    # Pecah bahan berdasarkan koma (misal: "ayam,cabe" jadi ["ayam", "cabe"])
+    ingredients_list = [item.strip().lower() for item in raw_query.split(",") if item.strip()]
+
+    if not ingredients_list:
+        return jsonify({"status": "error", "message": "Kata kunci bahan tidak valid!"}), 400
+
+    # Query aman: Mencari resep yang memiliki SEMUA bahan yang dimasukkan (Intersection logic yang bersih)
+    conditions = []
+    params = {}
+
+    for i, ing in enumerate(ingredients_list):
+        param_name = f"ing_{i}"
+        conditions.append(f"""
+            r.id_resep IN (
+                SELECT rb_sub.id_resep 
+                FROM "Resep_bahan" rb_sub
+                JOIN bahan b_sub ON rb_sub.id_bahan = b_sub.id_bahan
+                WHERE LOWER(b_sub.nama_bahan) LIKE :{param_name}
+            )
+        """)
+        params[param_name] = f"%{ing}%"
+
+    # Gabungkan semua kondisi bahan dengan AND supaya wajib ada semuanya
+    where_clause = " AND ".join(conditions)
+
+    query = text(f"""
         SELECT r.id_resep, r.nama_resep, r.jumlah_like, r.url, b.nama_bahan, rb.takaran
         FROM "Resep" r
         JOIN "Resep_bahan" rb ON r.id_resep = rb.id_resep
         JOIN bahan b ON rb.id_bahan = b.id_bahan
-        WHERE r.id_resep IN (
-            SELECT DISTINCT r2.id_resep 
-            FROM "Resep" r2
-            JOIN "Resep_bahan" rb2 ON r2.id_resep = rb2.id_resep
-            JOIN bahan b2 ON rb2.id_bahan = b2.id_bahan
-            WHERE LOWER(b2.nama_bahan) LIKE :keyword
-        )
+        WHERE {where_clause}
         ORDER BY r.jumlah_like DESC;
     """)
 
     try:
         with engine.connect() as conn:
-            result = conn.execute(query, {"keyword": f"%{keyword}%"}).fetchall()
+            result = conn.execute(query, params).fetchall()
 
             resep_dict = {}
             for row in result:
@@ -60,11 +78,12 @@ def cari_resep_berdasarkan_bahan():
             list_resep = list(resep_dict.values())
 
         return jsonify({
-            "keyword_pencarian": keyword,
+            "keyword_pencarian": raw_query,
             "total_ditemukan": len(list_resep),
             "data": list_resep,
         })
     except Exception as e:
+        # Kalau masih error, kirim pesan errornya ke console/response biar ketahuan
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
