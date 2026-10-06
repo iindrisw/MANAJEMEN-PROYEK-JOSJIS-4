@@ -143,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnCopyMissing) {
     btnCopyMissing.addEventListener('click', () => {
-      // Diperbaiki agar string teks tidak terpotong error
       const missingText = "- Ayam\n- Telor\n- Sapi\n- Udang\n- Cabai";
       navigator.clipboard.writeText(missingText).then(() => {
         showCustomModal('Daftar bahan yang tidak tersedia telah disalin!', 'Berhasil Disalin');
@@ -390,7 +389,82 @@ document.addEventListener('DOMContentLoaded', () => {
     return [...new Set(daftarBahan)];
   }
 
-  // ================= 11. INTEGRASI PENCARIAN BACKEND FLASK =================
+  // ================= 11. LOAD MOST LIKED OTOMATIS SAAT LANDING PAGE DIBUKA =================
+  async function loadMostLikedRecipes() {
+    if (!recipeListContainer) return;
+
+    recipeListContainer.innerHTML = `<p style="text-align:center; grid-column: span 2; font-weight:bold; padding: 20px;"><i class="fa-solid fa-spinner fa-spin"></i> Menyiapkan data resep untuk rekomendasi.</p>`;
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/api/most-liked`);
+      const result = await response.json();
+
+      if (result.status === "success" && result.data.length > 0) {
+        recipeListContainer.innerHTML = '';
+
+        result.data.forEach((resep) => {
+          const card = document.createElement('article');
+          card.className = 'recipe-card-compact';
+          card.style.cursor = 'pointer';
+
+          let previewBahanHtml = '';
+          if (resep.bahan_terpakai && resep.bahan_terpakai.length > 0) {
+            resep.bahan_terpakai.forEach(b => {
+              previewBahanHtml += `<li><i class="fa-solid fa-square-check"></i> <span>${b.nama_bahan} (${b.takaran})</span></li>`;
+            });
+          } else {
+            previewBahanHtml = '<li><span>Bahan tidak tersedia</span></li>';
+          }
+
+          card.innerHTML = `
+            <header class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <h2>${resep.nama_resep}</h2>
+              <span style="font-size: 0.8em; color: #e11d48; font-weight: bold;"><i class="fa-solid fa-heart"></i> ${resep.jumlah_like} Suka</span>
+            </header>
+            <div class="card-body">
+              <h3>Bahan Terpakai</h3>
+              <ul>
+                ${previewBahanHtml}
+              </ul>
+            </div>
+          `;
+
+          card.addEventListener('click', () => {
+            let detailBahanHtml = '';
+            if (resep.bahan_terpakai && resep.bahan_terpakai.length > 0) {
+              resep.bahan_terpakai.forEach(b => {
+                detailBahanHtml += `<li><i class="fa-solid fa-square-check"></i> <span>${b.nama_bahan} - ${b.takaran}</span></li>`;
+              });
+            }
+
+            const detailContent = `
+              <div style="text-align: left; max-height: 400px; overflow-y: auto;">
+                <h3 style="margin-bottom: 8px;">${resep.nama_resep}</h3>
+                <p style="color: #e11d48; font-weight: bold; margin-bottom: 12px;"><i class="fa-solid fa-heart"></i> ${resep.jumlah_like} Suka</p>
+                <h4>Daftar Bahan Lengkap:</h4>
+                <ul style="margin-bottom: 15px; padding-left: 15px; list-style-type: none;">
+                  ${detailBahanHtml}
+                </ul>
+                <div style="text-align: center;">
+                  <a href="https://cookpad.com${resep.url}" target="_blank" style="background: #2563eb; color: #fff; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold;">Buka Panduan di Cookpad ↗</a>
+                </div>
+              </div>
+            `;
+            showCustomModal(detailContent, 'Detail Resep', true);
+          });
+
+          recipeListContainer.appendChild(card);
+        });
+      }
+    } catch (error) {
+      console.error("Gagal memuat resep most liked:", error);
+    }
+  }
+
+  // Panggil otomatis fungsi most liked saat halaman dibuka
+  loadMostLikedRecipes();
+
+  // ================= 12. INTEGRASI PENCARIAN BERDASARKAN BAHAN =================
   async function jalankanPencarianBackend() {
     const daftarBahan = dapatkanDaftarBahan();
     
@@ -478,7 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ================= 12. INTERAKSI PAGINASI =================
+  // ================= 13. INTERAKSI PAGINASI =================
   pageButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       pageButtons.forEach(b => b.classList.remove('active'));
@@ -486,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ================= 13. FITUR VOICE INPUT (WEB SPEECH API) =================
+  // ================= 14. FITUR VOICE INPUT (WEB SPEECH API) =================
   function initVoiceRecognition(btnMic, targetInput) {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       btnMic.addEventListener('click', () => {
