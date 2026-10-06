@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputLainnya = document.getElementById('inputBahanLainnya');
   const counterEl = document.querySelector('.counter');
   const btnAdd = document.querySelector('.btn-add');
-  const pageButtons = document.querySelectorAll('.page-btn');
 
   // Tombol Bar Aksi
   const btnYukCek = document.getElementById('btnYukCek');
@@ -32,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnFilter = document.getElementById('btnFilter');
 
   // Elemen Detail Resep
-  const recipeCards = document.querySelectorAll('.recipe-card-compact');
   const btnBackFromDetail = document.getElementById('btnBackFromDetail');
   const btnCopyMissing = document.getElementById('btnCopyMissing');
   const btnLihatLangkah = document.getElementById('btnLihatLangkah');
@@ -47,39 +45,77 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalCariMenu = document.getElementById('modalCariMenu');
   const btnCloseCariMenu = document.getElementById('btnCloseCariMenu');
 
+  // Container Resep di HTML
+  const recipeListContainer = document.getElementById('recipeList');
+
+  // Konfigurasi
   const MAX_BAHAN_PER_INPUT = 3;
   const MAX_DYNAMIC_ROWS = 1;
-
   let selectedFilterTags = new Set();
 
+  // ================= REPLACE BAGIAN KONFIGURASI & DATA AWAL =================
+  const ITEMS_PER_PAGE = 6;
+  const MODAL_ITEMS_PER_PAGE = 4;
+  let currentBackendPage = 1;
+  let currentModalPage = 1;
+
+  // Data resep default agar "CARI MENU" langsung berisi data resep saat baru dibuka
+  const initialRecipes = [
+    {
+      nama_resep: "Sate Telur Gulung Crispy Ekonomis Isi Sosis",
+      bahan_terpakai: ["BLOK KALDU AYAM", "AIR", "BUTIR TELUR", "MINYAK GORENG", "SOSIS", "LADA BUBUK", "GARAM", "BAWANG PUTIH HALUSKAN"],
+      bahan_tidak_tersedia: []
+    },
+    {
+      nama_resep: "Ayam Goreng Bawang Khas Batam",
+      bahan_terpakai: ["AYAM", "BAWANG PUTIH", "GARAM", "LADA BUBUK"],
+      bahan_tidak_tersedia: []
+    },
+    {
+      nama_resep: "Ayam Goreng Kecap",
+      bahan_terpakai: ["GULA", "BAWANG PUTIH ULEK HALUS CINCANG HALUS", "CABE MERAH IRIS SERONG", "CM JAHE MEMARKAN", "BAWANG BOMBAY IRIS"],
+      bahan_tidak_tersedia: []
+    },
+    {
+      nama_resep: "Menu dinner trio tumis - pokcoy, ayam bawang putih, bawang merah",
+      bahan_terpakai: ["BATANG POKCOY", "BAWANG MERAH", "TUMIS POKCOY", "GULA"],
+      bahan_tidak_tersedia: []
+    },
+    {
+      nama_resep: "Nasi Goreng Mas Hilal loh ya",
+      bahan_terpakai: ["KENTANG", "WORTEL", "SLEDRI", "CICAK"],
+      bahan_tidak_tersedia: []
+    }
+  ];
+
+  // Inisialisasi currentRecipeData langsung dari data awal
+  let currentRecipeData = [...initialRecipes];
+
   // ================= 2. FUNGSI CUSTOM MODAL =================
-  function showCustomModal(message, title = "Pemberitahuan") {
+  function showCustomModal(content, title = "Pemberitahuan", isHtml = false) {
     if (modal && modalTitle && modalMessage) {
       modalTitle.textContent = title;
-      modalMessage.textContent = message;
+      if (isHtml) {
+        modalMessage.innerHTML = content;
+      } else {
+        modalMessage.textContent = content;
+      }
       modal.classList.remove('hidden');
     }
   }
 
   function hideCustomModal() {
-    if (modal) {
-      modal.classList.add('hidden');
-    }
+    if (modal) modal.classList.add('hidden');
   }
 
-  if (modalCloseBtn) {
-    modalCloseBtn.addEventListener('click', hideCustomModal);
-  }
-
+  if (modalCloseBtn) modalCloseBtn.addEventListener('click', hideCustomModal);
   if (modal) {
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        hideCustomModal();
-      }
+      if (e.target === modal) hideCustomModal();
     });
   }
 
-  // ================= 3. LOGIKA SWITCHING TAMPILAN =================
+  // ================= 3. SWITCHING TAMPILAN & DETAIL RESEP =================
   function switchView(targetView) {
     if (!viewBeranda || !viewSignup) return;
 
@@ -96,6 +132,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function tampilkanDetailResep(resep) {
+    if (!viewDetailResep) return;
+
+    const detailTitle = viewDetailResep.querySelector('.detail-title');
+    const detailListTerpakai = viewDetailResep.querySelector('.detail-section:nth-of-type(1) .detail-list');
+    const detailListMissing = viewDetailResep.querySelector('.detail-list.missing');
+
+    if (detailTitle) {
+      detailTitle.textContent = resep.nama_resep || 'Detail Resep';
+    }
+
+    if (detailListTerpakai) {
+      detailListTerpakai.innerHTML = '';
+      const bahanTerpakai = resep.bahan_terpakai || [];
+      if (bahanTerpakai.length > 0) {
+        bahanTerpakai.forEach(b => {
+          const namaBahan = typeof b === 'object' ? b.nama_bahan : b;
+          detailListTerpakai.innerHTML += `
+            <li><i class="fa-solid fa-square-check"></i> <span>${String(namaBahan).toUpperCase()}</span></li>
+          `;
+        });
+      } else {
+        detailListTerpakai.innerHTML = '<li><span>-</span></li>';
+      }
+    }
+
+    if (detailListMissing) {
+      detailListMissing.innerHTML = '';
+      const bahanMissing = resep.bahan_tidak_tersedia || resep.bahan_missing || [];
+      if (bahanMissing.length > 0) {
+        bahanMissing.forEach(b => {
+          const namaBahan = typeof b === 'object' ? b.nama_bahan : b;
+          detailListMissing.innerHTML += `
+            <li><i class="fa-regular fa-square"></i> <span>${String(namaBahan).toUpperCase()}</span></li>
+          `;
+        });
+      } else {
+        detailListMissing.innerHTML = '<li><span>Semua bahan tersedia</span></li>';
+      }
+    }
+
+    switchView('detailResep');
+  }
+
+  // Navigasi Bawah
   if (navBeranda) {
     navBeranda.addEventListener('click', (e) => {
       e.preventDefault();
@@ -108,76 +189,68 @@ document.addEventListener('DOMContentLoaded', () => {
   if (navBookmark) {
     navBookmark.addEventListener('click', (e) => {
       e.preventDefault();
-      showCustomModal('Halaman Bookmark belum tersedia. Silahkan Login terlebih dahulu.', 'Informasi');
+      showCustomModal('Halaman Bookmark saat ini sedang nonaktif.', 'Informasi');
     });
   }
 
   if (navAccount) {
     navAccount.addEventListener('click', (e) => {
       e.preventDefault();
-      navItems.forEach(n => n.classList.remove('active'));
-      navAccount.classList.add('active');
-      switchView('signup');
+      showCustomModal('Halaman Akun saat ini sedang nonaktif.', 'Informasi');
     });
   }
 
-  // ================= 4. LOGIKA DETAIL RESEP =================
-  recipeCards.forEach(card => {
-    card.addEventListener('click', () => {
-      switchView('detailResep');
-    });
-  });
-
   if (btnBackFromDetail) {
-    btnBackFromDetail.addEventListener('click', () => {
-      switchView('beranda');
-    });
+    btnBackFromDetail.addEventListener('click', () => switchView('beranda'));
   }
 
   if (btnCopyMissing) {
     btnCopyMissing.addEventListener('click', () => {
-      const missingText = `- Ayam\n- Telor\n- Sapi\n- Udang\n- Cabai`;
-      navigator.clipboard.writeText(missingText).then(() => {
+      const missingLis = document.querySelectorAll('#viewDetailResep .detail-list.missing li span');
+      const text = Array.from(missingLis).map(li => `- ${li.textContent}`).join('\n');
+      navigator.clipboard.writeText(text || 'Tidak ada bahan tak tersedia').then(() => {
         showCustomModal('Daftar bahan yang tidak tersedia telah disalin!', 'Berhasil Disalin');
-      }).catch(() => {
-        showCustomModal(missingText, 'Daftar Bahan Tidak Tersedia');
       });
     });
   }
 
   if (btnLihatLangkah) {
     btnLihatLangkah.addEventListener('click', () => {
-      showCustomModal('Menampilkan langkah-langkah memasak Nasi Goreng...', 'Langkah Memasak');
+      showCustomModal('Menampilkan langkah-langkah memasak resep...', 'Langkah Memasak');
     });
   }
 
-  // ================= 5. LOGIKA FILTER & INLINE TAGS =================
+  // Bind awal untuk kartu statis HTML bawaan
+  document.querySelectorAll('.recipe-card-compact').forEach(card => {
+    card.addEventListener('click', () => {
+      const title = card.querySelector('h2')?.textContent || 'Detail Resep';
+      const items = Array.from(card.querySelectorAll('.card-body ul li span')).map(el => el.textContent);
+      tampilkanDetailResep({
+        nama_resep: title,
+        bahan_terpakai: items,
+        bahan_tidak_tersedia: []
+      });
+    });
+  });
+
+  // ================= 4. LOGIKA FILTER =================
   function renderActiveFilterTags() {
+    if (!activeTagsContainer) return;
     activeTagsContainer.innerHTML = '';
 
-    if (selectedFilterTags.size > 0) {
-      if (placeholderText) placeholderText.style.display = 'none';
-    } else {
-      if (placeholderText) placeholderText.style.display = 'inline';
+    if (placeholderText) {
+      placeholderText.style.display = selectedFilterTags.size > 0 ? 'none' : 'inline';
     }
-
-    activeTagsContainer.style.display = 'flex';
-    activeTagsContainer.style.flexWrap = 'wrap';
-    activeTagsContainer.style.gap = '8px';
-    activeTagsContainer.style.alignItems = 'center';
 
     selectedFilterTags.forEach(tag => {
       const tagEl = document.createElement('span');
       tagEl.className = 'tag-active';
-      tagEl.dataset.tag = tag;
       tagEl.textContent = tag;
-      
       tagEl.addEventListener('click', () => {
         selectedFilterTags.delete(tag);
         updateChipState();
         renderActiveFilterTags();
       });
-
       activeTagsContainer.appendChild(tagEl);
     });
 
@@ -186,12 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateChipState() {
     chipButtons.forEach(chip => {
-      const tagVal = chip.dataset.tag;
-      if (selectedFilterTags.has(tagVal)) {
-        chip.classList.add('selected');
-      } else {
-        chip.classList.remove('selected');
-      }
+      chip.classList.toggle('selected', selectedFilterTags.has(chip.dataset.tag));
     });
   }
 
@@ -205,20 +273,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnCloseFilter) {
     btnCloseFilter.addEventListener('click', () => {
       filterOverlay.classList.add('hidden');
-      const tagsArray = Array.from(selectedFilterTags);
-      const bahanList = dapatkanDaftarBahan();
-
-      let pesan = `Filter diterapkan!\nTag Alergi: ${tagsArray.join(', ') || 'Tidak ada'}`;
-      if (bahanList.length > 0) {
-        pesan += `\nBahan: ${bahanList.join(', ')}`;
-      }
-      showCustomModal(pesan, 'Hasil Filter');
+      jalankanPencarianBackend();
     });
   }
 
   if (btnExecuteSearch) {
     btnExecuteSearch.addEventListener('click', () => {
-      btnCloseFilter.click();
+      filterOverlay.classList.add('hidden');
+      jalankanPencarianBackend();
     });
   }
 
@@ -236,74 +298,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderActiveFilterTags();
 
-  // ================= 6. INTERAKSI TOMBOL YUK CEK & CARI MENU =================
+  // ================= 5. INTERAKSI TOMBOL YUK CEK & CARI MENU =================
   if (btnYukCek) {
     btnYukCek.addEventListener('click', () => {
-      const bahan = dapatkanDaftarBahan();
-      if (bahan.length === 0) {
+      const { utama, lainnya } = dapatkanBahanTerpisah();
+      if (!utama && !lainnya) {
         showCustomModal('Silakan masukkan bahan terlebih dahulu!', 'Peringatan');
       } else {
-        showCustomModal(`Mengecek resep dengan bahan: ${bahan.join(', ')}`, 'Mengecek Resep');
+        jalankanPencarianBackend();
       }
     });
   }
 
-  // Event Listener Modal Cari Menu (Pop-up Resep)
   if (btnCariMenu && modalCariMenu) {
     btnCariMenu.addEventListener('click', (e) => {
       e.preventDefault();
       if (filterOverlay) filterOverlay.classList.add('hidden');
+      renderModalRecipesPage(1);
       modalCariMenu.classList.remove('hidden');
     });
   }
 
   if (btnCloseCariMenu && modalCariMenu) {
-    btnCloseCariMenu.addEventListener('click', () => {
-      modalCariMenu.classList.add('hidden');
-    });
+    btnCloseCariMenu.addEventListener('click', () => modalCariMenu.classList.add('hidden'));
   }
 
   if (modalCariMenu) {
     modalCariMenu.addEventListener('click', (e) => {
-      if (e.target === modalCariMenu) {
-        modalCariMenu.classList.add('hidden');
-      }
+      if (e.target === modalCariMenu) modalCariMenu.classList.add('hidden');
     });
   }
 
-  // ================= 7. LOGIKA FORM SIGN UP =================
+  // ================= 6. FORM SIGN UP =================
   if (signupForm) {
     signupForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const name = document.getElementById('signupName').value;
       const email = document.getElementById('signupEmail').value;
-
       showCustomModal(`Akun atas nama ${name} (${email}) berhasil terdaftar!`, 'Sign Up Berhasil');
       signupForm.reset();
     });
   }
 
-  // ================= 8. FUNGSI HITUNG & VALIDASI BAHAN KOMA =================
+  // ================= 7. INPUT COUNTER & VALIDASI =================
   function handleInputCounter(inputElement, counterElement = null) {
     if (!inputElement) return;
 
     inputElement.addEventListener('input', () => {
-      let rawText = inputElement.value;
-      let bahanArray = rawText
-        .split(',')
-        .map(item => item.trim())
-        .filter(item => item.length > 0);
-
+      let bahanArray = inputElement.value.split(',').map(item => item.trim()).filter(Boolean);
       let jumlahBahan = bahanArray.length;
 
       if (jumlahBahan > MAX_BAHAN_PER_INPUT) {
-        showCustomModal(
-          "Maksimal 3 bahan per-baris! Silahkan Klik tombol (+) disebelah kiri untuk menambahkan form baru.", 
-          "Batas Maksimal Bahan"
-        );
-        
-        const bahanTerbatasi = bahanArray.slice(0, MAX_BAHAN_PER_INPUT).join(', ');
-        inputElement.value = bahanTerbatasi + ', ';
+        showCustomModal("Maksimal 3 bahan! Silahkan klik tombol (+) disebelah kiri untuk menambahkan baris input baru.", "Batas Maksimal Bahan");
+        inputElement.value = bahanArray.slice(0, MAX_BAHAN_PER_INPUT).join(', ') + ', ';
         jumlahBahan = MAX_BAHAN_PER_INPUT;
       }
 
@@ -311,120 +358,288 @@ document.addEventListener('DOMContentLoaded', () => {
         counterElement.textContent = `${jumlahBahan}/${MAX_BAHAN_PER_INPUT}`;
       }
     });
+
+    inputElement.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') jalankanPencarianBackend();
+    });
   }
 
   if (inputUtama) handleInputCounter(inputUtama);
   if (inputLainnya && counterEl) handleInputCounter(inputLainnya, counterEl);
 
-  // ================= 9. TOMBOL PLUS (+) TAMBAH INPUT BARU =================
   if (btnAdd && inputSection) {
     btnAdd.addEventListener('click', () => {
       const currentDynamicRows = inputSection.querySelectorAll('.btn-remove').length;
-
       if (currentDynamicRows >= MAX_DYNAMIC_ROWS) {
-        showCustomModal(
-          "Penambahan baris input sudah mencapai batas maksimal (1 baris)!", 
-          "Batas Maksimal Form"
-        );
+        showCustomModal("Penambahan baris input sudah mencapai batas maksimal (1 baris)!", "Batas Maksimal Form");
         return;
       }
 
       const newRow = document.createElement('div');
       newRow.className = 'input-row';
-
       newRow.innerHTML = `
         <button type="button" class="btn-remove" title="Hapus Form" style="background:#f7f5ee; border:2px solid #4a4a4a; border-radius:4px; width:38px; height:38px; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
           <i class="fa-solid fa-minus"></i>
         </button>
-
         <div class="input-box flex-grow">
-          <button type="button" class="btn-icon btn-mic" title="Input Suara">
-            <i class="fa-solid fa-microphone"></i>
-          </button>
-          <input 
-            type="text" 
-            placeholder="Masukan Bahan Lainnya" 
-          />
+          <button type="button" class="btn-icon btn-mic" title="Input Suara"><i class="fa-solid fa-microphone"></i></button>
+          <input type="text" placeholder="Masukan Bahan Lainnya" />
         </div>
-
         <div class="counter-new">0/3</div>
       `;
 
       inputSection.appendChild(newRow);
-
-      const newInput = newRow.querySelector('input');
-      const newCounter = newRow.querySelector('.counter-new');
-      const btnRemove = newRow.querySelector('.btn-remove');
-      const newMic = newRow.querySelector('.btn-mic');
-
-      handleInputCounter(newInput, newCounter);
-      initVoiceRecognition(newMic, newInput);
-
-      btnRemove.addEventListener('click', () => {
-        newRow.remove();
-      });
+      handleInputCounter(newRow.querySelector('input'), newRow.querySelector('.counter-new'));
+      newRow.querySelector('.btn-remove').addEventListener('click', () => newRow.remove());
     });
   }
 
-  // ================= 10. MENGUMPULKAN BAHAN DARI SEMUA INPUT =================
-  function dapatkanDaftarBahan() {
-    const inputs = document.querySelectorAll('.input-section input[type="text"]');
-    const daftarBahan = [];
+  function dapatkanBahanTerpisah() {
+    const inputUtamaEl = document.getElementById('inputBahanUtama');
+    const inputLainnyaEls = document.querySelectorAll('.input-section input[type="text"]:not(#inputBahanUtama)');
 
-    inputs.forEach(input => {
-      const val = input.value.trim().toLowerCase();
-      if (val) {
-        const items = val.split(',').map(item => item.trim()).filter(item => item.length > 0);
-        daftarBahan.push(...items);
+    let bahanUtama = inputUtamaEl && inputUtamaEl.value.trim()
+      ? inputUtamaEl.value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+      : [];
+
+    let bahanLainnya = [];
+    inputLainnyaEls.forEach(input => {
+      if (input.value.trim()) {
+        bahanLainnya.push(...input.value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
       }
     });
 
-    return [...new Set(daftarBahan)];
+    return {
+      utama: bahanUtama.join(','),
+      lainnya: [...new Set(bahanLainnya)].join(',')
+    };
   }
 
-  // ================= 11. INTERAKSI PAGINASI =================
-  pageButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      pageButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    });
-  });
+  // ================= 8. RENDER RESEP & PAGINASI BERANDA =================
+  function renderPaginationUI() {
+    const paginationBox = document.querySelector('.pagination-box');
+    if (!paginationBox) return;
 
-  // ================= 12. FITUR VOICE INPUT (WEB SPEECH API) =================
-  function initVoiceRecognition(btnMic, targetInput) {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      btnMic.addEventListener('click', () => {
-        showCustomModal('Fitur Voice Input tidak didukung oleh browser ini.', 'Perangkat Tidak Mendukung');
-      });
+    paginationBox.innerHTML = '';
+    const totalPages = Math.ceil(currentRecipeData.length / ITEMS_PER_PAGE);
+
+    if (totalPages <= 1) {
+      paginationBox.style.display = 'none';
       return;
     }
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'id-ID';
+    paginationBox.style.display = 'flex';
 
-    btnMic.addEventListener('click', () => {
-      btnMic.style.color = '#ef4444';
-      recognition.start();
-    });
+    // Batasi maksimal 4 tombol angka yang tampil
+    const maxVisibleButtons = Math.min(totalPages, 4);
 
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      targetInput.value = targetInput.value ? `${targetInput.value}, ${transcript}` : transcript;
-      targetInput.dispatchEvent(new Event('input'));
-      btnMic.style.color = '';
-    };
+    for (let i = 1; i <= maxVisibleButtons; i++) {
+      const pageBtn = document.createElement('button');
+      pageBtn.type = 'button';
+      pageBtn.className = `page-btn ${i === currentBackendPage ? 'active' : ''}`;
+      pageBtn.textContent = i;
 
-    recognition.onerror = recognition.onend = () => {
-      btnMic.style.color = '';
-    };
+      pageBtn.addEventListener('click', () => {
+        renderBackendRecipesPage(i);
+        if (recipeListContainer) {
+          window.scrollTo({ top: recipeListContainer.offsetTop - 80, behavior: 'smooth' });
+        }
+      });
+
+      paginationBox.appendChild(pageBtn);
+    }
+
+    // Jika total halaman lebih dari 4, tambahkan titik-titik (...)
+    if (totalPages > 4) {
+      const dotsSpan = document.createElement('span');
+      dotsSpan.className = 'page-dots';
+      dotsSpan.textContent = '...';
+      dotsSpan.style.cssText = 'color: #D05755; font-weight: 800; font-size: 14px; padding: 0 4px; display: flex; align-items: center;';
+      paginationBox.appendChild(dotsSpan);
+    }
   }
 
-  document.querySelectorAll('.input-box').forEach(box => {
-    const micBtn = box.querySelector('.btn-icon');
-    const inputEl = box.querySelector('input');
-    if (micBtn && inputEl) {
-      initVoiceRecognition(micBtn, inputEl);
+  function renderBackendRecipesPage(page = 1) {
+    if (!recipeListContainer) return;
+    currentBackendPage = page;
+    recipeListContainer.innerHTML = '';
+
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    const pageRecipes = currentRecipeData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+    pageRecipes.forEach((resep) => {
+      const card = document.createElement('article');
+      card.className = 'recipe-card-compact';
+
+      let bahanListHtml = '';
+      if (resep.bahan_terpakai && resep.bahan_terpakai.length > 0) {
+        resep.bahan_terpakai.forEach(b => {
+          const namaBahan = typeof b === 'object' ? b.nama_bahan : b;
+          bahanListHtml += `
+            <li>
+              <i class="fa-solid fa-square-check"></i> 
+              <span>${String(namaBahan).toUpperCase()}</span>
+            </li>
+          `;
+        });
+      } else {
+        bahanListHtml = `<li><i class="fa-solid fa-square-check"></i> <span>-</span></li>`;
+      }
+
+      card.innerHTML = `
+        <header class="card-header">
+          <h2>${resep.nama_resep}</h2>
+        </header>
+        <div class="card-body">
+          <h3>Bahan Terpakai</h3>
+          <ul>
+            ${bahanListHtml}
+          </ul>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        tampilkanDetailResep(resep);
+      });
+
+      recipeListContainer.appendChild(card);
+    });
+
+    renderPaginationUI();
+  }
+
+  // ================= 9. RENDER RESEP & PAGINASI MODAL =================
+  function renderModalRecipesPage(page = 1) {
+    const scrollContainer = document.querySelector('.resep-scroll-container');
+    if (!scrollContainer) return;
+
+    currentModalPage = page;
+    scrollContainer.innerHTML = '';
+
+    if (!currentRecipeData || currentRecipeData.length === 0) {
+      scrollContainer.innerHTML = `<p style="text-align:center; padding:20px; font-weight:800; font-size:12px; color:#D05755;">Belum ada resep yang ditemukan.</p>`;
+      renderModalPaginationUI(0);
+      return;
     }
-  });
+
+    const startIndex = (page - 1) * MODAL_ITEMS_PER_PAGE;
+    const pageRecipes = currentRecipeData.slice(startIndex, startIndex + MODAL_ITEMS_PER_PAGE);
+
+    pageRecipes.forEach((resep) => {
+      let bahanChecklistHtml = '';
+      if (resep.bahan_terpakai && resep.bahan_terpakai.length > 0) {
+        resep.bahan_terpakai.forEach(b => {
+          const namaBahan = typeof b === 'object' ? b.nama_bahan : b;
+          bahanChecklistHtml += `
+            <div class="bahan-check"><i class="fa-regular fa-square-check"></i> ${String(namaBahan).toUpperCase()}</div>
+          `;
+        });
+      }
+
+      const article = document.createElement('article');
+      article.className = 'item-resep-card';
+      article.style.cursor = 'pointer';
+      article.innerHTML = `
+        <div class="item-resep-title">${resep.nama_resep}</div>
+        <div class="item-resep-body">
+          <div class="label-bahan-terpakai">Bahan<br>Terpakai</div>
+          <div class="grid-bahan">${bahanChecklistHtml}</div>
+        </div>
+      `;
+
+      // Klik resep pada modal juga membuka Halaman Detail Resep
+      article.addEventListener('click', () => {
+        if (modalCariMenu) modalCariMenu.classList.add('hidden');
+        tampilkanDetailResep(resep);
+      });
+
+      scrollContainer.appendChild(article);
+    });
+
+    renderModalPaginationUI(Math.ceil(currentRecipeData.length / MODAL_ITEMS_PER_PAGE));
+  }
+
+  function renderModalPaginationUI(totalPages) {
+    const paginationModal = document.querySelector('.pagination-modal');
+    if (!paginationModal) return;
+
+    paginationModal.innerHTML = '';
+    if (totalPages <= 1) {
+      paginationModal.style.display = 'none';
+      return;
+    }
+
+    paginationModal.style.display = 'flex';
+    for (let i = 1; i <= totalPages; i++) {
+      const pageSpan = document.createElement('span');
+      pageSpan.className = `page-num ${i === currentModalPage ? 'active' : ''}`;
+      pageSpan.textContent = i;
+      pageSpan.addEventListener('click', () => renderModalRecipesPage(i));
+      paginationModal.appendChild(pageSpan);
+    }
+  }
+
+  // ================= 10. INTEGRASI PENCARIAN BACKEND =================
+  async function jalankanPencarianBackend() {
+    const { utama, lainnya } = dapatkanBahanTerpisah();
+
+    if (!utama && !lainnya) {
+      showCustomModal("Masukkan minimal satu bahan utama atau bahan lainnya!", "Peringatan");
+      return;
+    }
+
+    if (recipeListContainer) {
+      recipeListContainer.innerHTML = `<p style="text-align:center; grid-column: span 2; font-weight:bold; padding:20px;"><i class="fa-solid fa-spinner fa-spin"></i> Memuat Resep...</p>`;
+    }
+
+    try {
+      const url = `http://127.0.0.1:5000/api/search-bahan?utama=${encodeURIComponent(utama)}&lainnya=${encodeURIComponent(lainnya)}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`Status HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.data && result.data.length > 0) {
+        currentRecipeData = result.data;
+        renderBackendRecipesPage(1);
+      } else {
+        currentRecipeData = [];
+        if (recipeListContainer) {
+          const kataBahan = [utama, lainnya].filter(Boolean).join(', ');
+          recipeListContainer.innerHTML = `<p style="text-align:center; grid-column: span 2; padding: 20px;">Tidak ditemukan resep untuk bahan "${kataBahan}".</p>`;
+        }
+        renderPaginationUI();
+      }
+    } catch (error) {
+      console.error("Gagal terhubung ke backend:", error);
+      showCustomModal(`Gagal memuat resep (${error.message}). Pastikan server Flask di main.py sudah berjalan.`, "Koneksi Error");
+      if (recipeListContainer) recipeListContainer.innerHTML = '';
+    }
+  }
+});
+
+// Otomatis muat resep dari backend saat pertama kali aplikasi dibuka
+  async function loadInitialRecipesFromBackend() {
+    try {
+      const response =  await fetch('http://127.0.0.1:5000/api/search-bahan?utama=&lainnya=');
+      if (response.ok) {
+        const result = await response.json();
+        if (result.data && result.data.length > 0) {
+          currentRecipeData = result.data;
+          renderBackendRecipesPage(1);
+        }
+      }
+    } catch (e) {
+      // Jika server backend offline, aplikasi tetap menggunakan data initialRecipes di atas
+    }
+  }
+
+  loadInitialRecipesFromBackend();
+
+document.getElementById('btnHome')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.location.reload();
 });
