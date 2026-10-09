@@ -1,0 +1,321 @@
+/* ================= HERO CARD KUNING ATAS ================= */
+.top-hero-card {
+  background-color: #FFF3B0; /* Soft Yellow sesuai desain */
+  border-radius: 0 0 28px 28px;
+  padding: 16px 16px 20px 16px;
+  margin: -45px -16px 20px -16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.top-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.section-title-top {
+  font-size: 13px;
+  font-weight: 800;
+  color: #2b2b2b;
+  margin-top: 4px;
+}
+
+/* Script Logo Racik Rasa Top-Right */
+.brand-logo-text {
+  font-family: 'Caveat', cursive, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #D05755;
+  text-align: right;
+  line-height: 0.9;
+}
+
+.input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flex-grow {
+  flex: 1;
+}
+
+.sub-title-search {
+  font-size: 12px;
+  font-weight: 800;
+  color: #2b2b2b;
+  margin: 14px 0 8px 0;
+}
+
+.search-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ================= DAFTAR KARTU RESEP (GRID 2 KOLOM) ================= */
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.recipe-card-compact {
+  background-color: #FFF3B0;
+  border-radius: 20px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.recipe-card-compact:hover {
+  transform: translateY(-2px);
+}
+
+.card-header {
+  text-align: center;
+  border-bottom: 1.5px solid #2b2b2b;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+.card-header h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  color: #2b2b2b;
+  line-height: 1.3;
+}
+
+.card-subheader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.card-subheader h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  color: #2b2b2b;
+}
+
+.like-count {
+  font-size: 10px;
+  font-weight: 800;
+  color: #2b2b2b;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.like-count i {
+  color: #D05755;
+  font-size: 11px;
+}
+
+/* List Angka Bahan (1.BAWANG) */
+.ingredient-num-list {
+  padding-left: 14px;
+  margin: 0;
+}
+
+.ingredient-num-list li {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  color: #2b2b2b;
+  line-height: 1.4;
+}
+
+/* ================= FILTER OVERLAY ================= */
+.filter-overlay {
+  position: absolute;
+  top: 180px;
+  left: 0;
+  right: 0;
+  z-index: 50;
+}
+
+.filter-overlay.hidden {
+  display: none;
+}
+
+.filter-panel {
+  background-color: #FFF3B0;
+  border: 1px solid rgba(208, 87, 85, 0.25);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #D05755;
+}
+
+/* ================= DETAIL RESEP & SIGNUP ================= */
+.detail-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.btn-back {
+  background-color: #FFF3B0;
+  border: none;
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #D05755;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-card {
+  background-color: #FFF3B0;
+  border-radius: 20px;
+  padding: 18px;
+}
+
+.detail-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #2b2b2b;
+  border-bottom: 1.5px solid #2b2b2b;
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.detail-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #2b2b2b;
+}
+
+.btn-detail-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #D05755;
+  cursor: pointer;
+}
+
+.btn-detail-action.primary {
+  background-color: #D05755;
+  color: #ffffff;
+}
+
+.signup-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.scan-icon-wrapper {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.scan-frame {
+  font-size: 58px;
+  color: #D05755;
+  position: absolute;
+}
+
+.user-center {
+  font-size: 24px;
+  color: #D05755;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #D05755;
+}
+
+.form-group input {
+  width: 100%;
+  height: 44px;
+  background-color: #FFF3B0;
+  border: none;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #2b2b2b;
+  outline: none;
+}
+
+.btn-signup-submit {
+  margin-top: 10px;
+  height: 44px;
+  background-color: #D05755;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  cursor: pointer;
+}

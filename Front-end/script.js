@@ -21,8 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Tombol Bar Aksi
   const btnYukCek = document.getElementById('btnYukCek');
   const btnCariMenu = document.getElementById('btnCariMenu');
-=======
   const pageButtons = document.querySelectorAll('.page-btn');
+>>>>>>> 3524a36579f27bc86b42293677a4b773024906b6        
 >>>>>>> 3524a36579f27bc86b42293677a4b773024906b6
 
   // Tombol Bar Aksi
@@ -789,7 +789,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { utama, lainnya } = dapatkanBahanTerpisah();
 
     if (!utama && !lainnya) {
-      showCustomModal("Masukkan minimal satu bahan utama atau bahan lainnya!", "Peringatan");
+      showCustomModal("Harap Masukkan minimal satu bahan utama", "Peringatan");
       return;
     }
 
@@ -926,42 +926,52 @@ document.getElementById('btnHome')?.addEventListener('click', (e) => {
     });
   });
 
-  // ================= 14. FITUR VOICE INPUT (WEB SPEECH API) =================
   function initVoiceRecognition(btnMic, targetInput) {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      btnMic.addEventListener('click', () => {
-        showCustomModal('Fitur Voice Input tidak didukung oleh browser ini.', 'Perangkat Tidak Mendukung');
-      });
-      return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'id-ID';
-
+  // 1. Cek dukungan browser
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
     btnMic.addEventListener('click', () => {
-      btnMic.style.color = '#ef4444';
-      recognition.start();
+      showCustomModal('Fitur Voice Input tidak didukung oleh browser ini.', 'Perangkat Tidak Mendukung');
     });
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      targetInput.value = targetInput.value ? `${targetInput.value}, ${transcript}` : transcript;
-      targetInput.dispatchEvent(new Event('input'));
-      btnMic.style.color = '';
-    };
-
-    recognition.onerror = recognition.onend = () => {
-      btnMic.style.color = '';
-    };
+    return;
   }
 
-  document.querySelectorAll('.input-box').forEach(box => {
-    const micBtn = box.querySelector('.btn-icon');
-    const inputEl = box.querySelector('input');
-    if (micBtn && inputEl) {
-      initVoiceRecognition(micBtn, inputEl);
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'id-ID';
+
+  // 2. Klik ikon mic
+  btnMic.addEventListener('click', () => {
+    try {
+      recognition.start(); // Memicu pop-up izin browser jika pertama kali
+    } catch (err) {
+      recognition.stop();
     }
   });
+
+  // 3. Izin diberikan & merekam aktif -> Ubah warna jadi BIRU
+  recognition.onstart = () => {
+    btnMic.style.color = '#3b82f6'; // Biru aktif
+  };
+
+  // 4. Merekam selesai/berhenti -> Kembalikan warna ke ABU-ABU
+  recognition.onend = () => {
+    btnMic.style.color = '#6b7280'; // Abu-abu inaktif
+  };
+
+  // 5. Konversi suara ke teks input
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    targetInput.value = targetInput.value ? `${targetInput.value}, ${transcript}` : transcript;
+    targetInput.dispatchEvent(new Event('input'));
+  };
+
+  // 6. Jika izin ditolak (Block/Deny) atau error -> Ikon tetap ABU-ABU
+  recognition.onerror = (event) => {
+    btnMic.style.color = '#6b7280'; // Tetap/kembali abu-abu
+    if (event.error === 'not-allowed') {
+      showCustomModal('Akses mikrofon ditolak. Silakan izinkan melalui pengaturan browser.', 'Izin Ditolak');
+    }
+  };
+}
 >>>>>>> 3524a36579f27bc86b42293677a4b773024906b6
 });
