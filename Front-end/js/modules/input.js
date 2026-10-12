@@ -1,91 +1,204 @@
-import { showCustomModal } from './ui.js';
-import { initVoiceRecognition } from './voice.js';
+const MAX_INGREDIENTS = 5;
 
-const MAX_BAHAN_PER_INPUT = 3;
-const MAX_DYNAMIC_ROWS = 1;
-
-export function handleInputCounter(inputElement, counterElement = null, onEnterPress) {
-  if (!inputElement) return;
-
-  inputElement.addEventListener('input', () => {
-    let bahanArray = inputElement.value.split(',').map(item => item.trim()).filter(Boolean);
-    let jumlahBahan = bahanArray.length;
-
-    if (jumlahBahan > MAX_BAHAN_PER_INPUT) {
-      showCustomModal("Maksimal 3 bahan per-baris! Silakan klik tombol (+) disebelah kiri untuk menambahkan baris input baru.", "Batas Maksimal Bahan");
-      inputElement.value = bahanArray.slice(0, MAX_BAHAN_PER_INPUT).join(', ') + ', ';
-      jumlahBahan = MAX_BAHAN_PER_INPUT;
-    }
-
-    if (counterElement) {
-      counterElement.textContent = `${jumlahBahan}/${MAX_BAHAN_PER_INPUT}`;
-    }
-  });
-
-  inputElement.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && onEnterPress) onEnterPress();
-  });
+function getIngredients(value) {
+  return value
+    .split(/[,;\n]+/)
+    .map((ingredient) => ingredient.trim().toLocaleLowerCase("id"))
+    .filter(Boolean);
 }
 
-export function initInputCounters(onEnterPress) {
-  const inputSection = document.querySelector('.input-section');
-  const inputUtama = document.getElementById('inputBahanUtama');
-  const inputLainnya = document.getElementById('inputBahanLainnya');
-  const counterEl = document.querySelector('.counter');
-  const btnAdd = document.querySelector('.btn-add');
+export function initInput() {
+  const recipeSearchForm = document.querySelector("#recipe-search");
+  const ingredientSearchForm = document.querySelector("#ingredient-search");
+  const recipeCards = Array.from(document.querySelectorAll(".recipe-card"));
+  const emptyState = document.querySelector("#empty-state");
+  const filterButton = document.querySelector("#filter-button");
+  const ingredientCount = document.querySelector("#ingredient-count");
+  const ingredientSearchButton = ingredientSearchForm?.querySelector(
+    'button[type="submit"]',
+  );
+  const validationDialog = document.querySelector("#validation-dialog");
+  const validationMessage = document.querySelector("#validation-message");
+  const validationDialogButton = validationDialog?.querySelector("button");
 
-  if (inputUtama) handleInputCounter(inputUtama, null, onEnterPress);
-  if (inputLainnya && counterEl) handleInputCounter(inputLainnya, counterEl, onEnterPress);
+  if (
+    !recipeSearchForm ||
+    !ingredientSearchForm ||
+    !emptyState ||
+    !filterButton ||
+    !ingredientCount ||
+    !ingredientSearchButton ||
+    !validationDialog ||
+    !validationMessage ||
+    !validationDialogButton
+  ) {
+    throw new Error("Elemen pencarian atau dialog validasi tidak ditemukan.");
+  }
 
-  if (btnAdd && inputSection) {
-    btnAdd.addEventListener('click', () => {
-      const currentDynamicRows = inputSection.querySelectorAll('.btn-remove').length;
-      if (currentDynamicRows >= MAX_DYNAMIC_ROWS) {
-        showCustomModal("Penambahan baris input sudah mencapai batas maksimal (1 baris)!", "Batas Maksimal Form");
-        return;
+  const mainIngredientInput = ingredientSearchForm.elements.namedItem("bahan-utama");
+  const additionalIngredientsInput =
+    ingredientSearchForm.elements.namedItem("bahan-tambahan");
+  const recipeQueryInput = recipeSearchForm.elements.namedItem("resep");
+
+  if (
+    !(mainIngredientInput instanceof HTMLInputElement) ||
+    !(additionalIngredientsInput instanceof HTMLInputElement) ||
+    !(recipeQueryInput instanceof HTMLInputElement)
+  ) {
+    throw new Error("Elemen input pencarian tidak valid.");
+  }
+
+  function showValidationDialog(message) {
+    validationMessage.textContent = message;
+    if (!validationDialog.open) {
+      validationDialog.showModal();
+    }
+  }
+
+  function updateIngredientCount() {
+    const additionalIngredientCount = getIngredients(
+      additionalIngredientsInput.value,
+    ).length;
+
+    ingredientCount.textContent = `${additionalIngredientCount} / ${MAX_INGREDIENTS}`;
+    ingredientCount.setAttribute(
+      "aria-label",
+      `${additionalIngredientCount} dari maksimal ${MAX_INGREDIENTS} bahan tambahan`,
+    );
+    ingredientSearchButton.disabled = additionalIngredientCount > MAX_INGREDIENTS;
+
+    if (additionalIngredientCount > MAX_INGREDIENTS && !validationDialog.open) {
+      showValidationDialog("Sudah mencapai batas maksimum bahan");
+    }
+    return additionalIngredientCount;
+  }
+
+  function displayRecipes(matches) {
+    let visibleCount = 0;
+    for (const card of recipeCards) {
+      const isMatch = matches(card);
+      card.hidden = !isMatch;
+      if (isMatch) {
+        visibleCount += 1;
       }
+    }
+    emptyState.hidden = visibleCount > 0;
+    return visibleCount;
+  }
 
-      const newRow = document.createElement('div');
-      newRow.className = 'input-row';
-      newRow.innerHTML = `
-        <button type="button" class="btn-remove" title="Hapus Form" style="background:#f7f5ee; border:2px solid #4a4a4a; border-radius:4px; width:38px; height:38px; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-          <i class="fa-solid fa-minus"></i>
-        </button>
-        <div class="input-box flex-grow">
-          <button type="button" class="btn-icon" title="Input Suara"><i class="fa-solid fa-microphone"></i></button>
-          <input type="text" placeholder="Masukan Bahan Lainnya" />
-        </div>
-        <div class="counter-new">0/3</div>
-      `;
+  function restoreRecipes() {
+    for (const card of recipeCards) {
+      card.hidden = false;
+    }
+    emptyState.hidden = true;
+  }
 
-      inputSection.appendChild(newRow);
-      const newBox = newRow.querySelector('.input-box');
-      handleInputCounter(newRow.querySelector('input'), newRow.querySelector('.counter-new'), onEnterPress);
-      if (newBox) {
-        initVoiceRecognition(newBox.querySelector('.btn-icon'), newBox.querySelector('input'));
-      }
-      newRow.querySelector('.btn-remove').addEventListener('click', () => newRow.remove());
+  function isSearchingByBothMethods() {
+    return Boolean(
+      (mainIngredientInput.value.trim() || additionalIngredientsInput.value.trim()) &&
+        recipeQueryInput.value.trim(),
+    );
+  }
+
+  function showSearchMethodValidation() {
+    if (!isSearchingByBothMethods()) {
+      return false;
+    }
+    showValidationDialog(
+      "Harap pilih salah satu metode pencarian (melalui input bahan atau pencarian resep langsung)",
+    );
+    return true;
+  }
+
+  function filterByRecipeName(recipeName) {
+    const normalizedQuery = recipeName.toLocaleLowerCase("id");
+    return displayRecipes((card) => {
+      const searchableText =
+        `${card.dataset.name} ${card.dataset.ingredients}`.toLocaleLowerCase("id");
+      return searchableText.includes(normalizedQuery);
     });
   }
-}
 
-export function dapatkanBahanTerpisah() {
-  const inputUtamaEl = document.getElementById('inputBahanUtama');
-  const inputLainnyaEls = document.querySelectorAll('.input-section input[type="text"]:not(#inputBahanUtama)');
+  validationDialogButton.addEventListener("click", () => {
+    validationDialog.close();
+  });
 
-  let bahanUtama = inputUtamaEl && inputUtamaEl.value.trim()
-    ? inputUtamaEl.value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
-    : [];
+  mainIngredientInput.addEventListener("input", updateIngredientCount);
+  additionalIngredientsInput.addEventListener("input", updateIngredientCount);
+  updateIngredientCount();
 
-  let bahanLainnya = [];
-  inputLainnyaEls.forEach(input => {
-    if (input.value.trim()) {
-      bahanLainnya.push(...input.value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
+  recipeSearchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    if (showSearchMethodValidation()) {
+      return;
+    }
+
+    const recipeName = recipeQueryInput.value.trim();
+    if (!recipeName) {
+      showValidationDialog("Harap masukkan nama resep yang ingin dicari");
+      recipeQueryInput.focus();
+      return;
+    }
+
+    filterByRecipeName(recipeName);
+  });
+
+  ingredientSearchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const ingredientTotal = updateIngredientCount();
+    if (ingredientTotal > MAX_INGREDIENTS) {
+      showValidationDialog("Sudah mencapai batas maksimum bahan");
+      return;
+    }
+
+    if (showSearchMethodValidation()) {
+      return;
+    }
+
+    const mainIngredients = getIngredients(mainIngredientInput.value);
+    const additionalIngredients = getIngredients(additionalIngredientsInput.value);
+
+    if (additionalIngredients.length > 0 && mainIngredients.length === 0) {
+      showValidationDialog(
+        "Harap isi bahan utama terlebih dahulu sebelum memasukkan bahan tambahan",
+      );
+      return;
+    }
+
+    if (mainIngredients.length === 0) {
+      showValidationDialog("Harap masukkan minimal satu bahan utama");
+      return;
+    }
+
+    const ingredients = [...mainIngredients, ...additionalIngredients];
+    const matchCount = displayRecipes((card) => {
+      const searchableText =
+        `${card.dataset.name} ${card.dataset.ingredients}`.toLocaleLowerCase("id");
+      return ingredients.every((ingredient) => searchableText.includes(ingredient));
+    });
+
+    if (matchCount === 0) {
+      restoreRecipes();
+      showValidationDialog(
+        "Kombinasi bahan yang anda masukkan tidak tersedia, mau coba kombinasi bahan lain?",
+      );
     }
   });
 
-  return {
-    utama: bahanUtama.join(','),
-    lainnya: [...new Set(bahanLainnya)].join(',')
-  };
+  filterButton.addEventListener("click", () => {
+    const isFiltered = filterButton.getAttribute("aria-pressed") === "true";
+    filterButton.setAttribute("aria-pressed", String(!isFiltered));
+    filterButton.classList.toggle("is-selected", !isFiltered);
+  });
+
+  for (const pageButton of document.querySelectorAll(".page-button")) {
+    pageButton.addEventListener("click", () => {
+      document.querySelector(".page-button.is-current")?.classList.remove("is-current");
+      document.querySelector(".page-button[aria-current]")?.removeAttribute("aria-current");
+      pageButton.classList.add("is-current");
+      pageButton.setAttribute("aria-current", "page");
+    });
+  }
 }

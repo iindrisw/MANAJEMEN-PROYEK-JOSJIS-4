@@ -1,60 +1,121 @@
-import { showCustomModal } from './ui.js';
+function showVoiceError(message) {
+  const dialog = document.querySelector("#validation-dialog");
+  const dialogMessage = document.querySelector("#validation-message");
 
-export function initVoiceRecognition(btnMic, targetInput) {
-  if (!btnMic || !targetInput) return;
-
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    btnMic.addEventListener('click', () => {
-      showCustomModal('Fitur Voice Input tidak didukung oleh browser ini.', 'Perangkat Tidak Mendukung');
-    });
+  if (dialog instanceof HTMLDialogElement && dialogMessage) {
+    dialogMessage.textContent = message;
+    if (!dialog.open) {
+      dialog.showModal();
+    }
     return;
   }
 
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = new SpeechRecognition();
+  window.alert(message);
+}
 
-  recognition.lang = 'id-ID';
-  recognition.continuous = false;
-  recognition.interimResults = false;
+function getRecognitionErrorMessage(error) {
+  if (error === "not-allowed" || error === "service-not-allowed") {
+    return "Izin mikrofon ditolak. Izinkan akses mikrofon melalui pengaturan browser.";
+  }
+  if (error === "no-speech") {
+    return "Suara tidak terdengar. Silakan coba lagi.";
+  }
+  return "Input suara gagal. Silakan coba lagi.";
+}
 
-  let isListening = false;
+export function initVoice() {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
 
-  btnMic.addEventListener('click', () => {
-    if (isListening) {
-      recognition.stop();
-      return;
+  for (const button of document.querySelectorAll("[data-voice-target]")) {
+    const input = document.getElementById(button.dataset.voiceTarget);
+    if (!(input instanceof HTMLInputElement)) {
+      throw new Error(`Input suara "${button.dataset.voiceTarget}" tidak ditemukan.`);
     }
 
-    try {
-      recognition.start();
-    } catch (err) {
-      console.error('Error voice recognition:', err);
-      recognition.stop();
+    if (!SpeechRecognition) {
+      button.addEventListener("click", () => {
+        showVoiceError("Browser ini belum mendukung fitur input suara.");
+      });
+      continue;
     }
-  });
 
-  recognition.onstart = () => {
-    isListening = true;
-    btnMic.style.color = '#3b82f6'; // Biru saat aktif
-  };
+    const recognition = new SpeechRecognition();
+    recognition.lang = "id-ID";
+    recognition.interimResults = false;
+    recognition.continuous = false;
 
-  recognition.onend = () => {
-    isListening = false;
-    btnMic.style.color = '#6b7280'; // Abu-abu saat inaktif
-  };
+    let isStarting = false;
+    let isListening = false;
 
-  recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    targetInput.value = targetInput.value ? `${targetInput.value}, ${transcript}` : transcript;
-    targetInput.dispatchEvent(new Event('input'));
-  };
-
-  recognition.onerror = (event) => {
-    isListening = false;
-    btnMic.style.color = '#6b7280';
-
-    if (event.error === 'not-allowed') {
-      showCustomModal('Akses mikrofon ditolak. Silakan izinkan melalui pengaturan browser Anda.', 'Akses Ditolak');
+    function updateButtonState() {
+      button.classList.toggle("is-recording", isListening);
+      button.setAttribute("aria-pressed", String(isListening));
+      button.setAttribute(
+        "aria-label",
+        isListening ? "Hentikan input suara" : button.title,
+      );
     }
-  };
+
+    recognition.addEventListener("start", () => {
+      isStarting = false;
+      isListening = true;
+      updateButtonState();
+    });
+
+    recognition.addEventListener("result", (event) => {
+      const transcripts = [];
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        const result = event.results[index];
+        if (result.isFinal) {
+          transcripts.push(result[0].transcript.trim());
+        }
+      }
+
+      const transcript = transcripts.join(" ").trim();
+      if (!transcript) {
+        return;
+      }
+
+      const currentValue = input.value.trim();
+      const separator = currentValue
+        ? input.name === "resep"
+          ? " "
+          : ", "
+        : "";
+      input.value = `${currentValue}${separator}${transcript}`;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+
+    recognition.addEventListener("error", (event) => {
+      isStarting = false;
+      isListening = false;
+      updateButtonState();
+      showVoiceError(getRecognitionErrorMessage(event.error));
+    });
+
+    recognition.addEventListener("end", () => {
+      isStarting = false;
+      isListening = false;
+      updateButtonState();
+    });
+
+    button.addEventListener("click", () => {
+      if (isListening) {
+        recognition.stop();
+        return;
+      }
+      if (isStarting) {
+        return;
+      }
+
+      isStarting = true;
+      try {
+        recognition.start();
+      } catch {
+        isStarting = false;
+        showVoiceError("Input suara tidak dapat dimulai. Silakan coba lagi.");
+      }
+    });
+  }
 }
