@@ -28,6 +28,66 @@ def normalisasi_bahan(nama_bahan):
     return SYNONYM_MAP.get(nama_bersih, nama_bersih)
 
 
+PAGE_SIZE = 6
+
+
+def format_resep(rows):
+    resep_dict = {}
+    for row in rows:
+        id_resep = row[0]
+        if id_resep not in resep_dict:
+            resep_dict[id_resep] = {
+                "id_resep": id_resep,
+                "nama_resep": row[1],
+                "jumlah_like": row[2],
+                "url": row[3],
+                "bahan_terpakai": []
+            }
+        resep_dict[id_resep]["bahan_terpakai"].append({
+            "nama_bahan": row[4],
+            "takaran": row[5]
+        })
+    return list(resep_dict.values())
+
+
+def ambil_halaman_resep(conn, where_clause, params, page):
+    total = conn.execute(
+        text(f'SELECT COUNT(*) FROM "Resep" r WHERE {where_clause}'),
+        params
+    ).scalar_one()
+    page_params = {
+        **params,
+        "page_size": PAGE_SIZE,
+        "offset": (page - 1) * PAGE_SIZE
+    }
+    query = text(f"""
+        WITH resep_cocok AS (
+            SELECT r.id_resep, r.nama_resep, r.jumlah_like, r.url
+            FROM "Resep" r
+            WHERE {where_clause}
+        ),
+        resep_halaman AS (
+            SELECT *
+            FROM resep_cocok
+            ORDER BY jumlah_like DESC, id_resep
+            LIMIT :page_size OFFSET :offset
+        )
+        SELECT p.id_resep, p.nama_resep, p.jumlah_like, p.url,
+               b.nama_bahan, rb.takaran
+        FROM resep_halaman p
+        JOIN "Resep_bahan" rb ON p.id_resep = rb.id_resep
+        JOIN bahan b ON rb.id_bahan = b.id_bahan
+        ORDER BY p.jumlah_like DESC, p.id_resep;
+    """)
+    rows = conn.execute(query, page_params).fetchall()
+    return {
+        "data": format_resep(rows),
+        "total_ditemukan": total,
+        "halaman": page,
+        "total_halaman": (total + PAGE_SIZE - 1) // PAGE_SIZE
+    }
+
+
 # ================= 2. ENDPOINT REKOMENDASI MOST LIKED (LANDING PAGE) =================
 @app.route("/api/most-liked", methods=["GET"])
 def get_most_liked_recipes():
@@ -47,24 +107,7 @@ def get_most_liked_recipes():
     try:
         with engine.connect() as conn:
             result = conn.execute(query).fetchall()
-
-            resep_dict = {}
-            for row in result:
-                id_resep = row[0]
-                if id_resep not in resep_dict:
-                    resep_dict[id_resep] = {
-                        "id_resep": id_resep,
-                        "nama_resep": row[1],
-                        "jumlah_like": row[2],
-                        "url": row[3],
-                        "bahan_terpakai": []
-                    }
-                resep_dict[id_resep]["bahan_terpakai"].append({
-                    "nama_bahan": row[4],
-                    "takaran": row[5]
-                })
-
-            list_resep = list(resep_dict.values())
+            list_resep = format_resep(result)
 
         return jsonify({
             "status": "success",
@@ -79,6 +122,16 @@ def get_most_liked_recipes():
 @app.route("/api/search-bahan", methods=["GET"])
 def cari_resep_berdasarkan_bahan():
     raw_query = request.args.get("q", "").strip()
+    try:
+        page = int(request.args.get("page", "1"))
+    except ValueError:
+        return jsonify({"status": "error", "message": "Nomor halaman tidak valid."}), 400
+
+    if page < 1:
+        return jsonify({
+            "status": "error",
+            "message": "Nomor halaman harus lebih besar dari 0."
+        }), 400
 
     if not raw_query:
         return jsonify({"status": "error", "message": "Kata kunci bahan tidak boleh kosong!"}), 400
@@ -109,41 +162,46 @@ def cari_resep_berdasarkan_bahan():
 
     where_clause = " AND ".join(conditions)
 
-    query = text(f"""
-        SELECT r.id_resep, r.nama_resep, r.jumlah_like, r.url, b.nama_bahan, rb.takaran
-        FROM "Resep" r
-        JOIN "Resep_bahan" rb ON r.id_resep = rb.id_resep
-        JOIN bahan b ON rb.id_bahan = b.id_bahan
-        WHERE {where_clause}
-        ORDER BY r.jumlah_like DESC;
-    """)
-
     try:
         with engine.connect() as conn:
-            result = conn.execute(query, params).fetchall()
-
-            resep_dict = {}
-            for row in result:
-                id_resep = row[0]
-                if id_resep not in resep_dict:
-                    resep_dict[id_resep] = {
-                        "id_resep": id_resep,
-                        "nama_resep": row[1],
-                        "jumlah_like": row[2],
-                        "url": row[3],
-                        "bahan_terpakai": []
-                    }
-                resep_dict[id_resep]["bahan_terpakai"].append({
-                    "nama_bahan": row[4],
-                    "takaran": row[5]
-                })
-
-            list_resep = list(resep_dict.values())
+            hasil = ambil_halaman_resep(conn, where_clause, params, page)
 
         return jsonify({
             "keyword_pencarian": raw_query,
-            "total_ditemukan": len(list_resep),
-            "data": list_resep,
+            **hasil,
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/api/search-resep", methods=["GET"])
+def cari_resep_berdasarkan_nama():
+    raw_query = request.args.get("q", "").strip()
+    try:
+        page = int(request.args.get("page", "1"))
+    except ValueError:
+        return jsonify({"status": "error", "message": "Nomor halaman tidak valid."}), 400
+
+    if page < 1:
+        return jsonify({
+            "status": "error",
+            "message": "Nomor halaman harus lebih besar dari 0."
+        }), 400
+    if not raw_query:
+        return jsonify({"status": "error", "message": "Kata kunci resep tidak boleh kosong."}), 400
+
+    try:
+        with engine.connect() as conn:
+            hasil = ambil_halaman_resep(
+                conn,
+                "LOWER(r.nama_resep) LIKE :nama_resep",
+                {"nama_resep": f"%{raw_query.lower()}%"},
+                page
+            )
+
+        return jsonify({
+            "keyword_pencarian": raw_query,
+            **hasil,
         })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
