@@ -1,0 +1,77 @@
+:root {
+  color-scheme: light;
+  --cream: #ffeeb5;
+  --coral: #d05756;
+  --white: #ffffff;
+  --charcoal: #252525;
+  --page-yellow: var(--cream);
+  --font-heading: "Montserrat", sans-serif;
+  --font-body: "Open Sans", sans-serif;
+  font-family: var(--font-body);
+  color: var(--charcoal);
+  background: var(--charcoal);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 250px;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--charcoal);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  color: inherit;
+}
+
+.app-shell {
+  position: relative;
+  width: min(100% - 16px, 430px);
+  min-height: calc(100vh - 16px);
+  margin: 8px auto;
+  overflow: hidden;
+  background: var(--white);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+  border: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (min-width: 600px) {
+  .app-shell {
+    min-height: min(900px, calc(100vh - 32px));
+    margin-top: 16px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    box-shadow: 0 8px 32px rgb(0 0 0 / 22%);
+  }
+}
