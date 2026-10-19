@@ -42,14 +42,14 @@ export function initNavigation() {
   if (navBookmark) {
     navBookmark.addEventListener('click', (e) => {
       e.preventDefault();
-      showCustomModal('Halaman Bookmark saat ini sedang nonaktif.', 'Informasi');
+      showCustomModal('Halaman Bookmark saat ini belum nonaktif.', 'Informasi');
     });
   }
 
   if (navAccount) {
     navAccount.addEventListener('click', (e) => {
       e.preventDefault();
-      showCustomModal('Halaman Akun saat ini sedang nonaktif.', 'Informasi');
+      showCustomModal('Halaman Akun saat ini belum nonaktif.', 'Informasi');
     });
   }
 
@@ -61,7 +61,7 @@ export function initNavigation() {
     btnCopyMissing.addEventListener('click', () => {
       const missingLis = document.querySelectorAll('#viewDetailResep .detail-list.missing li span');
       const text = Array.from(missingLis).map(li => `- ${li.textContent}`).join('\n');
-      navigator.clipboard.writeText(text || 'Tidak ada bahan tak tersedia').then(() => {
+      navigator.clipboarPd.writeText(text || 'Tidak ada bahan tak tersedia').then(() => {
         showCustomModal('Daftar bahan yang tidak tersedia telah disalin!', 'Berhasil Disalin');
       });
     });

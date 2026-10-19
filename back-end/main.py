@@ -30,6 +30,58 @@ def normalisasi_bahan(nama_bahan):
 
 PAGE_SIZE = 6
 
+RECIPE_FILTER_INGREDIENTS = {
+    "egg": ("telur", "telor"),
+    "seafood": (
+        "seafood", "ikan", "udang", "ebi", "rebon", "cumi", "sotong",
+        "gurita", "kepiting", "rajungan", "kerang", "tiram", "lobster",
+    ),
+    "nuts": (
+        "kacang", "peanut", "almond", "mede", "mete", "kenari",
+        "pistachio", "hazelnut", "walnut",
+    ),
+    "chili": ("cabai", "cabe", "chili", "chilli", "rawit", "lombok", "sambal"),
+    "pepper": ("lada", "merica", "pepper"),
+}
+
+
+def apply_recipe_filters(where_clause, params):
+    requested_filters = {
+        value.strip()
+        for value in request.args.get("filters", "").split(",")
+        if value.strip()
+    }
+    unknown_filters = requested_filters - RECIPE_FILTER_INGREDIENTS.keys()
+    if unknown_filters:
+        raise ValueError("Pilihan filter resep tidak valid.")
+
+    patterns = [
+        pattern
+        for filter_name in requested_filters
+        for pattern in RECIPE_FILTER_INGREDIENTS[filter_name]
+    ]
+    if not patterns:
+        return where_clause, params
+
+    excluded_conditions = []
+    filtered_params = dict(params)
+    for index, pattern in enumerate(patterns):
+        parameter_name = f"excluded_ingredient_{index}"
+        excluded_conditions.append(f"LOWER(b_filter.nama_bahan) LIKE :{parameter_name}")
+        filtered_params[parameter_name] = f"%{pattern}%"
+
+    excluded_clause = " OR ".join(excluded_conditions)
+    return (
+        f"""({where_clause}) AND NOT EXISTS (
+            SELECT 1
+            FROM "Resep_bahan" rb_filter
+            JOIN bahan b_filter ON rb_filter.id_bahan = b_filter.id_bahan
+            WHERE rb_filter.id_resep = r.id_resep
+              AND ({excluded_clause})
+        )""",
+        filtered_params,
+    )
+
 
 def format_resep(rows):
     resep_dict = {}
@@ -43,10 +95,12 @@ def format_resep(rows):
                 "url": row[3],
                 "bahan_terpakai": []
             }
-        resep_dict[id_resep]["bahan_terpakai"].append({
-            "nama_bahan": row[4],
-            "takaran": row[5]
-        })
+        if row[4] is not None:
+            resep_dict[id_resep]["bahan_terpakai"].append({
+                "nama_bahan": row[4],
+                "takaran": row[5],
+                "is_bumbu_dasar": row[6]
+            })
     return list(resep_dict.values())
 
 
@@ -73,10 +127,10 @@ def ambil_halaman_resep(conn, where_clause, params, page):
             LIMIT :page_size OFFSET :offset
         )
         SELECT p.id_resep, p.nama_resep, p.jumlah_like, p.url,
-               b.nama_bahan, rb.takaran
+               b.nama_bahan, rb.takaran, rb.is_bumbu_dasar
         FROM resep_halaman p
-        JOIN "Resep_bahan" rb ON p.id_resep = rb.id_resep
-        JOIN bahan b ON rb.id_bahan = b.id_bahan
+        LEFT JOIN "Resep_bahan" rb ON p.id_resep = rb.id_resep
+        LEFT JOIN bahan b ON rb.id_bahan = b.id_bahan
         ORDER BY p.jumlah_like DESC, p.id_resep;
     """)
     rows = conn.execute(query, page_params).fetchall()
@@ -91,28 +145,29 @@ def ambil_halaman_resep(conn, where_clause, params, page):
 # ================= 2. ENDPOINT REKOMENDASI MOST LIKED (LANDING PAGE) =================
 @app.route("/api/most-liked", methods=["GET"])
 def get_most_liked_recipes():
-    query = text("""
-        SELECT r.id_resep, r.nama_resep, r.jumlah_like, r.url, b.nama_bahan, rb.takaran
-        FROM "Resep" r
-        JOIN "Resep_bahan" rb ON r.id_resep = rb.id_resep
-        JOIN bahan b ON rb.id_bahan = b.id_bahan
-        WHERE r.id_resep IN (
-            SELECT id_resep FROM "Resep"
-            ORDER BY jumlah_like DESC
-            LIMIT 6
-        )
-        ORDER BY r.jumlah_like DESC;
-    """)
+    try:
+        page = int(request.args.get("page", "1"))
+    except ValueError:
+        return jsonify({"status": "error", "message": "Nomor halaman tidak valid."}), 400
+
+    if page < 1:
+        return jsonify({
+            "status": "error",
+            "message": "Nomor halaman harus lebih besar dari 0."
+        }), 400
+
+    try:
+        where_clause, params = apply_recipe_filters("TRUE", {})
+    except ValueError as error:
+        return jsonify({"status": "error", "message": str(error)}), 400
 
     try:
         with engine.connect() as conn:
-            result = conn.execute(query).fetchall()
-            list_resep = format_resep(result)
+            hasil = ambil_halaman_resep(conn, where_clause, params, page)
 
         return jsonify({
             "status": "success",
-            "total_ditemukan": len(list_resep),
-            "data": list_resep,
+            **hasil,
         })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -161,6 +216,10 @@ def cari_resep_berdasarkan_bahan():
         params[param_name] = f"%{ing}%"
 
     where_clause = " AND ".join(conditions)
+    try:
+        where_clause, params = apply_recipe_filters(where_clause, params)
+    except ValueError as error:
+        return jsonify({"status": "error", "message": str(error)}), 400
 
     try:
         with engine.connect() as conn:
@@ -190,12 +249,19 @@ def cari_resep_berdasarkan_nama():
     if not raw_query:
         return jsonify({"status": "error", "message": "Kata kunci resep tidak boleh kosong."}), 400
 
+    where_clause = "LOWER(r.nama_resep) LIKE :nama_resep"
+    params = {"nama_resep": f"%{raw_query.lower()}%"}
+    try:
+        where_clause, params = apply_recipe_filters(where_clause, params)
+    except ValueError as error:
+        return jsonify({"status": "error", "message": str(error)}), 400
+
     try:
         with engine.connect() as conn:
             hasil = ambil_halaman_resep(
                 conn,
-                "LOWER(r.nama_resep) LIKE :nama_resep",
-                {"nama_resep": f"%{raw_query.lower()}%"},
+                where_clause,
+                params,
                 page
             )
 

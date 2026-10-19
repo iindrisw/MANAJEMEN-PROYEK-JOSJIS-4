@@ -29,6 +29,7 @@ export function initInput() {
   const emptyState = document.querySelector("#empty-state");
   const pagination = document.querySelector(".pagination");
   const filterButton = document.querySelector("#filter-button");
+  const filterPanel = document.querySelector("#filter-panel");
   const ingredientCount = document.querySelector("#ingredient-count");
   const ingredientSearchButton = ingredientSearchForm?.querySelector(
     'button[type="submit"]',
@@ -44,6 +45,7 @@ export function initInput() {
     !emptyState ||
     !pagination ||
     !filterButton ||
+    !filterPanel ||
     !ingredientCount ||
     !ingredientSearchButton ||
     !validationDialog ||
@@ -67,6 +69,7 @@ export function initInput() {
   }
 
   let currentSearch = null;
+  let latestRequestId = 0;
 
   function showValidationDialog(message) {
     validationMessage.textContent = message;
@@ -75,12 +78,18 @@ export function initInput() {
     }
   }
 
+  function getSelectedFilters() {
+    return [...filterPanel.querySelectorAll('input[type="checkbox"]:checked')].map(
+      (input) => input.value,
+    );
+  }
+
   function updateIngredientCount() {
     const additionalIngredientCount = getIngredients(
       additionalIngredientsInput.value,
     ).length;
 
-    ingredientCount.textContent = `${additionalIngredientCount} / ${MAX_INGREDIENTS}`;
+    ingredientCount.textContent = `${additionalIngredientCount}/${MAX_INGREDIENTS}`;
     ingredientCount.setAttribute(
       "aria-label",
       `${additionalIngredientCount} dari maksimal ${MAX_INGREDIENTS} bahan tambahan`,
@@ -109,32 +118,52 @@ export function initInput() {
     const title = document.createElement("h2");
     title.textContent = name;
 
+    const divider = document.createElement("img");
+    divider.className = "recipe-divider";
+    divider.src = "assets/figma/card-divider.svg";
+    divider.alt = "";
+    divider.setAttribute("aria-hidden", "true");
+
     const meta = document.createElement("div");
     meta.className = "recipe-meta";
 
     const ingredientSection = document.createElement("div");
     const ingredientTitle = document.createElement("h3");
     ingredientTitle.textContent = "Bahan";
-    const ingredientList = document.createElement("ul");
-    for (const ingredient of ingredients) {
+    const ingredientList = document.createElement("ol");
+    const mainIngredients = ingredients
+      .filter((ingredient) => ingredient.is_bumbu_dasar !== true)
+      .slice(0, 4);
+    for (const ingredient of mainIngredients) {
       const item = document.createElement("li");
       const ingredientName = ingredient.nama_bahan || "Bahan";
-      item.textContent = ingredient.takaran
-        ? `${ingredientName} - ${ingredient.takaran}`
-        : ingredientName;
+      item.textContent = ingredientName;
       ingredientList.append(item);
     }
     ingredientSection.append(ingredientTitle, ingredientList);
 
     const likes = document.createElement("span");
-    likes.className = "cook-time";
-    likes.textContent = `${recipe.jumlah_like ?? 0} suka`;
-    likes.setAttribute("aria-label", `${recipe.jumlah_like ?? 0} suka`);
+    likes.className = "recipe-likes";
+    const likeCount = recipe.jumlah_like ?? 0;
+    likes.setAttribute("aria-label", `${likeCount} suka`);
+    const likeIcon = document.createElement("span");
+    likeIcon.className = "like-icon";
+    likeIcon.setAttribute("aria-hidden", "true");
+    const likeImage = document.createElement("img");
+    likeImage.src = "assets/figma/heart-like.png";
+    likeImage.alt = "";
+    likeIcon.append(likeImage);
+    const likeCountLabel = document.createElement("span");
+    likeCountLabel.className = "like-count";
+    likeCountLabel.textContent = String(likeCount);
+    likes.append(likeIcon, likeCountLabel);
     meta.append(ingredientSection, likes);
-    card.append(title, meta);
+    card.append(title, divider, meta);
     return card;
   }
 
+
+        //Page Button//
   function renderPagination(page, totalPages) {
     pagination.replaceChildren();
     pagination.hidden = totalPages <= 1;
@@ -159,7 +188,7 @@ export function initInput() {
         more.textContent = "...";
         pagination.append(more);
       }
-
+      
       const button = document.createElement("button");
       button.className = "page-button";
       button.type = "button";
@@ -177,6 +206,7 @@ export function initInput() {
   }
 
   async function loadRecipes(search, page = 1) {
+    const requestId = ++latestRequestId;
     currentSearch = search;
     emptyState.textContent = "Memuat resep...";
     emptyState.hidden = false;
@@ -186,13 +216,26 @@ export function initInput() {
 
     try {
       let result;
+      const selectedFilters = getSelectedFilters();
+      const params = { page: String(page) };
+      if (search) {
+        params.q = search.query;
+      }
+      if (selectedFilters.length > 0) {
+        params.filters = selectedFilters.join(",");
+      }
+
       if (!search) {
-        result = await fetchRecipes("most-liked");
+        result = await fetchRecipes("most-liked", params);
       } else {
         result = await fetchRecipes(
           search.type === "ingredients" ? "search-bahan" : "search-resep",
-          { q: search.query, page: String(page) },
+          params,
         );
+      }
+
+      if (requestId !== latestRequestId) {
+        return;
       }
 
       const recipes = Array.isArray(result.data) ? result.data : [];
@@ -200,11 +243,24 @@ export function initInput() {
       if (recipes.length === 0) {
         emptyState.textContent = "Resep tidak ditemukan.";
         emptyState.hidden = false;
+        if (search?.type === "ingredients" && page === 1) {
+          showValidationDialog(
+            "Kombinasi bahan yang anda masukkan tidak tersedia, mau coba kombinasi bahan lain?",
+          );
+        } else if (search?.type === "name" && page === 1) {
+          showValidationDialog(
+            "Resep yang anda masukkan tidak tersedia, mau coba cari resep lain?",
+          );
+        }
       } else {
         emptyState.hidden = true;
       }
       renderPagination(page, result.total_halaman || 1);
     } catch (error) {
+      if (requestId !== latestRequestId) {
+        return;
+      }
+
       emptyState.textContent = "Resep tidak dapat dimuat.";
       emptyState.hidden = false;
       showValidationDialog(
@@ -234,9 +290,22 @@ export function initInput() {
     validationDialog.close();
   });
 
-  mainIngredientInput.addEventListener("input", updateIngredientCount);
+  mainIngredientInput.addEventListener("input", () => {
+    updateIngredientCount();
+    if (getIngredients(mainIngredientInput.value).length > 1) {
+      showValidationDialog(
+        "Bahan utama hanya boleh diisi satu jenis bahan saja, masukkan bahan lainnya di kolom bahan tambahan",
+      );
+    }
+  });
   additionalIngredientsInput.addEventListener("input", updateIngredientCount);
   updateIngredientCount();
+
+  recipeQueryInput.addEventListener("input", () => {
+    if (getIngredients(recipeQueryInput.value).length > 1) {
+      showValidationDialog("Masukkan hanya 1 nama resep");
+    }
+  });
 
   recipeSearchForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -249,6 +318,11 @@ export function initInput() {
     if (!recipeName) {
       showValidationDialog("Harap masukkan nama resep yang ingin dicari");
       recipeQueryInput.focus();
+      return;
+    }
+
+    if (getIngredients(recipeName).length > 1) {
+      showValidationDialog("Masukkan hanya 1 nama resep");
       return;
     }
 
@@ -279,7 +353,7 @@ export function initInput() {
     }
 
     if (mainIngredients.length === 0) {
-      showValidationDialog("Harap masukkan minimal satu bahan utama");
+      showValidationDialog("Harap masukkan minimal bahan utama untuk mencari resep");
       return;
     }
 
@@ -290,7 +364,15 @@ export function initInput() {
   filterButton.addEventListener("click", () => {
     const isFiltered = filterButton.getAttribute("aria-pressed") === "true";
     filterButton.setAttribute("aria-pressed", String(!isFiltered));
+    filterButton.setAttribute("aria-expanded", String(!isFiltered));
     filterButton.classList.toggle("is-selected", !isFiltered);
+    filterPanel.hidden = isFiltered;
+  });
+
+  filterPanel.addEventListener("change", (event) => {
+    if (event.target instanceof HTMLInputElement && event.target.type === "checkbox") {
+      void loadRecipes(currentSearch);
+    }
   });
 
   void loadRecipes(null);

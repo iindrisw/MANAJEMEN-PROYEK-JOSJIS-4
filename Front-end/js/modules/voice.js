@@ -23,14 +23,28 @@ function getRecognitionErrorMessage(error) {
   return "Input suara gagal. Silakan coba lagi.";
 }
 
+const ACTIVE_MICROPHONE_ICON = new URL(
+  "../../assets/figma/microphone-active.svg",
+  import.meta.url,
+).href;
+
 export function initVoice() {
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
+  let activeRecognition = null;
 
   for (const button of document.querySelectorAll("[data-voice-target]")) {
     const input = document.getElementById(button.dataset.voiceTarget);
     if (!(input instanceof HTMLInputElement)) {
       throw new Error(`Input suara "${button.dataset.voiceTarget}" tidak ditemukan.`);
+    }
+    const microphoneIcon = button.querySelector(".field-icon");
+    if (!(microphoneIcon instanceof HTMLImageElement)) {
+      throw new Error(`Ikon mikrofon "${button.dataset.voiceTarget}" tidak ditemukan.`);
+    }
+    const idleMicrophoneIcon = microphoneIcon.getAttribute("src");
+    if (!idleMicrophoneIcon) {
+      throw new Error(`Sumber ikon mikrofon "${button.dataset.voiceTarget}" tidak valid.`);
     }
 
     if (!SpeechRecognition) {
@@ -50,6 +64,9 @@ export function initVoice() {
 
     function updateButtonState() {
       button.classList.toggle("is-recording", isListening);
+      microphoneIcon.src = isListening
+        ? ACTIVE_MICROPHONE_ICON
+        : idleMicrophoneIcon;
       button.setAttribute("aria-pressed", String(isListening));
       button.setAttribute(
         "aria-label",
@@ -90,6 +107,9 @@ export function initVoice() {
     recognition.addEventListener("error", (event) => {
       isStarting = false;
       isListening = false;
+      if (activeRecognition === recognition) {
+        activeRecognition = null;
+      }
       updateButtonState();
       showVoiceError(getRecognitionErrorMessage(event.error));
     });
@@ -97,6 +117,9 @@ export function initVoice() {
     recognition.addEventListener("end", () => {
       isStarting = false;
       isListening = false;
+      if (activeRecognition === recognition) {
+        activeRecognition = null;
+      }
       updateButtonState();
     });
 
@@ -110,10 +133,17 @@ export function initVoice() {
       }
 
       isStarting = true;
+      if (activeRecognition && activeRecognition !== recognition) {
+        activeRecognition.stop();
+      }
+      activeRecognition = recognition;
       try {
         recognition.start();
       } catch {
         isStarting = false;
+        if (activeRecognition === recognition) {
+          activeRecognition = null;
+        }
         showVoiceError("Input suara tidak dapat dimulai. Silakan coba lagi.");
       }
     });

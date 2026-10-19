@@ -1,100 +1,10 @@
 .recipe-content {
-  padding: 11px 18px 0;
-  padding-bottom: 49px;
+  padding: 25px 32px 70px;
 }
 
 .recipe-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px 7px;
-}
-
-@media (max-width: 280px) {
-  .recipe-content {
-    padding-right: 18px;
-    padding-left: 18px;
-  }
-}
-
-@media (min-width: 600px) {
-  .search-panel {
-    --ingredient-count-width: 36px;
-  }
-
-  .search-panel {
-    padding-right: 20px;
-    padding-left: 20px;
-  }
-
-  .section-label {
-    font-size: 12px;
-  }
-
-  .search-field,
-  .recipe-search-row,
-  .recipe-search-row > input {
-    height: 30px;
-  }
-
-  .recipe-search-row .search-button {
-    height: 30px;
-  }
-
-  .search-field input,
-  .recipe-search-row input {
-    font-size: 12px;
-  }
-
-  .ingredient-count {
-    width: 36px;
-    height: 26px;
-    flex-basis: 36px;
-    font-size: 11px;
-  }
-
-  .button {
-    min-height: 29px;
-    font-size: 11px;
-  }
-
-  .button-filter {
-    width: 120px;
-    min-height: 24px;
-  }
-
-  .recipe-content {
-    padding: 18px 28px 70px;
-  }
-
-  .recipe-grid {
-    gap: 12px;
-  }
-
-  .recipe-card {
-    min-height: 140px;
-    padding: 10px 12px;
-  }
-
-  .recipe-card h2 {
-    min-height: 34px;
-    font-size: 13px;
-  }
-
-  .recipe-meta h3 {
-    font-size: 11px;
-  }
-
-  .recipe-meta ul,
-  .cook-time {
-    font-size: 8px;
-  }
-
-  .bottom-nav {
-    height: 52px;
-  }
-
-  .nav-item svg {
-    width: 26px;
-    height: 26px;
-  }
+  grid-template-columns: repeat(2, minmax(0, 178px));
+  gap: 20px;
+  justify-content: center;
 }

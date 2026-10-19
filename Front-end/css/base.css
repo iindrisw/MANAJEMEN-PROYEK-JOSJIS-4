@@ -24,6 +24,7 @@ body {
   min-width: 250px;
   min-height: 100vh;
   margin: 0;
+  overflow-x: hidden;
   background: var(--charcoal);
 }
 
@@ -43,11 +44,18 @@ button {
 
 .app-shell {
   position: relative;
-  width: min(100% - 16px, 430px);
-  min-height: calc(100vh - 16px);
-  margin: 8px auto;
+  width: 440px;
+  min-height: 956px;
+  margin: 0 auto;
   overflow: hidden;
   background: var(--white);
+  zoom: min(1, calc(100vw / 440px));
+}
+
+@media (max-width: 439px) {
+  .app-shell {
+    min-height: 952px;
+  }
 }
 
 .sr-only {
@@ -64,14 +72,4 @@ button {
 
 [hidden] {
   display: none !important;
-}
-
-@media (min-width: 600px) {
-  .app-shell {
-    min-height: min(900px, calc(100vh - 32px));
-    margin-top: 16px;
-    margin-bottom: 16px;
-    border-radius: 4px;
-    box-shadow: 0 8px 32px rgb(0 0 0 / 22%);
-  }
 }

@@ -1,0 +1,20 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="2" height="170" viewBox="0 0 2 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Rectangle 25" filter="url(#filter0_i_0_11)">
+<mask id="path-1-inside-1_0_11" fill="white">
+<path d="M0 0H2V170H0V0Z"/>
+</mask>
+<path d="M0 0V-2H-2V0H0ZM2 0H4V-2H2V0ZM2 170V172H4V170H2ZM0 170H-2V172H0V170ZM0 0V2H2V0V-2H0V0ZM2 0H0V170H2H4V0H2ZM2 170V168H0V170V172H2V170ZM0 170H2V0H0H-2V170H0Z" fill="black" fill-opacity="0.2" mask="url(#path-1-inside-1_0_11)"/>
+</g>
+<defs>
+<filter id="filter0_i_0_11" x="0" y="0" width="2" height="174" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="4"/>
+<feGaussianBlur stdDeviation="2"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+<feBlend mode="normal" in2="shape" result="effect1_innerShadow_0_11"/>
+</filter>
+</defs>
+</svg>
