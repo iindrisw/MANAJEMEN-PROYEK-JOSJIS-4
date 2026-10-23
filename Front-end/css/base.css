@@ -52,6 +52,44 @@ button {
   zoom: min(1, calc(100vw / 440px));
 }
 
+.home-status-bar {
+  position: absolute;
+  z-index: 2;
+  top: -12px;
+  left: 25px;
+  display: flex;
+  width: 390px;
+  height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  overflow: hidden;
+  color: #19231f;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.status-indicators {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-indicators img {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.home-menu-icon {
+  position: absolute;
+  z-index: 4;
+  top: 38px;
+  left: 16px;
+  display: block;
+}
+
 @media (max-width: 439px) {
   .app-shell {
     min-height: 952px;

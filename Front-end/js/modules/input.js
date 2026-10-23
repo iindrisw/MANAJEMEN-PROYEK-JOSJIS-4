@@ -159,29 +159,21 @@ export function initInput() {
     const title = document.createElement("h2");
     title.textContent = name;
 
-    const divider = document.createElement("img");
-    divider.className = "recipe-divider";
-    divider.src = "assets/figma/card-divider.svg";
-    divider.alt = "";
-    divider.setAttribute("aria-hidden", "true");
-
     const meta = document.createElement("div");
     meta.className = "recipe-meta";
 
     const ingredientSection = document.createElement("div");
-    const ingredientTitle = document.createElement("h3");
-    ingredientTitle.textContent = "Bahan";
     const ingredientList = document.createElement("ol");
     const mainIngredients = ingredients
       .filter((ingredient) => ingredient.is_bumbu_dasar !== true)
-      .slice(0, 4);
+      .slice(0, 5);
     for (const ingredient of mainIngredients) {
       const item = document.createElement("li");
       const ingredientName = ingredient.nama_bahan || "Bahan";
       item.textContent = ingredientName;
       ingredientList.append(item);
     }
-    ingredientSection.append(ingredientTitle, ingredientList);
+    ingredientSection.append(ingredientList);
 
     const likes = document.createElement("span");
     likes.className = "recipe-likes";
@@ -199,7 +191,7 @@ export function initInput() {
     likeCountLabel.textContent = String(likeCount);
     likes.append(likeIcon, likeCountLabel);
     meta.append(ingredientSection, likes);
-    card.append(title, divider, meta);
+    card.append(title, meta);
     return card;
   }
 

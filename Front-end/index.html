@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@600&family=Montagu+Slab:wght@400&family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/base.css" />
@@ -21,7 +21,20 @@
   </head>
   <body>
     <div class="app-shell">
-      
+      <div class="home-status-bar" aria-hidden="true">
+        <span class="status-time">9:41</span>
+        <span class="status-indicators">
+          <img src="assets/figma/status-cellular.svg" alt="" />
+          <img src="assets/figma/status-wifi.svg" alt="" />
+          <img src="assets/figma/status-battery.svg" alt="" />
+        </span>
+      </div>
+      <img
+        class="home-menu-icon"
+        src="assets/figma/home-menu.svg"
+        alt=""
+        aria-hidden="true"
+      />
       <header class="search-panel">
         <div class="panel-heading">
           <h1 class="section-label">Cari Berdasarkan Bahan Yukk!</h1>

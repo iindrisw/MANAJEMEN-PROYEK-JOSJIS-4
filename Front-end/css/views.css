@@ -1,9 +1,9 @@
 .recipe-content {
   display: flex;
-  min-height: 626px;
+  min-height: 602px;
   flex-direction: column;
-  row-gap: 21px;
-  padding: 50px 32px 71px;
+  row-gap: 33px;
+  padding: 66px 32px 20px;
 }
 
 .recipe-grid {
