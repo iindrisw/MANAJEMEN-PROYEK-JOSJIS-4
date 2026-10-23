@@ -8,6 +8,8 @@ function getIngredients(value) {
     .filter(Boolean);
 }
 
+
+// Fungsi untuk mengambil resep dari server
 async function fetchRecipes(endpoint, params = {}) {
   const url = new URL(`${API_BASE_URL}/${endpoint}`);
   for (const [key, value] of Object.entries(params)) {
@@ -30,6 +32,8 @@ export function initInput() {
   const pagination = document.querySelector(".pagination");
   const filterButton = document.querySelector("#filter-button");
   const filterPanel = document.querySelector("#filter-panel");
+  const closeFilterButton = document.querySelector("#filter-close-button");
+  const applyFilterButton = document.querySelector("#filter-apply-button");
   const ingredientCount = document.querySelector("#ingredient-count");
   const ingredientSearchButton = ingredientSearchForm?.querySelector(
     'button[type="submit"]',
@@ -46,6 +50,8 @@ export function initInput() {
     !pagination ||
     !filterButton ||
     !filterPanel ||
+    !closeFilterButton ||
+    !applyFilterButton ||
     !ingredientCount ||
     !ingredientSearchButton ||
     !validationDialog ||
@@ -70,6 +76,8 @@ export function initInput() {
 
   let currentSearch = null;
   let latestRequestId = 0;
+  let appliedFilters = [];
+  let filterPanelCloseTimer;
 
   function showValidationDialog(message) {
     validationMessage.textContent = message;
@@ -82,6 +90,38 @@ export function initInput() {
     return [...filterPanel.querySelectorAll('input[type="checkbox"]:checked')].map(
       (input) => input.value,
     );
+  }
+
+  function updateApplyFilterButton() {
+    const hasSelectedFilters = getSelectedFilters().length > 0;
+    const canClearAppliedFilters = appliedFilters.length > 0;
+    applyFilterButton.disabled = !hasSelectedFilters && !canClearAppliedFilters;
+  }
+
+  function setFilterPanelOpen(isOpen) {
+    window.clearTimeout(filterPanelCloseTimer);
+    filterButton.setAttribute("aria-expanded", String(isOpen));
+    filterButton.classList.toggle("is-selected", isOpen);
+
+    if (isOpen) {
+      filterPanel.hidden = false;
+      filterPanel.classList.remove("is-closing");
+      window.requestAnimationFrame(() => {
+        if (filterButton.getAttribute("aria-expanded") === "true") {
+          filterPanel.classList.add("is-open");
+        }
+      });
+      return;
+    }
+
+    filterPanel.classList.remove("is-open");
+    filterPanel.classList.add("is-closing");
+    filterPanelCloseTimer = window.setTimeout(() => {
+      if (filterButton.getAttribute("aria-expanded") === "false") {
+        filterPanel.hidden = true;
+        filterPanel.classList.remove("is-closing");
+      }
+    }, 180);
   }
 
   function updateIngredientCount() {
@@ -102,6 +142,7 @@ export function initInput() {
     return additionalIngredientCount;
   }
 
+//card resep  
   function createRecipeCard(recipe) {
     const card = document.createElement("article");
     const name = recipe.nama_resep || "Resep tanpa nama";
@@ -171,24 +212,17 @@ export function initInput() {
       return;
     }
 
-    const pages = new Set([1, totalPages]);
-    for (
-      let number = Math.max(1, page - 1);
-      number <= Math.min(totalPages, page + 1);
-      number += 1
-    ) {
-      pages.add(number);
-    }
+    const visiblePageCount = Math.min(5, totalPages);
+    const firstVisiblePage = Math.min(
+      Math.max(1, page - Math.floor(visiblePageCount / 2)),
+      totalPages - visiblePageCount + 1,
+    );
 
-    let previousPage = 0;
-    for (const pageNumber of [...pages].sort((a, b) => a - b)) {
-      if (previousPage && pageNumber - previousPage > 1) {
-        const more = document.createElement("span");
-        more.className = "page-more";
-        more.textContent = "...";
-        pagination.append(more);
-      }
-      
+    for (
+      let pageNumber = firstVisiblePage;
+      pageNumber < firstVisiblePage + visiblePageCount;
+      pageNumber += 1
+    ) {
       const button = document.createElement("button");
       button.className = "page-button";
       button.type = "button";
@@ -201,7 +235,6 @@ export function initInput() {
         void loadRecipes(currentSearch, pageNumber);
       });
       pagination.append(button);
-      previousPage = pageNumber;
     }
   }
 
@@ -216,13 +249,12 @@ export function initInput() {
 
     try {
       let result;
-      const selectedFilters = getSelectedFilters();
       const params = { page: String(page) };
       if (search) {
         params.q = search.query;
       }
-      if (selectedFilters.length > 0) {
-        params.filters = selectedFilters.join(",");
+      if (appliedFilters.length > 0) {
+        params.filters = appliedFilters.join(",");
       }
 
       if (!search) {
@@ -362,18 +394,27 @@ export function initInput() {
   });
 
   filterButton.addEventListener("click", () => {
-    const isFiltered = filterButton.getAttribute("aria-pressed") === "true";
-    filterButton.setAttribute("aria-pressed", String(!isFiltered));
-    filterButton.setAttribute("aria-expanded", String(!isFiltered));
-    filterButton.classList.toggle("is-selected", !isFiltered);
-    filterPanel.hidden = isFiltered;
+    const isOpen = filterButton.getAttribute("aria-expanded") === "true";
+    setFilterPanelOpen(!isOpen);
+  });
+
+  closeFilterButton.addEventListener("click", () => {
+    setFilterPanelOpen(false);
   });
 
   filterPanel.addEventListener("change", (event) => {
     if (event.target instanceof HTMLInputElement && event.target.type === "checkbox") {
-      void loadRecipes(currentSearch);
+      updateApplyFilterButton();
     }
   });
 
+  applyFilterButton.addEventListener("click", () => {
+    appliedFilters = getSelectedFilters();
+    updateApplyFilterButton();
+    setFilterPanelOpen(false);
+    void loadRecipes(currentSearch);
+  });
+
+  updateApplyFilterButton();
   void loadRecipes(null);
 }

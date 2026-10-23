@@ -125,8 +125,17 @@
           </button>
         </form>
         <section class="filter-panel" id="filter-panel" aria-label="Filter resep" hidden>
+          <button
+            class="filter-close-button"
+            id="filter-close-button"
+            type="button"
+            aria-label="Tutup filter"
+          >
+            X
+          </button>
+          <span class="filter-panel-label" aria-hidden="true">FILTER</span>
           <section class="filter-group" role="group" aria-labelledby="filter-allergen-title">
-            <h2 class="filter-group-title" id="filter-allergen-title">Filter Alergen</h2>
+            <h2 class="filter-group-title" id="filter-allergen-title">Pilihan Alergen</h2>
             <div class="filter-options filter-options-allergens">
               <label class="filter-option" for="filter-egg">
                 <input id="filter-egg" type="checkbox" value="egg" />
@@ -138,12 +147,12 @@
               </label>
               <label class="filter-option" for="filter-nuts">
                 <input id="filter-nuts" type="checkbox" value="nuts" />
-                <span>kacang</span>
+                <span>Kacang</span>
               </label>
             </div>
           </section>
           <section class="filter-group" role="group" aria-labelledby="filter-preference-title">
-            <h2 class="filter-group-title" id="filter-preference-title">Pilihan Alergen</h2>
+            <h2 class="filter-group-title" id="filter-preference-title">Bebas Pedas</h2>
             <div class="filter-options filter-options-preferences">
               <label class="filter-option" for="filter-chili-free">
                 <input id="filter-chili-free" type="checkbox" value="chili" />
@@ -155,6 +164,9 @@
               </label>
             </div>
           </section>
+          <button class="button filter-apply-button" id="filter-apply-button" type="button" disabled>
+            Terapkan Filter
+          </button>
         </section>
       </header>
 
@@ -162,10 +174,7 @@
         <section class="recipe-grid" id="recipe-grid" aria-label="Daftar resep"></section>
         <p class="empty-state" id="empty-state" hidden>Resep tidak ditemukan.</p>
         <nav class="pagination" aria-label="Halaman resep">
-          <button class="page-button is-current" type="button" aria-current="page">1</button>
-          <button class="page-button" type="button">2</button>
-          <button class="page-button" type="button">3</button>
-          <span class="page-more">...</span>
+          <!-- Dikosongkan agar di-generate secara dinamis oleh JavaScript (maksimal 5 halaman) -->
         </nav>
       </main>
 

@@ -233,7 +233,8 @@ def cari_resep_berdasarkan_bahan():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-@app.route("/api/search-resep", methods=["GET"])
+# ================= 4. ENDPOINT PENCARIAN BERDASARKAN RESEP =================
+@app.route("/api/search-resep", methods=["GET"]) 
 def cari_resep_berdasarkan_nama():
     raw_query = request.args.get("q", "").strip()
     try:
