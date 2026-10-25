@@ -1,0 +1,180 @@
+.recipe-card {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: 139px;
+  padding: 6px 6px 0;
+  border-radius: 20px;
+  background: var(--page-yellow);
+  box-shadow: 0 4px 5px rgb(0 0 0 / 25%);
+  cursor: pointer;
+}
+
+.recipe-card:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+
+.recipe-card::before {
+  position: absolute;
+  top: 44px;
+  right: 4px;
+  left: 4px;
+  height: 92px;
+  border: 2px solid rgb(37 37 37 / 20%);
+  border-radius: 10px;
+  box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
+  content: "";
+}
+
+.recipe-card h2 {
+  display: -webkit-box;
+  height: 32px;
+  min-height: 32px;
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 15px;
+  overflow-wrap: anywhere;
+  text-align: center;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.recipe-divider {
+  display: none;
+}
+
+.recipe-meta {
+  position: absolute;
+  top: 57px;
+  right: 12px;
+  left: 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0;
+  margin-top: 0;
+}
+
+.recipe-meta > div {
+  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.recipe-meta h3 {
+  display: none;
+}
+
+.recipe-meta ol {
+  width: 90px;
+  max-height: 70px;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  list-style: none;
+  counter-reset: recipe-ingredient;
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 14px;
+  text-transform: uppercase;
+}
+
+.recipe-meta li {
+  counter-increment: recipe-ingredient;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recipe-meta li::before {
+  content: counter(recipe-ingredient) ".";
+}
+
+.recipe-likes {
+  position: absolute;
+  top: -5px;
+  right: 0;
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 50px;
+  height: 20px;
+  align-items: center;
+  gap: 3px;
+  padding: 0 0 0 3px;
+  border-radius: 20px;
+  background: rgb(208 87 86 / 36%);
+  font-family: var(--font-heading);
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.like-icon {
+  display: block;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  border-radius: 50%;
+}
+
+.like-icon img {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.like-count {
+  min-width: 0;
+}
+
+.pagination {
+  display: flex;
+  min-height: 26px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 33px;
+}
+
+.page-button {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: var(--coral);
+  color: var(--white);
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.page-button:active {
+  transform: translateY(1px);
+}
+
+.page-button.is-current {
+  background: var(--coral);
+}
+
+.page-more {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 5px;
+  background: var(--coral);
+  color: var(--white);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+}

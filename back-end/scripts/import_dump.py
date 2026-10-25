@@ -1,15 +1,24 @@
+"""Impor data dari dump dbrr.sql ke database.
+
+Pakai:  python scripts/import_dump.py path/ke/dbrr.sql
+(sebelumnya bernama test.py; kredensial hard-coded sudah dihapus)
+"""
 import os
+import sys
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 
 load_dotenv()
-db_url = os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres.wjthntdtgjeiirtjjkgd:josjissupabase@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres")
+db_url = os.getenv("DATABASE_URL")
+if not db_url:
+    raise SystemExit("DATABASE_URL belum diisi di .env")
 
 # Nonaktifkan prepared statements agar tidak bentrok di pooler Supabase
 engine = create_engine(db_url, pool_pre_ping=True, connect_args={"prepare_threshold": None})
 
 print("Membaca file dbrr.sql...")
-with open("dbrr.sql", "r", encoding="utf-8") as f:
+DUMP_PATH = sys.argv[1] if len(sys.argv) > 1 else "dbrr.sql"
+with open(DUMP_PATH, "r", encoding="utf-8") as f:
     lines = f.readlines()
 
 tables_data = {}
