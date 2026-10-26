@@ -228,11 +228,17 @@ export function initInput() {
         const isSelected = button.getAttribute("aria-pressed") === "true";
         const endpoint = action === "like" ? "like" : "bookmark";
         const method = isSelected ? "DELETE" : "POST";
+        const token = localStorage.getItem("token");
 
         try {
           const response = await fetch(
             `${API_BASE_URL}/recipes/${activeRecipe.id_resep}/${endpoint}`,
-            { method },
+            { 
+              method,
+              headers: {
+                ...(token ? { "Authorization": `Bearer ${token}` } : {})
+              }
+            },
           );
           const result = await response.json();
           if (!response.ok || result.status === "error") {

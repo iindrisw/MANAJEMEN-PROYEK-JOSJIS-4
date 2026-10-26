@@ -113,6 +113,70 @@ export function renderRecipeDetail(recipe, availableIngredientNames = []) {
     button.classList.toggle("is-active", isSelected);
   }
 
+  // --- EVENT LISTENER TOMBOL LIKE & BOOKMARK (Hanya cek token saat diklik) ---
+  
+  likeButton.onclick = async () => {
+    const token = localStorage.getItem("token"); 
+    if (!token) {
+      alert("Silakan login terlebih dahulu untuk menyukai resep!");
+      return;
+    }
+
+    try {
+      const isLiked = likeButton.getAttribute("aria-pressed") === "true";
+      const method = isLiked ? "DELETE" : "POST";
+
+      const response = await fetch(`/api/recipes/${recipe.id_resep}/like`, {
+        method: method,
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const newState = !isLiked;
+        likeButton.setAttribute("aria-pressed", String(newState));
+        likeButton.classList.toggle("is-active", newState);
+      } else {
+        const err = await response.json();
+        alert(err.message || "Gagal mengubah status like.");
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan jaringan:", error);
+    }
+  };
+
+  bookmarkButton.onclick = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Silakan login terlebih dahulu untuk menyimpan resep!");
+      return;
+    }
+
+    try {
+      const isBookmarked = bookmarkButton.getAttribute("aria-pressed") === "true";
+      const method = isBookmarked ? "DELETE" : "POST";
+
+      const response = await fetch(`/api/recipes/${recipe.id_resep}/bookmark`, {
+        method: method,
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const newState = !isBookmarked;
+        bookmarkButton.setAttribute("aria-pressed", String(newState));
+        bookmarkButton.classList.toggle("is-active", newState);
+      } else {
+        const err = await response.json();
+        alert(err.message || "Gagal mengubah status bookmark.");
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan jaringan:", error);
+    }
+  };
+
   feedback.hidden = true;
   feedback.textContent = "";
 }
