@@ -16,6 +16,9 @@
     />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/search.css" />
+    <link rel="stylesheet" href="css/recipes.css" />
+    <link rel="stylesheet" href="css/recipe-detail.css" />
     <link rel="stylesheet" href="css/views.css" />
     <script type="module" src="js/main.js"></script>
   </head>
@@ -29,6 +32,16 @@
             <img src="assets/figma/persona-racik-rasa.png" alt="Racik Rasa" />
             <img class="brand-accent" src="assets/figma/logo-vector.svg" alt="" />
           </a>
+          <button
+            class="menu-button"
+            id="menu-button"
+            type="button"
+            aria-label="Buka navigasi"
+            aria-expanded="false"
+            aria-controls="bottom-nav"
+          >
+            <img src="assets/figma/menu.svg" alt="" />
+          </button>
         </div>
 
         <form class="ingredient-search" id="ingredient-search">
@@ -119,14 +132,23 @@
             type="button"
             id="filter-button"
             aria-expanded="false"
+            aria-pressed="false"
             aria-controls="filter-panel"
           >
             FILTER
           </button>
         </form>
-        <section class="filter-panel" id="filter-panel" aria-label="Filter resep" hidden>
+        <section
+          class="filter-panel"
+          id="filter-panel"
+          aria-label="Filter resep"
+          aria-hidden="true"
+          inert
+          hidden
+        >
+          <div class="filter-panel-background" aria-hidden="true"></div>
           <section class="filter-group" role="group" aria-labelledby="filter-allergen-title">
-            <h2 class="filter-group-title" id="filter-allergen-title">Filter Alergen</h2>
+            <h2 class="filter-group-title" id="filter-allergen-title">Pilihan Alergen</h2>
             <div class="filter-options filter-options-allergens">
               <label class="filter-option" for="filter-egg">
                 <input id="filter-egg" type="checkbox" value="egg" />
@@ -138,12 +160,12 @@
               </label>
               <label class="filter-option" for="filter-nuts">
                 <input id="filter-nuts" type="checkbox" value="nuts" />
-                <span>kacang</span>
+                <span>Kacang</span>
               </label>
             </div>
           </section>
           <section class="filter-group" role="group" aria-labelledby="filter-preference-title">
-            <h2 class="filter-group-title" id="filter-preference-title">Pilihan Alergen</h2>
+            <h2 class="filter-group-title" id="filter-preference-title">Bebas Pedas</h2>
             <div class="filter-options filter-options-preferences">
               <label class="filter-option" for="filter-chili-free">
                 <input id="filter-chili-free" type="checkbox" value="chili" />
@@ -151,12 +173,77 @@
               </label>
               <label class="filter-option" for="filter-pepper-free">
                 <input id="filter-pepper-free" type="checkbox" value="pepper" />
-                <span>Bebas Lada</span>
+                <span>Bebas Laba</span>
               </label>
             </div>
           </section>
+          <button
+            class="filter-close"
+            id="filter-close"
+            type="button"
+            aria-label="Tutup filter"
+            title="Tutup filter"
+          >
+            <span>X</span>
+          </button>
+          <button class="filter-apply" id="filter-apply" type="button">
+            <span>Terapkan Filter</span>
+          </button>
         </section>
       </header>
+
+      <section
+        class="recipe-detail"
+        id="recipe-detail"
+        aria-label="Detail resep"
+        hidden
+      >
+        <header class="detail-hero">
+          <button class="detail-back" id="detail-back" type="button" aria-label="Kembali ke daftar resep">
+            <img src="assets/figma/detail-back.png" alt="" />
+          </button>
+          <h1 class="detail-page-title">DETAIL RESEP</h1>
+          <button class="detail-action detail-like" id="detail-like" type="button" aria-label="Sukai resep" aria-pressed="false">
+            <img src="assets/figma/detail-heart.svg" alt="" />
+          </button>
+          <h2 class="detail-recipe-title" id="detail-recipe-title">Memuat resep...</h2>
+          <button class="detail-action detail-bookmark" id="detail-bookmark" type="button" aria-label="Simpan resep" aria-pressed="false">
+            <img src="assets/figma/detail-bookmark.svg" alt="" />
+          </button>
+        </header>
+
+        <div class="detail-body">
+          <p class="detail-feedback" id="detail-feedback" role="status" aria-live="polite" hidden></p>
+          <section class="detail-ingredient-section" id="detail-missing-section">
+            <h2 class="detail-section-title" id="detail-missing-title">Bahan tidak tersedia:</h2>
+            <div class="detail-ingredient-card">
+              <ul class="detail-ingredient-list" id="detail-missing-list"></ul>
+              <button class="detail-copy" type="button" data-copy-list="detail-missing-list" aria-label="Salin bahan tidak tersedia">
+                <span>SALIN</span>
+                <img src="assets/figma/detail-copy.svg" alt="" />
+              </button>
+            </div>
+          </section>
+
+          <section class="detail-ingredient-section" id="detail-available-section">
+            <h2 class="detail-section-title" id="detail-available-title">Bahan tersedia:</h2>
+            <div class="detail-ingredient-card">
+              <ul class="detail-ingredient-list" id="detail-available-list"></ul>
+              <button class="detail-copy" type="button" data-copy-list="detail-available-list" aria-label="Salin bahan tersedia">
+                <span>SALIN</span>
+                <img src="assets/figma/detail-copy.svg" alt="" />
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <img class="detail-scrollbar" src="assets/figma/detail-scroll.svg" alt="" aria-hidden="true" />
+        <footer class="detail-footer">
+          <button class="detail-steps-button" id="detail-steps" type="button">
+            LIHAT LANGKAH - LANGKAH
+          </button>
+        </footer>
+      </section>
 
       <main class="recipe-content">
         <section class="recipe-grid" id="recipe-grid" aria-label="Daftar resep"></section>
@@ -169,21 +256,60 @@
         </nav>
       </main>
 
-      <nav class="bottom-nav" aria-label="Navigasi utama">
-        <a class="nav-item is-active" href="#" aria-label="Beranda" aria-current="page">
-          <span class="sr-only">Beranda</span>
-        </a>
-        <a class="nav-item" href="#" aria-label="Resep tersimpan">
-          <span class="sr-only">Resep tersimpan</span>
-        </a>
-        <a class="nav-item" href="#" aria-label="Profil">
-          <span class="sr-only">Profil</span>
-        </a>
+      <button
+        class="drawer-backdrop"
+        id="drawer-backdrop"
+        type="button"
+        aria-label="Tutup menu"
+        aria-hidden="true"
+        inert
+        hidden
+      ></button>
+      <nav
+        class="menu-drawer"
+        id="bottom-nav"
+        aria-label="Navigasi utama"
+        aria-hidden="true"
+        inert
+        hidden
+      >
+        <a class="drawer-signup" href="#" data-menu-link>Daftar atau Masuk</a>
+        <div class="drawer-links">
+          <a class="drawer-link is-active" href="#" aria-current="page" data-menu-link>
+            <img src="assets/figma/drawer-home.svg" alt="" />
+            <span>HOME</span>
+          </a>
+          <a class="drawer-link" href="#" data-menu-link>
+            <img src="assets/figma/drawer-bookmark.svg" alt="" />
+            <span>BOOKMARK</span>
+          </a>
+          <a class="drawer-link" href="#" data-menu-link>
+            <img src="assets/figma/drawer-profile.svg" alt="" />
+            <span>PROFIL</span>
+          </a>
+        </div>
       </nav>
 
       <dialog class="validation-dialog" id="validation-dialog" aria-labelledby="validation-message">
         <p id="validation-message">Harap masukkan minimal satu bahan utama</p>
         <button class="button validation-dialog-button" type="button" autofocus>
+          Oke, Mengerti
+        </button>
+      </dialog>
+      <dialog class="recipe-steps-dialog" id="recipe-steps-dialog" aria-labelledby="recipe-steps-title">
+        <div class="steps-dialog-heading">
+          <h2 id="recipe-steps-title">Langkah Memasak</h2>
+          <button class="steps-dialog-close" id="steps-dialog-close" type="button" aria-label="Tutup langkah memasak">X</button>
+        </div>
+        <ol class="recipe-steps-list" id="recipe-steps-list"></ol>
+      </dialog>
+      <dialog
+        class="copy-success-dialog"
+        id="copy-success-dialog"
+        aria-labelledby="copy-success-message"
+      >
+        <p id="copy-success-message">Daftar bahan berhasil disalin</p>
+        <button class="copy-success-button" id="copy-success-close" type="button" autofocus>
           Oke, Mengerti
         </button>
       </dialog>

@@ -1,3 +1,7 @@
+import { createRecipeCard, renderPagination } from "./recipe-view.js";
+import { renderRecipeDetail } from "./recipe-detail.js";
+import { initFilters } from "./filters.js";
+
 const MAX_INGREDIENTS = 5;
 const API_BASE_URL = "http://127.0.0.1:5000/api";
 
@@ -26,10 +30,21 @@ export function initInput() {
   const recipeSearchForm = document.querySelector("#recipe-search");
   const ingredientSearchForm = document.querySelector("#ingredient-search");
   const recipeGrid = document.querySelector("#recipe-grid");
+  const searchPanel = document.querySelector(".search-panel");
+  const recipeContent = document.querySelector(".recipe-content");
+  const detailScreen = document.querySelector("#recipe-detail");
+  const detailTitle = document.querySelector("#detail-recipe-title");
+  const detailFeedback = document.querySelector("#detail-feedback");
+  const detailBackButton = document.querySelector("#detail-back");
+  const detailLikeButton = document.querySelector("#detail-like");
+  const detailBookmarkButton = document.querySelector("#detail-bookmark");
+  const detailStepsButton = document.querySelector("#detail-steps");
+  const stepsDialog = document.querySelector("#recipe-steps-dialog");
+  const stepsDialogClose = document.querySelector("#steps-dialog-close");
+  const copySuccessDialog = document.querySelector("#copy-success-dialog");
+  const copySuccessClose = document.querySelector("#copy-success-close");
   const emptyState = document.querySelector("#empty-state");
   const pagination = document.querySelector(".pagination");
-  const filterButton = document.querySelector("#filter-button");
-  const filterPanel = document.querySelector("#filter-panel");
   const ingredientCount = document.querySelector("#ingredient-count");
   const ingredientSearchButton = ingredientSearchForm?.querySelector(
     'button[type="submit"]',
@@ -42,10 +57,21 @@ export function initInput() {
     !recipeSearchForm ||
     !ingredientSearchForm ||
     !recipeGrid ||
+    !(searchPanel instanceof HTMLElement) ||
+    !(recipeContent instanceof HTMLElement) ||
+    !(detailScreen instanceof HTMLElement) ||
+    !(detailTitle instanceof HTMLElement) ||
+    !(detailFeedback instanceof HTMLElement) ||
+    !(detailBackButton instanceof HTMLButtonElement) ||
+    !(detailLikeButton instanceof HTMLButtonElement) ||
+    !(detailBookmarkButton instanceof HTMLButtonElement) ||
+    !(detailStepsButton instanceof HTMLButtonElement) ||
+    !(stepsDialog instanceof HTMLDialogElement) ||
+    !(stepsDialogClose instanceof HTMLButtonElement) ||
+    !(copySuccessDialog instanceof HTMLDialogElement) ||
+    !(copySuccessClose instanceof HTMLButtonElement) ||
     !emptyState ||
     !pagination ||
-    !filterButton ||
-    !filterPanel ||
     !ingredientCount ||
     !ingredientSearchButton ||
     !validationDialog ||
@@ -70,18 +96,16 @@ export function initInput() {
 
   let currentSearch = null;
   let latestRequestId = 0;
+  let latestDetailRequestId = 0;
+  let activeRecipe = null;
+  let activeAvailableIngredients = [];
+  let previousScrollPosition = 0;
 
   function showValidationDialog(message) {
     validationMessage.textContent = message;
     if (!validationDialog.open) {
       validationDialog.showModal();
     }
-  }
-
-  function getSelectedFilters() {
-    return [...filterPanel.querySelectorAll('input[type="checkbox"]:checked')].map(
-      (input) => input.value,
-    );
   }
 
   function updateIngredientCount() {
@@ -102,109 +126,6 @@ export function initInput() {
     return additionalIngredientCount;
   }
 
-  function createRecipeCard(recipe) {
-    const card = document.createElement("article");
-    const name = recipe.nama_resep || "Resep tanpa nama";
-    const ingredients = Array.isArray(recipe.bahan_terpakai)
-      ? recipe.bahan_terpakai
-      : [];
-    card.className = "recipe-card";
-    card.dataset.name = name.toLocaleLowerCase("id");
-    card.dataset.ingredients = ingredients
-      .map((ingredient) => ingredient.nama_bahan || "")
-      .join(" ")
-      .toLocaleLowerCase("id");
-
-    const title = document.createElement("h2");
-    title.textContent = name;
-
-    const divider = document.createElement("img");
-    divider.className = "recipe-divider";
-    divider.src = "assets/figma/card-divider.svg";
-    divider.alt = "";
-    divider.setAttribute("aria-hidden", "true");
-
-    const meta = document.createElement("div");
-    meta.className = "recipe-meta";
-
-    const ingredientSection = document.createElement("div");
-    const ingredientTitle = document.createElement("h3");
-    ingredientTitle.textContent = "Bahan";
-    const ingredientList = document.createElement("ol");
-    const mainIngredients = ingredients
-      .filter((ingredient) => ingredient.is_bumbu_dasar !== true)
-      .slice(0, 4);
-    for (const ingredient of mainIngredients) {
-      const item = document.createElement("li");
-      const ingredientName = ingredient.nama_bahan || "Bahan";
-      item.textContent = ingredientName;
-      ingredientList.append(item);
-    }
-    ingredientSection.append(ingredientTitle, ingredientList);
-
-    const likes = document.createElement("span");
-    likes.className = "recipe-likes";
-    const likeCount = recipe.jumlah_like ?? 0;
-    likes.setAttribute("aria-label", `${likeCount} suka`);
-    const likeIcon = document.createElement("span");
-    likeIcon.className = "like-icon";
-    likeIcon.setAttribute("aria-hidden", "true");
-    const likeImage = document.createElement("img");
-    likeImage.src = "assets/figma/heart-like.png";
-    likeImage.alt = "";
-    likeIcon.append(likeImage);
-    const likeCountLabel = document.createElement("span");
-    likeCountLabel.className = "like-count";
-    likeCountLabel.textContent = String(likeCount);
-    likes.append(likeIcon, likeCountLabel);
-    meta.append(ingredientSection, likes);
-    card.append(title, divider, meta);
-    return card;
-  }
-
-
-        //Page Button//
-  function renderPagination(page, totalPages) {
-    pagination.replaceChildren();
-    pagination.hidden = totalPages <= 1;
-    if (totalPages <= 1) {
-      return;
-    }
-
-    const pages = new Set([1, totalPages]);
-    for (
-      let number = Math.max(1, page - 1);
-      number <= Math.min(totalPages, page + 1);
-      number += 1
-    ) {
-      pages.add(number);
-    }
-
-    let previousPage = 0;
-    for (const pageNumber of [...pages].sort((a, b) => a - b)) {
-      if (previousPage && pageNumber - previousPage > 1) {
-        const more = document.createElement("span");
-        more.className = "page-more";
-        more.textContent = "...";
-        pagination.append(more);
-      }
-      
-      const button = document.createElement("button");
-      button.className = "page-button";
-      button.type = "button";
-      button.textContent = String(pageNumber);
-      if (pageNumber === page) {
-        button.classList.add("is-current");
-        button.setAttribute("aria-current", "page");
-      }
-      button.addEventListener("click", () => {
-        void loadRecipes(currentSearch, pageNumber);
-      });
-      pagination.append(button);
-      previousPage = pageNumber;
-    }
-  }
-
   async function loadRecipes(search, page = 1) {
     const requestId = ++latestRequestId;
     currentSearch = search;
@@ -216,7 +137,7 @@ export function initInput() {
 
     try {
       let result;
-      const selectedFilters = getSelectedFilters();
+      const selectedFilters = filters.getSelectedFilters();
       const params = { page: String(page) };
       if (search) {
         params.q = search.query;
@@ -224,6 +145,198 @@ export function initInput() {
       if (selectedFilters.length > 0) {
         params.filters = selectedFilters.join(",");
       }
+
+      function setDetailFeedback(message) {
+        detailFeedback.textContent = message;
+        detailFeedback.hidden = !message;
+      }
+
+      function closeRecipeDetail() {
+        latestDetailRequestId += 1;
+        detailScreen.hidden = true;
+        searchPanel.hidden = false;
+        recipeContent.hidden = false;
+        activeRecipe = null;
+        activeAvailableIngredients = [];
+        if (stepsDialog.open) {
+          stepsDialog.close();
+        }
+        window.scrollTo(0, previousScrollPosition);
+      }
+
+      async function openRecipeDetail(card) {
+        const recipeId = card.dataset.recipeId;
+        if (!recipeId || !/^\d+$/.test(recipeId)) {
+          setDetailFeedback("ID resep tidak valid.");
+          return;
+        }
+
+        const requestId = ++latestDetailRequestId;
+        previousScrollPosition = window.scrollY;
+        searchPanel.hidden = true;
+        recipeContent.hidden = true;
+        detailScreen.hidden = false;
+        detailTitle.textContent = "Memuat resep...";
+        activeRecipe = null;
+        activeAvailableIngredients = [];
+        document.querySelector("#detail-missing-list")?.replaceChildren();
+        document.querySelector("#detail-available-list")?.replaceChildren();
+        setDetailFeedback("");
+        window.scrollTo(0, 0);
+
+        try {
+          const result = await fetchRecipes(`recipes/${recipeId}`);
+          if (requestId !== latestDetailRequestId || detailScreen.hidden) {
+            return;
+          }
+
+          const recipe = result.data;
+          if (!recipe || typeof recipe !== "object") {
+            throw new Error("Data detail resep tidak tersedia.");
+          }
+
+          let availableIngredients = [];
+          if (currentSearch?.type === "ingredients") {
+            try {
+              const matchedIngredients = JSON.parse(card.dataset.availableIngredients || "[]");
+              availableIngredients = Array.isArray(matchedIngredients) && matchedIngredients.length
+                ? matchedIngredients
+                : getIngredients(currentSearch.query);
+            } catch (error) {
+              throw new Error("Data bahan yang cocok pada resep tidak valid.", { cause: error });
+            }
+          }
+
+          activeRecipe = recipe;
+          activeAvailableIngredients = availableIngredients;
+          renderRecipeDetail(recipe, activeAvailableIngredients);
+        } catch (error) {
+          if (requestId !== latestDetailRequestId) {
+            return;
+          }
+          detailTitle.textContent = "Detail resep tidak tersedia";
+          setDetailFeedback(`Gagal memuat detail resep. ${error.message}`);
+        }
+      }
+
+      async function updateRecipeAction(action, button) {
+        if (!activeRecipe) {
+          setDetailFeedback("Detail resep belum selesai dimuat.");
+          return;
+        }
+
+        const isSelected = button.getAttribute("aria-pressed") === "true";
+        const endpoint = action === "like" ? "like" : "bookmark";
+        const method = isSelected ? "DELETE" : "POST";
+
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/recipes/${activeRecipe.id_resep}/${endpoint}`,
+            { method },
+          );
+          const result = await response.json();
+          if (!response.ok || result.status === "error") {
+            throw new Error(result.message || "Aksi resep gagal.");
+          }
+
+          const key = action === "like" ? "sudah_like" : "sudah_simpan";
+          activeRecipe = { ...activeRecipe, [key]: result[key] === true };
+          renderRecipeDetail(activeRecipe, activeAvailableIngredients);
+          setDetailFeedback(action === "like" ? "Status suka resep diperbarui." : "Status simpan resep diperbarui.");
+        } catch (error) {
+          setDetailFeedback(error.message);
+        }
+      }
+
+      async function copyIngredientList(button) {
+        const listId = button.dataset.copyList;
+        const list = listId ? document.getElementById(listId) : null;
+        if (!(list instanceof HTMLUListElement)) {
+          throw new Error("Daftar bahan untuk disalin tidak ditemukan.");
+        }
+
+        const text = [...list.querySelectorAll("li")]
+          .filter((item) => !item.classList.contains("detail-list-empty"))
+          .map((item) => item.textContent.trim())
+          .join("\n");
+        if (!text) {
+          setDetailFeedback("Tidak ada bahan untuk disalin.");
+          return;
+        }
+        if (!navigator.clipboard?.writeText) {
+          setDetailFeedback("Fitur salin tidak tersedia di browser ini.");
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(text);
+          setDetailFeedback("");
+          if (!copySuccessDialog.open) {
+            copySuccessDialog.showModal();
+          }
+        } catch (error) {
+          setDetailFeedback(`Daftar bahan tidak dapat disalin. ${error.message}`);
+        }
+      }
+
+      recipeGrid.addEventListener("click", (event) => {
+        if (!(event.target instanceof Element)) {
+          return;
+        }
+        const card = event.target.closest(".recipe-card");
+        if (card instanceof HTMLElement) {
+          void openRecipeDetail(card);
+        }
+      });
+
+      recipeGrid.addEventListener("keydown", (event) => {
+        if (
+          !(event.target instanceof HTMLElement) ||
+          !event.target.matches(".recipe-card") ||
+          (event.key !== "Enter" && event.key !== " ")
+        ) {
+          return;
+        }
+        event.preventDefault();
+        void openRecipeDetail(event.target);
+      });
+
+      detailBackButton.addEventListener("click", closeRecipeDetail);
+      detailLikeButton.addEventListener("click", () => {
+        void updateRecipeAction("like", detailLikeButton);
+      });
+      detailBookmarkButton.addEventListener("click", () => {
+        void updateRecipeAction("bookmark", detailBookmarkButton);
+      });
+      detailStepsButton.addEventListener("click", () => {
+        if (!activeRecipe?.langkah?.length) {
+          setDetailFeedback("Langkah memasak belum tersedia untuk resep ini.");
+          return;
+        }
+        stepsDialog.showModal();
+      });
+      stepsDialogClose.addEventListener("click", () => stepsDialog.close());
+      copySuccessClose.addEventListener("click", () => copySuccessDialog.close());
+      detailScreen.addEventListener("click", (event) => {
+        if (!(event.target instanceof Element)) {
+          return;
+        }
+        const copyButton = event.target.closest("[data-copy-list]");
+        if (copyButton instanceof HTMLButtonElement) {
+          void copyIngredientList(copyButton);
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (
+          event.key === "Escape" &&
+          !detailScreen.hidden &&
+          !stepsDialog.open &&
+          !copySuccessDialog.open
+        ) {
+          closeRecipeDetail();
+        }
+      });
 
       if (!search) {
         result = await fetchRecipes("most-liked", params);
@@ -255,7 +368,9 @@ export function initInput() {
       } else {
         emptyState.hidden = true;
       }
-      renderPagination(page, result.total_halaman || 1);
+      renderPagination(pagination, page, result.total_halaman || 1, (selectedPage) => {
+        void loadRecipes(currentSearch, selectedPage);
+      });
     } catch (error) {
       if (requestId !== latestRequestId) {
         return;
@@ -361,18 +476,8 @@ export function initInput() {
     void loadRecipes({ type: "ingredients", query: ingredients.join(",") });
   });
 
-  filterButton.addEventListener("click", () => {
-    const isFiltered = filterButton.getAttribute("aria-pressed") === "true";
-    filterButton.setAttribute("aria-pressed", String(!isFiltered));
-    filterButton.setAttribute("aria-expanded", String(!isFiltered));
-    filterButton.classList.toggle("is-selected", !isFiltered);
-    filterPanel.hidden = isFiltered;
-  });
-
-  filterPanel.addEventListener("change", (event) => {
-    if (event.target instanceof HTMLInputElement && event.target.type === "checkbox") {
-      void loadRecipes(currentSearch);
-    }
+  const filters = initFilters(() => {
+    void loadRecipes(currentSearch);
   });
 
   void loadRecipes(null);
