@@ -6,6 +6,12 @@ const MAX_INGREDIENTS = 5;
 const API_BASE_URL = "http://127.0.0.1:5000/api";
 
 function getIngredients(value) {
+  // Jika teks berakhiran dengan koma atau titik koma (misal "ayam,"), 
+  // langsung kembalikan array tiruan agar terdeteksi > 1 item dan memicu validasi seketika.
+  if (/[,;]\s*$/.test(value)) {
+    return ["dummy_item_1", "dummy_item_2"];
+  }
+
   return value
     .split(/[,;\n]+/)
     .map((ingredient) => ingredient.trim().toLocaleLowerCase("id"))
@@ -228,17 +234,11 @@ export function initInput() {
         const isSelected = button.getAttribute("aria-pressed") === "true";
         const endpoint = action === "like" ? "like" : "bookmark";
         const method = isSelected ? "DELETE" : "POST";
-        const token = localStorage.getItem("token");
 
         try {
           const response = await fetch(
             `${API_BASE_URL}/recipes/${activeRecipe.id_resep}/${endpoint}`,
-            { 
-              method,
-              headers: {
-                ...(token ? { "Authorization": `Bearer ${token}` } : {})
-              }
-            },
+            { method },
           );
           const result = await response.json();
           if (!response.ok || result.status === "error") {
