@@ -113,67 +113,74 @@ export function renderRecipeDetail(recipe, availableIngredientNames = []) {
     button.classList.toggle("is-active", isSelected);
   }
 
-  // --- EVENT LISTENER TOMBOL LIKE & BOOKMARK (Hanya cek token saat diklik) ---
-  
+  // --- LIKE: BEBAS TANPA LOGIN ---
+  let isLikeSubmitting = false;
   likeButton.onclick = async () => {
-    const token = localStorage.getItem("token"); 
-    if (!token) {
-      alert("Silakan login terlebih dahulu untuk menyukai resep!");
-      return;
-    }
+    if (isLikeSubmitting) return;
+    isLikeSubmitting = true;
 
     try {
       const isLiked = likeButton.getAttribute("aria-pressed") === "true";
       const method = isLiked ? "DELETE" : "POST";
 
-      const response = await fetch(`/api/recipes/${recipe.id_resep}/like`, {
+      const response = await fetch(`http://127.0.0.1:5000/api/recipes/${recipe.id_resep}/like`, {
         method: method,
         headers: {
-          "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json"
         }
       });
 
+      const result = await response.json();
       if (response.ok) {
         const newState = !isLiked;
         likeButton.setAttribute("aria-pressed", String(newState));
         likeButton.classList.toggle("is-active", newState);
       } else {
-        const err = await response.json();
-        alert(err.message || "Gagal mengubah status like.");
+        alert(result.message || "Gagal mengubah status like.");
       }
     } catch (error) {
       console.error("Terjadi kesalahan jaringan:", error);
+    } finally {
+      isLikeSubmitting = false;
     }
   };
 
+  // --- BOOKMARK: WAJIB LOGIN ---
+  let isBookmarkSubmitting = false;
   bookmarkButton.onclick = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token"); // Pastikan nama key di localStorage sesuai (misal: "token" atau "access_token")
     if (!token) {
       alert("Silakan login terlebih dahulu untuk menyimpan resep!");
       return;
     }
 
+    if (isBookmarkSubmitting) return;
+    isBookmarkSubmitting = true;
+
     try {
       const isBookmarked = bookmarkButton.getAttribute("aria-pressed") === "true";
       const method = isBookmarked ? "DELETE" : "POST";
 
-      const response = await fetch(`/api/recipes/${recipe.id_resep}/bookmark`, {
+      const response = await fetch(`http://127.0.0.1:5000/api/recipes/${recipe.id_resep}/bookmark`, {
         method: method,
         headers: {
+          "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         }
       });
 
+      const result = await response.json();
       if (response.ok) {
         const newState = !isBookmarked;
         bookmarkButton.setAttribute("aria-pressed", String(newState));
         bookmarkButton.classList.toggle("is-active", newState);
       } else {
-        const err = await response.json();
-        alert(err.message || "Gagal mengubah status bookmark.");
+        alert(result.message || "Gagal mengubah status bookmark.");
       }
     } catch (error) {
       console.error("Terjadi kesalahan jaringan:", error);
+    } finally {
+      isBookmarkSubmitting = false;
     }
   };
 

@@ -18,7 +18,7 @@ def _terpopuler():
     hasil = recipe_service.resep_terpopuler(
         validasi_halaman(request.args.get("page")),
         validasi_filter(request.args.get("filters")),
-        g.id_user,
+        getattr(g, 'id_user', None),
     )
     return success_response(hasil)
 
@@ -31,7 +31,7 @@ def _cari_bahan():
         utama, tambahan,
         validasi_halaman(request.args.get("page")),
         validasi_filter(request.args.get("filters")),
-        g.id_user,
+        getattr(g, 'id_user', None),
     )
     hasil["keyword_pencarian"] = ",".join([utama] + tambahan)
     return success_response(hasil)
@@ -43,7 +43,7 @@ def _cari_nama():
         keyword,
         validasi_halaman(request.args.get("page")),
         validasi_filter(request.args.get("filters")),
-        g.id_user,
+        getattr(g, 'id_user', None),
     )
     hasil["keyword_pencarian"] = keyword
     return success_response(hasil)
@@ -65,7 +65,7 @@ recipe_bp.get("/check-name")(_cek_nama)
 @recipe_bp.get("/<int:id_resep>")
 @optional_auth
 def detail(id_resep):
-    return success_response({"data": recipe_service.detail_resep(id_resep, g.id_user)})
+    return success_response({"data": recipe_service.detail_resep(id_resep, getattr(g, 'id_user', None))})
 
 
 @recipe_bp.get("/<int:id_resep>/cooking-mode")
@@ -74,28 +74,27 @@ def cooking_mode(id_resep):
 
 
 @recipe_bp.post("/<int:id_resep>/like")
-@login_required
+@optional_auth
 def like(id_resep):
-    return success_response(interaction_service.like(g.id_user, id_resep))
+    return success_response(interaction_service.like(getattr(g, 'id_user', None), id_resep))
 
 
 @recipe_bp.delete("/<int:id_resep>/like")
-@login_required
+@optional_auth
 def unlike(id_resep):
-    return success_response(interaction_service.unlike(g.id_user, id_resep))
+    return success_response(interaction_service.unlike(getattr(g, 'id_user', None), id_resep))
 
 
 @recipe_bp.post("/<int:id_resep>/bookmark")
-@login_required
+@login_required  # <--- Bookmark wajib login kembali
 def bookmark(id_resep):
     return success_response(interaction_service.simpan(g.id_user, id_resep))
 
 
 @recipe_bp.delete("/<int:id_resep>/bookmark")
-@login_required
+@login_required  # <--- Bookmark wajib login kembali
 def unbookmark(id_resep):
     return success_response(interaction_service.hapus_simpan(g.id_user, id_resep))
-
 
 # ---------- route lama (nama & format respons dipertahankan) ----------
 

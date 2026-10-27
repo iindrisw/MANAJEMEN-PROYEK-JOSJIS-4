@@ -6,12 +6,6 @@ const MAX_INGREDIENTS = 5;
 const API_BASE_URL = "http://127.0.0.1:5000/api";
 
 function getIngredients(value) {
-  // Jika teks berakhiran dengan koma atau titik koma (misal "ayam,"), 
-  // langsung kembalikan array tiruan agar terdeteksi > 1 item dan memicu validasi seketika.
-  if (/[,;]\s*$/.test(value)) {
-    return ["dummy_item_1", "dummy_item_2"];
-  }
-
   return value
     .split(/[,;\n]+/)
     .map((ingredient) => ingredient.trim().toLocaleLowerCase("id"))
@@ -115,9 +109,9 @@ export function initInput() {
   }
 
   function updateIngredientCount() {
-    const additionalIngredientCount = getIngredients(
-      additionalIngredientsInput.value,
-    ).length;
+    const rawValue = additionalIngredientsInput.value;
+    const ingredients = getIngredients(rawValue);
+    const additionalIngredientCount = ingredients.length;
 
     ingredientCount.textContent = `${additionalIngredientCount}/${MAX_INGREDIENTS}`;
     ingredientCount.setAttribute(
@@ -126,9 +120,13 @@ export function initInput() {
     );
     ingredientSearchButton.disabled = additionalIngredientCount > MAX_INGREDIENTS;
 
-    if (additionalIngredientCount > MAX_INGREDIENTS && !validationDialog.open) {
-      showValidationDialog("Sudah mencapai batas maksimum bahan");
+    const isEndingWithComma = /[,;]\s*$/.test(rawValue);
+    if ((additionalIngredientCount >= MAX_INGREDIENTS && isEndingWithComma) || additionalIngredientCount > MAX_INGREDIENTS) {
+      if (!validationDialog.open) {
+        showValidationDialog("Sudah mencapai batas maksimum bahan");
+      }
     }
+
     return additionalIngredientCount;
   }
 
@@ -225,32 +223,68 @@ export function initInput() {
         }
       }
 
-      async function updateRecipeAction(action, button) {
-        if (!activeRecipe) {
-          setDetailFeedback("Detail resep belum selesai dimuat.");
-          return;
-        }
-
-        const isSelected = button.getAttribute("aria-pressed") === "true";
-        const endpoint = action === "like" ? "like" : "bookmark";
-        const method = isSelected ? "DELETE" : "POST";
+      let isLikeSubmitting = false;
+      async function handleLikeAction() {
+        if (!activeRecipe || isLikeSubmitting) return;
+        isLikeSubmitting = true;
 
         try {
-          const response = await fetch(
-            `${API_BASE_URL}/recipes/${activeRecipe.id_resep}/${endpoint}`,
-            { method },
-          );
+          const isSelected = detailLikeButton.getAttribute("aria-pressed") === "true";
+          const method = isSelected ? "DELETE" : "POST";
+
+          const response = await fetch(`${API_BASE_URL}/recipes/${activeRecipe.id_resep}/like`, { 
+            method,
+            headers: { "Content-Type": "application/json" }
+          });
           const result = await response.json();
           if (!response.ok || result.status === "error") {
             throw new Error(result.message || "Aksi resep gagal.");
           }
 
-          const key = action === "like" ? "sudah_like" : "sudah_simpan";
-          activeRecipe = { ...activeRecipe, [key]: result[key] === true };
+          activeRecipe = { ...activeRecipe, sudah_like: result.sudah_like === true };
           renderRecipeDetail(activeRecipe, activeAvailableIngredients);
-          setDetailFeedback(action === "like" ? "Status suka resep diperbarui." : "Status simpan resep diperbarui.");
+          setDetailFeedback("Status suka resep diperbarui.");
         } catch (error) {
           setDetailFeedback(error.message);
+        } finally {
+          isLikeSubmitting = false;
+        }
+      }
+
+      let isBookmarkSubmitting = false;
+      async function handleBookmarkAction() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("Silakan login terlebih dahulu untuk menyimpan resep!");
+          return;
+        }
+
+        if (!activeRecipe || isBookmarkSubmitting) return;
+        isBookmarkSubmitting = true;
+
+        try {
+          const isSelected = detailBookmarkButton.getAttribute("aria-pressed") === "true";
+          const method = isSelected ? "DELETE" : "POST";
+
+          const response = await fetch(`${API_BASE_URL}/recipes/${activeRecipe.id_resep}/bookmark`, { 
+            method,
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            }
+          });
+          const result = await response.json();
+          if (!response.ok || result.status === "error") {
+            throw new Error(result.message || "Aksi resep gagal.");
+          }
+
+          activeRecipe = { ...activeRecipe, sudah_simpan: result.sudah_simpan === true };
+          renderRecipeDetail(activeRecipe, activeAvailableIngredients);
+          setDetailFeedback("Status simpan resep diperbarui.");
+        } catch (error) {
+          setDetailFeedback(error.message);
+        } finally {
+          isBookmarkSubmitting = false;
         }
       }
 
@@ -308,12 +342,14 @@ export function initInput() {
       });
 
       detailBackButton.addEventListener("click", closeRecipeDetail);
-      detailLikeButton.addEventListener("click", () => {
-        void updateRecipeAction("like", detailLikeButton);
-      });
-      detailBookmarkButton.addEventListener("click", () => {
-        void updateRecipeAction("bookmark", detailBookmarkButton);
-      });
+      
+      detailLikeButton.onclick = () => {
+        void handleLikeAction();
+      };
+      detailBookmarkButton.onclick = () => {
+        void handleBookmarkAction();
+      };
+
       detailStepsButton.addEventListener("click", () => {
         if (!activeRecipe?.langkah?.length) {
           setDetailFeedback("Langkah memasak belum tersedia untuk resep ini.");
