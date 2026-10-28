@@ -449,13 +449,26 @@ export function initInput() {
 
   mainIngredientInput.addEventListener("input", () => {
     updateIngredientCount();
-    if (getIngredients(mainIngredientInput.value).length > 1) {
+    const val = mainIngredientInput.value;
+    // VALIDASI BARU: Jika di input bahan utama ada tanda koma, langsung trigger error
+    if (val.includes(",")) {
+      showValidationDialog("Bahan utama tidak boleh mengandung tanda koma!");
+    } else if (getIngredients(val).length > 1) {
       showValidationDialog(
         "Bahan utama hanya boleh diisi satu jenis bahan saja, masukkan bahan lainnya di kolom bahan tambahan",
       );
     }
   });
-  additionalIngredientsInput.addEventListener("input", updateIngredientCount);
+
+  additionalIngredientsInput.addEventListener("input", () => {
+    updateIngredientCount();
+    const val = additionalIngredientsInput.value;
+    // VALIDASI TAMBAHAN: Jika user mengetik tanda koma di awal atau format salah
+    if (val.startsWith(",")) {
+      showValidationDialog("Format penulisan bahan tambahan tidak valid (tidak boleh diawali koma)");
+    }
+  });
+
   updateIngredientCount();
 
   recipeQueryInput.addEventListener("input", () => {
@@ -488,6 +501,12 @@ export function initInput() {
 
   ingredientSearchForm.addEventListener("submit", (event) => {
     event.preventDefault();
+
+    const mainVal = mainIngredientInput.value;
+    if (mainVal.includes(",")) {
+      showValidationDialog("Bahan utama tidak boleh mengandung tanda koma!");
+      return;
+    }
 
     const ingredientTotal = updateIngredientCount();
     if (ingredientTotal > MAX_INGREDIENTS) {
