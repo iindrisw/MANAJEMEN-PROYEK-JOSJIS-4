@@ -394,6 +394,23 @@ export function initInput() {
       }
 
       const recipes = Array.isArray(result.data) ? result.data : [];
+<<<<<<< HEAD
+=======
+      //indikator jumlah bahan yang cocok
+      recipes.sort((a, b) => {
+      const matchA = (a.hasOwnProperty('bahan_cocok') && Array.isArray(a.bahan_cocok)) ? a.bahan_cocok.length : 0;
+      const matchB = (b.hasOwnProperty('bahan_cocok') && Array.isArray(b.bahan_cocok)) ? b.bahan_cocok.length : 0;
+      
+      // Fallback: Jika tidak ada kecocokan bahan atau jumlahnya sama, urutkan berdasarkan jumlah likes
+      if (matchA === matchB) {
+        const likeA = a.jumlah_like || 0;
+        const likeB = b.jumlah_like || 0;
+        return likeB - likeA;
+      }
+      return matchB - matchA; // Terbesar ke terkecil
+    });
+  
+>>>>>>> front-end
       recipeGrid.replaceChildren(...recipes.map(createRecipeCard));
       if (recipes.length === 0) {
         emptyState.textContent = "Resep tidak ditemukan.";

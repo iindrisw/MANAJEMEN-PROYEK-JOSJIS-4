@@ -52,6 +52,28 @@ export function createRecipeCard(recipe) {
   likes.append(likeIcon, likeCountLabel);
   meta.append(ingredientSection, likes);
   card.append(title, meta);
+<<<<<<< HEAD
+=======
+
+  // 1. Masukkan elemen Like ke meta
+  meta.append(likes);
+
+  // 2. SKENARIO 1 & 2: Cek apakah ada data kecocokan bahan dari API
+  if (recipe.hasOwnProperty('bahan_cocok') && Array.isArray(recipe.bahan_cocok)) {
+    const matchedIngredients = recipe.bahan_cocok.length;
+    const totalIngredients = Array.isArray(recipe.bahan_terpakai) 
+      ? recipe.bahan_terpakai.filter(ingredient => ingredient.is_bumbu_dasar !== true).length 
+      : 0; 
+
+    const availabilityBadge = document.createElement("span");
+    availabilityBadge.className = "recipe-availability";
+    availabilityBadge.textContent = `${matchedIngredients}/${totalIngredients < 5 ? totalIngredients : 5} Bahan Tersedia`;
+    
+    meta.append(availabilityBadge);
+  }
+  meta.append(ingredientSection);
+  card.append(title, meta);
+>>>>>>> front-end
   return card;
 }
 
