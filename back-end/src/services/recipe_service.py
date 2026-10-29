@@ -154,15 +154,10 @@ def cek_nama_resep(keyword):
 
 # ---------------------------------------------------------------- kombinasi bahan
 
-# Bentuk "olahan/penyedap" yang BUKAN bahan utama. Contoh untuk utama=ayam:
-# "kaldu ayam", "royco ayam", "bumbu ayam goreng", "telur ayam", "minyak ayam".
-# MODIFIER_JARAK: boleh ada kata lain di antaranya ("kaldu bubuk rasa ayam").
-# MODIFIER_DEKAT: harus persis bersebelahan ("telur ayam" = telur, bukan ayam).
 MODIFIER_JARAK = ("kaldu", "rasa", "royco", "masako", "sajiku", "penyedap",
-                  "bumbu", "instan", "bubuk", "saus", "kecap")
+                 "bumbu", "instan", "bubuk", "saus", "kecap")
 MODIFIER_DEKAT = ("telur", "telor", "minyak", "lemak")
 
-# Batas deteksi "nama menu": istilah yang sering jadi judul resep tapi jarang jadi bahan.
 MIN_JUDUL_UNTUK_CEK_MENU = 20
 RASIO_MINIMAL_BAHAN = 0.3
 
@@ -172,8 +167,6 @@ def _esc(nilai):
 
 
 def _norm(kolom):
-    """Nama bahan dinormalisasi: huruf kecil, tanda baca jadi spasi, diapit spasi.
-    Dengan itu pola '% ayam%' cocok di AWAL KATA saja ('ikan' tidak lagi cocok dengan 'disesuaikan')."""
     ekspr = f"LOWER({kolom})"
     for ch in (",", ".", "(", ")", "/", "-", ":", ";"):
         ekspr = f"REPLACE({ekspr}, '{ch}', ' ')"
@@ -188,7 +181,6 @@ def _pola_kata(term):
 
 
 def _modifier_params(term, params, prefix):
-    """Tambah parameter pola 'olahan/penyedap' untuk `term`; kembalikan kondisi SQL NOT LIKE-nya."""
     kondisi = []
     for i, mod in enumerate(MODIFIER_JARAK):
         params[f"{prefix}j{i}"] = f"%{mod}%{_esc(term)}%"
@@ -201,8 +193,6 @@ def _modifier_params(term, params, prefix):
 
 @lru_cache(maxsize=1024)
 def _statistik_istilah(term):
-    """(resep yang memakai term sebagai bahan sungguhan, resep yang judulnya memuat term).
-    Data resep statis, jadi hasilnya di-cache per proses."""
     params = {"u": _pola_kata(term)}
     kondisi = [f"bn.n LIKE :u {ESC}"] + [
         k.replace("{N}", "bn.n") for k in _modifier_params(term, params, "m")
@@ -221,7 +211,6 @@ def _statistik_istilah(term):
 
 
 def pastikan_bahan_utama_valid(bahan_utama):
-    """Bahan utama harus bahan makanan sungguhan, bukan nama menu ('nasi goreng', 'soto', ...)."""
     pakai, judul = _statistik_istilah(bahan_utama)
     if pakai == 0 and judul > 0:
         raise AppError(
@@ -238,7 +227,6 @@ def pastikan_bahan_utama_valid(bahan_utama):
 
 
 def _bahan_tidak_dikenal(conn, bahan_tambahan):
-    """Bahan tambahan yang sama sekali tidak ada di database (mis. salah ketik)."""
     if not bahan_tambahan:
         return []
     params, kolom = {}, []
@@ -258,18 +246,6 @@ def _label_tingkat(utama, cocok, total_tambahan):
 
 
 def cari_resep_kombinasi(bahan_utama, bahan_tambahan, halaman, pola_filter, id_user=None):
-    """Pencarian: 1 bahan utama (wajib) + 0..5 bahan tambahan.
-
-    Bahan utama bersifat WAJIB dan harus bahan sungguhan: resep yang hanya memakai
-    'kaldu ayam' / 'royco ayam' / 'telur ayam' tidak dianggap resep ayam.
-
-    Urutan hasil:
-      1. Jumlah bahan tambahan yang cocok, terbanyak dulu
-         (utama + 5 tambahan -> utama + 4 -> ... -> utama saja).
-      2. Dalam tingkat yang sama: resep yang JUDULNYA memuat bahan utama (mis. 'Ayam Geprek').
-      3. Lalu resep yang cocok dengan bahan tambahan yang diketik lebih dulu.
-      4. Jumlah like, lalu id.
-    """
     pastikan_bahan_utama_valid(bahan_utama)
 
     n = len(bahan_tambahan)
@@ -284,7 +260,7 @@ def cari_resep_kombinasi(bahan_utama, bahan_tambahan, halaman, pola_filter, id_u
         kolom_bm.append(f"CASE WHEN n LIKE :t{i} {ESC} THEN 1 ELSE 0 END AS t{i}")
         flags.append(f"MAX(bm.t{i}) AS m{i}")
         cocok_expr.append(f"s.m{i}")
-        prioritas_expr.append(f"s.m{i} * {2 ** (n - 1 - i)}")  # diketik duluan = bobot besar
+        prioritas_expr.append(f"s.m{i} * {2 ** (n - 1 - i)}")
 
     select_flags = (", " + ", ".join(flags)) if flags else ""
     select_m = (", " + ", ".join(f"s.m{i}" for i in range(n))) if n else ""
@@ -297,8 +273,6 @@ def cari_resep_kombinasi(bahan_utama, bahan_tambahan, halaman, pola_filter, id_u
         params[f"nx{i}"] = pola
     where += _klausa_filter(pola_filter, params)
 
-    # `bn` menormalkan nama tiap BAHAN sekali, `bm` menilainya sekali (±36 ribu baris),
-    # bukan per baris resep_bahan (±170 ribu).
     cte = f"""
         WITH {BN_CTE},
         bm AS (
@@ -409,7 +383,6 @@ def detail_resep(id_resep, id_user=None):
 
 
 def mode_memasak(id_resep):
-    """Data untuk mode memasak: 1 langkah = 1 layar. FE tinggal slide/next per elemen `langkah`."""
     with get_engine().connect() as conn:
         row = _ambil_resep(conn, id_resep)
         bahan = _ambil_bahan_lengkap(conn, id_resep)

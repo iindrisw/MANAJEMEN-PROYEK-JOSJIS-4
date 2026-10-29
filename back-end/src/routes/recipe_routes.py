@@ -96,7 +96,18 @@ def bookmark(id_resep):
 def unbookmark(id_resep):
     return success_response(interaction_service.hapus_simpan(g.id_user, id_resep))
 
-# ---------- route lama (nama & format respons dipertahankan) ----------
+@recipe_bp.get("/bookmarks/search")
+@login_required
+def search_bookmarks():
+    # Ambil keyword pencarian dari query parameter 'q'
+    keyword = request.args.get("q", "").strip()
+    
+    # Panggil fungsi service untuk mencari di database berdasarkan resep yang disukai/disimpan user
+    hasil = recipe_service.cari_resep_bookmark(g.id_user, keyword)
+    
+    return success_response({"data": hasil})
+
+
 
 legacy_bp.get("/most-liked")(optional_auth(_terpopuler))
 legacy_bp.get("/search-bahan")(optional_auth(_cari_bahan))
