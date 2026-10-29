@@ -1,0 +1,220 @@
+.recipe-card {
+  position: relative;
+  width: 176px; 
+  height: 152px; 
+  padding: 8px 8px 0; 
+  border-radius: 20px;
+  background: var(--page-yellow);
+  box-shadow: 0 4px 5px rgb(0 0 0 / 25%);
+  cursor: pointer;
+  overflow: hidden; /* Mencegah teks keluar dari batas kartu */
+}
+
+.recipe-card:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+
+/* 2. GARIS BORDER DALAM (Disetel mengikuti tinggi kartu) */
+.recipe-card::before {
+  position: absolute;
+  top: 42px; 
+  right: 4px;
+  left: 4px;
+  bottom: 4px; /* Rapat ke bawah */
+  border: 2px solid rgb(37 37 37 / 20%);
+  border-radius: 10px;
+  box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
+  content: "";
+}
+
+/* 3. JUDUL RESEP (Dibuat lebih padat) */
+.recipe-card h2 {
+  display: -webkit-box;
+  height: 28px; 
+  min-height: 28px;
+  margin: 0 0 4px;
+  overflow: hidden;
+  font-family: var(--font-heading);
+  font-size: 11px; /* Font dikecilkan */
+  font-weight: 500;
+  line-height: 13px;
+  overflow-wrap: anywhere;
+  text-align: center;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.recipe-divider {
+  display: none;
+}
+
+/* 4. AREA METADATA (Badge & List Bahan) */
+.recipe-meta {
+  position: absolute;
+  top: 48px; 
+  right: 10px;
+  left: 10px;
+  display: flex;
+  flex-wrap: wrap; 
+  justify-content: space-between;
+  gap: 4px; 
+  margin-top: 0;
+}
+
+
+.recipe-meta > div {
+  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.recipe-meta h3 {
+  display: none;
+}
+
+/* 5. LIST BAHAN MASAKAN (Font dan spasi dikecilkan) */
+.recipe-meta ol {
+  width: 100%;
+  max-height: 77px; 
+  margin: 4px 0 0 0;
+  overflow: hidden;
+  padding: 0 0 0 2px;
+  list-style: none;
+  counter-reset: recipe-ingredient;
+  font-family: var(--font-body);
+  font-size: 10px; /* Font dikecilkan ke 8px */
+  line-height: 12px; 
+  text-transform: uppercase;
+}
+
+.recipe-meta li {
+  counter-increment: recipe-ingredient;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2.5px; /* Menambahkan jarak antar baris bahan (sesuaikan nilainya jika ingin lebih renggang) */
+}
+
+.recipe-meta li::before {
+  content: counter(recipe-ingredient) ".";
+}
+
+/* 6. BADGE JUMLAH LIKES (Ukurannya dipadatkan) */
+.recipe-likes {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  min-width: 44px; 
+  height: 16px; 
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px 0 3px;
+  border-radius: 20px;
+  background: rgb(208 87 86 / 36%);
+  font-family: var(--font-heading);
+  font-size: 8px; 
+  font-weight: 500;
+  line-height: 1;
+}
+
+.like-icon {
+  display: block;
+  width: 10px; 
+  height: 10px;
+  flex: 0 0 10px;
+  border-radius: 50%;
+}
+
+.like-icon img {
+  display: block;
+  width: 10px;
+  height: 10px;
+}
+
+.like-count {
+  min-width: 0;
+}
+
+/* 7. BADGE STATUS BAHAN (Diperkecil agar muat sejajar dengan like) */
+.recipe-availability {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 6px; 
+  border-radius: 20px;
+  background: var(--coral); 
+  color: var(--white);      
+  font-family: var(--font-heading);
+  font-size: 7.5px; 
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* --- BATAS GANTI KODE SAMPAI SINI --- */
+
+.like-icon {
+  display: block;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  border-radius: 50%;
+}
+
+.like-icon img {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.like-count {
+  min-width: 0;
+}
+
+.pagination {
+  display: flex;
+  min-height: 26px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 33px;
+}
+
+.page-button {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: var(--coral);
+  color: var(--white);
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.page-button:active {
+  transform: translateY(1px);
+}
+
+.page-button.is-current {
+  background: var(--coral);
+}
+
+.page-more {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 5px;
+  background: var(--coral);
+  color: var(--white);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+}
