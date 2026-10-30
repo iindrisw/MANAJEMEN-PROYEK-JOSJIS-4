@@ -289,30 +289,21 @@
           </a>
         </div>
       </nav>
-
-      <dialog class="validation-dialog" id="validation-dialog" aria-labelledby="validation-message">
-        <p id="validation-message">Harap masukkan minimal satu bahan utama</p>
-        <button class="button validation-dialog-button" type="button" autofocus>
-          Oke, Mengerti
-        </button>
-      </dialog>
-      <dialog class="recipe-steps-dialog" id="recipe-steps-dialog" aria-labelledby="recipe-steps-title">
-        <div class="steps-dialog-heading">
-          <h2 id="recipe-steps-title">Langkah Memasak</h2>
-          <button class="steps-dialog-close" id="steps-dialog-close" type="button" aria-label="Tutup langkah memasak">X</button>
+     <!-- Ganti dialog langkah memasak yang lama dengan section ini -->
+      <section class="recipe-steps-screen" id="recipe-steps-screen" aria-label="Langkah Memasak" hidden>
+        <header class="steps-screen-header">
+          <button class="steps-back-button" id="steps-back" type="button" aria-label="Kembali ke detail resep">
+            <img src="assets/figma/detail-back.png" alt="" />
+          </button>
+          <h1>Langkah Memasak</h1>
+        </header>
+        
+        <div class="steps-screen-body">
+          <ol class="recipe-steps-list" id="recipe-steps-list">
+            <!-- Daftar langkah memasak akan dimuat secara dinamis di sini -->
+          </ol>
         </div>
-        <ol class="recipe-steps-list" id="recipe-steps-list"></ol>
-      </dialog>
-      <dialog
-        class="copy-success-dialog"
-        id="copy-success-dialog"
-        aria-labelledby="copy-success-message"
-      >
-        <p id="copy-success-message">Daftar bahan berhasil disalin</p>
-        <button class="copy-success-button" id="copy-success-close" type="button" autofocus>
-          Oke, Mengerti
-        </button>
-      </dialog>
+      </section>
     </div>
   </body>
 </html>

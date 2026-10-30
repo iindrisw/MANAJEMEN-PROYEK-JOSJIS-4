@@ -39,8 +39,7 @@ export function initInput() {
   const detailLikeButton = document.querySelector("#detail-like");
   const detailBookmarkButton = document.querySelector("#detail-bookmark");
   const detailStepsButton = document.querySelector("#detail-steps");
-  const stepsDialog = document.querySelector("#recipe-steps-dialog");
-  const stepsDialogClose = document.querySelector("#steps-dialog-close");
+  const stepsScreen = document.querySelector("#recipe-steps-screen");   const stepsDialogClose = document.querySelector("#steps-dialog-close");
   const copySuccessDialog = document.querySelector("#copy-success-dialog");
   const copySuccessClose = document.querySelector("#copy-success-close");
   const emptyState = document.querySelector("#empty-state");
@@ -66,8 +65,7 @@ export function initInput() {
     !(detailLikeButton instanceof HTMLButtonElement) ||
     !(detailBookmarkButton instanceof HTMLButtonElement) ||
     !(detailStepsButton instanceof HTMLButtonElement) ||
-    !(stepsDialog instanceof HTMLDialogElement) ||
-    !(stepsDialogClose instanceof HTMLButtonElement) ||
+    !(stepsScreen instanceof HTMLElement) ||    !(stepsDialogClose instanceof HTMLButtonElement) ||
     !(copySuccessDialog instanceof HTMLDialogElement) ||
     !(copySuccessClose instanceof HTMLButtonElement) ||
     !emptyState ||
@@ -162,8 +160,8 @@ export function initInput() {
         recipeContent.hidden = false;
         activeRecipe = null;
         activeAvailableIngredients = [];
-        if (stepsDialog.open) {
-          stepsDialog.close();
+        if (stepsScreen) {
+        stepsScreen.hidden = true;
         }
         window.scrollTo(0, previousScrollPosition);
       }
@@ -394,8 +392,6 @@ export function initInput() {
       }
 
       const recipes = Array.isArray(result.data) ? result.data : [];
-<<<<<<< HEAD
-=======
       //indikator jumlah bahan yang cocok
       recipes.sort((a, b) => {
       const matchA = (a.hasOwnProperty('bahan_cocok') && Array.isArray(a.bahan_cocok)) ? a.bahan_cocok.length : 0;
@@ -410,7 +406,6 @@ export function initInput() {
       return matchB - matchA; // Terbesar ke terkecil
     });
   
->>>>>>> front-end
       recipeGrid.replaceChildren(...recipes.map(createRecipeCard));
       if (recipes.length === 0) {
         emptyState.textContent = "Resep tidak ditemukan.";

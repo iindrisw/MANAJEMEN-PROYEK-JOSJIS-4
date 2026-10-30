@@ -1,3 +1,5 @@
+import { setupLangkahMemasak } from "./langkah-memasak.js";
+
 function normalizeIngredient(value) {
   return value
     .toLocaleLowerCase("id")
@@ -38,6 +40,8 @@ export function renderRecipeDetail(recipe, availableIngredientNames = []) {
   const stepsList = document.querySelector("#recipe-steps-list");
   const feedback = document.querySelector("#detail-feedback");
   const detailScreen = document.querySelector("#recipe-detail");
+  setupLangkahMemasak(recipe, detailScreen, feedback);
+
 
   if (
     !(recipeTitle instanceof HTMLElement) ||
@@ -113,16 +117,42 @@ export function renderRecipeDetail(recipe, availableIngredientNames = []) {
     button.classList.toggle("is-active", isSelected);
   }
 
-  // --- LIKE: BEBAS TANPA LOGIN ---
+  // --- LIKE: INTERAKTIF DENGAN OPTIMISTIC UI & LOCAL STORAGE ---
   let isLikeSubmitting = false;
+  
+  // Ambil status like awal dari Local Storage perangkat (jika pernah disukai sebelumnya)
+  const storageKey = `recipe_liked_${recipe.id_resep}`;
+  const isLocalStorageLiked = localStorage.getItem(storageKey) === "true";
+  
+  // Tentukan status awal berdasarkan API atau Local Storage
+  const isCurrentlyLiked = recipe.sudah_like === true || isLocalStorageLiked;
+  
+  likeButton.setAttribute("aria-pressed", String(isCurrentlyLiked));
+  likeButton.setAttribute("aria-label", isCurrentlyLiked ? "Batal sukai resep" : "Sukai resep");
+  likeButton.classList.toggle("is-active", isCurrentlyLiked);
+
   likeButton.onclick = async () => {
     if (isLikeSubmitting) return;
     isLikeSubmitting = true;
 
-    try {
-      const isLiked = likeButton.getAttribute("aria-pressed") === "true";
-      const method = isLiked ? "DELETE" : "POST";
+    // 1. Simpan state sebelumnya untuk rollback jika API gagal
+    const wasSelected = likeButton.getAttribute("aria-pressed") === "true";
+    const newSelectedState = !wasSelected;
 
+    // 2. Terapkan Optimistic UI Update secara instan di layar
+    likeButton.setAttribute("aria-pressed", String(newSelectedState));
+    likeButton.setAttribute("aria-label", newSelectedState ? "Batal sukai resep" : "Sukai resep");
+    likeButton.classList.toggle("is-active", newSelectedState);
+
+    // Simpan ke Local Storage agar tetap merah saat halaman direfresh
+    if (newSelectedState) {
+      localStorage.setItem(storageKey, "true");
+    } else {
+      localStorage.removeItem(storageKey);
+    }
+
+    try {
+      const method = newSelectedState ? "POST" : "DELETE";
       const response = await fetch(`http://127.0.0.1:5000/api/recipes/${recipe.id_resep}/like`, {
         method: method,
         headers: {
@@ -131,30 +161,47 @@ export function renderRecipeDetail(recipe, availableIngredientNames = []) {
       });
 
       const result = await response.json();
-      if (response.ok) {
-        const newState = !isLiked;
-        likeButton.setAttribute("aria-pressed", String(newState));
-        likeButton.classList.toggle("is-active", newState);
-      } else {
-        alert(result.message || "Gagal mengubah status like.");
+      if (!response.ok || result.status === "error") {
+        throw new Error(result.message || "Gagal mengubah status like.");
       }
     } catch (error) {
-      console.error("Terjadi kesalahan jaringan:", error);
+      console.error("Terjadi kesalahan jaringan, membatalkan perubahan:", error);
+      
+      // Rollback UI jika gagal di backend
+      likeButton.setAttribute("aria-pressed", String(wasSelected));
+      likeButton.classList.toggle("is-active", wasSelected);
+      if (wasSelected) {
+        localStorage.setItem(storageKey, "true");
+      } else {
+        localStorage.removeItem(storageKey);
+      }
+      
+      alert("Gagal menyambung ke server. Perubahan dibatalkan.");
     } finally {
       isLikeSubmitting = false;
     }
   };
 
-  // --- BOOKMARK: WAJIB LOGIN ---
+  // --- BOOKMARK / SIMPAN RESEP: DENGAN VALIDASI LOGIN & POP-UP ---
   let isBookmarkSubmitting = false;
+  
+  // Cek status bookmark awal dari properti resep dari API
+  const isBookmarkedInitial = recipe.sudah_simpan === true;
+  bookmarkButton.setAttribute("aria-pressed", String(isBookmarkedInitial));
+  bookmarkButton.setAttribute("aria-label", isBookmarkedInitial ? "Hapus dari tersimpan" : "Simpan resep");
+  bookmarkButton.classList.toggle("is-active", isBookmarkedInitial);
+
   bookmarkButton.onclick = async () => {
-    const token = localStorage.getItem("token"); // Pastikan nama key di localStorage sesuai (misal: "token" atau "access_token")
+    if (isBookmarkSubmitting) return;
+
+    // Skenario 2: Pengecekan Autentikasi (Apakah user sudah login/memiliki token)
+    const token = localStorage.getItem("token"); // Atau "access_token" sesuai sistem login backend Anda
     if (!token) {
-      alert("Silakan login terlebih dahulu untuk menyimpan resep!");
+      // Tampilkan pop-up peringatan belum login
+      showLoginWarningPopup();
       return;
     }
 
-    if (isBookmarkSubmitting) return;
     isBookmarkSubmitting = true;
 
     try {
@@ -170,19 +217,88 @@ export function renderRecipeDetail(recipe, availableIngredientNames = []) {
       });
 
       const result = await response.json();
-      if (response.ok) {
-        const newState = !isBookmarked;
-        bookmarkButton.setAttribute("aria-pressed", String(newState));
-        bookmarkButton.classList.toggle("is-active", newState);
-      } else {
-        alert(result.message || "Gagal mengubah status bookmark.");
+      if (!response.ok || result.status === "error") {
+        throw new Error(result.message || "Gagal memperbarui status simpan resep.");
+      }
+
+      // Skenario 1: Berhasil menyimpan resep
+      const newState = !isBookmarked;
+      bookmarkButton.setAttribute("aria-pressed", String(newState));
+      bookmarkButton.setAttribute("aria-label", newState ? "Hapus dari tersimpan" : "Simpan resep");
+      bookmarkButton.classList.toggle("is-active", newState);
+
+      if (newState) {
+        showSuccessPopup("Resep berhasil disimpan");
       }
     } catch (error) {
-      console.error("Terjadi kesalahan jaringan:", error);
+      console.error("Kesalahan jaringan:", error);
+      alert(error.message || "Terjadi kesalahan pada sistem.");
     } finally {
       isBookmarkSubmitting = false;
     }
   };
+
+  // Helper untuk menampilkan Pop-up Peringatan Belum Login (Skenario 2, 3, & 4)
+  function showLoginWarningPopup() {
+    // Hapus pop-up lama jika sudah ada
+    document.getElementById("login-warning-dialog")?.remove();
+
+    const dialog = document.createElement("dialog");
+    dialog.id = "login-warning-dialog";
+    dialog.className = "validation-dialog";
+    dialog.innerHTML = `
+      <div style="position: relative; padding: 24px 20px; background: var(--cream, #FFFBE9); border-radius: 16px; border: 3px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center;">
+        <button id="close-warning-popup" style="position: absolute; top: 10px; right: 12px; background: transparent; border: 0; font-size: 18px; cursor: pointer; font-weight: bold;">✕</button>
+        <p style="margin: 0 0 16px; font-size: 14px; color: var(--charcoal, #333);">Anda belum login. Silakan login terlebih dahulu untuk menyimpan resep.</p>
+        <button id="go-to-login" class="button button-primary" style="padding: 8px 16px; border-radius: 10px; border: 0; background: var(--coral, #D05756); color: white; cursor: pointer; font-weight: 600;">Login Sekarang</button>
+      </div>
+    `;
+
+    document.body.appendChild(dialog);
+    if (typeof dialog.showModal === "function") {
+      dialog.showModal();
+    }
+
+    // Skenario 3: Menekan tombol "Login Sekarang" -> diarahkan ke halaman login
+    document.getElementById("go-to-login").onclick = () => {
+      dialog.close();
+      dialog.remove();
+      // Arahkan ke halaman login (sesuaikan fungsi switchView atau route login Anda)
+      const loginNav = document.getElementById("navAccount") || document.querySelector("[href*='login']");
+      if (loginNav) {
+        loginNav.click();
+      } else {
+        window.location.href = "#login" /* atau arahkan ke view login */;
+      }
+    };
+
+    // Skenario 4: Menekan tombol silang (X) -> menutup pop-up tanpa pindah halaman
+    document.getElementById("close-warning-popup").onclick = () => {
+      dialog.close();
+      dialog.remove();
+    };
+  }
+
+  // Helper untuk Pop-up Berhasil Disimpan
+  function showSuccessPopup(message) {
+    document.getElementById("success-popup-dialog")?.remove();
+
+    const dialog = document.createElement("dialog");
+    dialog.className = "validation-dialog";
+    dialog.innerHTML = `
+      <div style="padding: 20px 24px; background: var(--cream, #FFFBE9); border-radius: 16px; border: 3px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center;">
+        <p style="margin: 0; font-size: 14px; font-weight: 600; color: var(--charcoal, #333);">${message}</p>
+      </div>
+    `;
+    document.body.appendChild(dialog);
+    if (typeof dialog.showModal === "function") {
+      dialog.showModal();
+    }
+    setTimeout(() => {
+      dialog.close();
+      dialog.remove();
+    }, 2000);
+  }
 
   feedback.hidden = true;
   feedback.textContent = "";

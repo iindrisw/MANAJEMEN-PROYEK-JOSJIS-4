@@ -252,47 +252,11 @@
   pointer-events: auto;
 }
 
-.recipe-steps-dialog {
-  width: min(376px, calc(100vw - 40px));
-  max-width: none;
-  max-height: min(80vh, 760px);
-  padding: 20px;
-  overflow: auto;
-  border: 0;
-  border-radius: 20px;
-  background: var(--cream);
-  color: var(--charcoal);
-  box-shadow: 0 8px 28px rgb(0 0 0 / 30%);
-}
-
-.recipe-steps-dialog::backdrop {
-  background: rgb(0 0 0 / 55%);
-}
-
-.steps-dialog-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
 .steps-dialog-heading h2 {
   margin: 0;
   font-family: var(--font-heading);
   font-size: 20px;
   font-weight: 500;
-}
-
-.steps-dialog-close {
-  width: 32px;
-  height: 32px;
-  flex: 0 0 32px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--coral);
-  color: var(--white);
-  cursor: pointer;
 }
 
 .recipe-steps-list {
