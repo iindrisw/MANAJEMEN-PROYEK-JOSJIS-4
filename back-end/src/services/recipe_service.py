@@ -1,4 +1,5 @@
-"""Logika bisnis resep: pencarian kombinasi bahan, daftar, detail, mode memasak.
+"""Logika bisnis resep: pencarian kombinasi bahan, daftar, detail, mode memasak, 
+serta manajemen resep tersimpan (bookmarks).
 
 SQL ditulis dengan parameter bernama (anti SQL-injection). Kata kunci user di-escape
 supaya karakter % dan _ tidak dianggap wildcard.
@@ -17,6 +18,12 @@ from src.utils.errors import AppError
 from src.utils.helpers import bangun_langkah_terstruktur
 
 ESC = "ESCAPE '\\'"
+
+# Resep tanpa bahan (hasil scraping gagal-parse) disembunyikan dari daftar populer & cari nama.
+# Penanda diisi oleh migrations/003_bahan_lengkap.sql. Detail/like/bookmark by-ID tetap jalan.
+SYARAT_BAHAN_LENGKAP = "r.bahan_lengkap = TRUE"
+
+PESAN_BAHAN_KOSONG = "Daftar bahan resep ini belum tersedia. Silakan ikuti langkah-langkahnya."
 
 # Resep "polos" yang dianggap bukan hasil kombinasi bahan (aturan lama main.py dipertahankan).
 POLA_NAMA_DIKECUALIKAN = ("%nasi goreng%", "%mie goreng%", "%bihun goreng%")
@@ -52,6 +59,7 @@ def _lampirkan_bahan(conn, resep_list):
         WHERE rb.id_resep IN ({marks})
         ORDER BY rb.id_resep, rb.id_resep_bahan
     """), params).mappings().all()
+
     peta = {r["id_resep"]: r for r in resep_list}
     for row in rows:
         item = bahan_item(row)
@@ -59,6 +67,20 @@ def _lampirkan_bahan(conn, resep_list):
         peta[row["id_resep"]]["bahan_terpakai"].append(
             {k: item[k] for k in ("nama_bahan", "takaran", "is_bumbu_dasar")}
         )
+
+    # Resep yang bahannya memang tidak ada di database (±20% data hasil scraping) diberi teks default
+    # supaya kartu tidak kosong. Flag `bahan_tersedia` memberi tahu FE bahwa itu BUKAN bahan asli.
+    for r in resep_list:
+        r["bahan_tersedia"] = bool(r.get("bahan_terpakai"))
+        if not r["bahan_tersedia"]:
+            r["bahan_terpakai"] = [
+                {
+                    "nama_bahan": "Bahan menyesuaikan (lihat detail)",
+                    "takaran": "-",
+                    "is_bumbu_dasar": False,
+                    "placeholder": True,
+                }
+            ]
 
 
 def lampirkan_status_user(conn, resep_list, id_user):
@@ -130,13 +152,13 @@ def _daftar_resep(where_sql, params, order_by, halaman, id_user):
 
 def resep_terpopuler(halaman, pola_filter, id_user=None):
     params = {}
-    where = "1=1" + _klausa_filter(pola_filter, params)
+    where = SYARAT_BAHAN_LENGKAP + _klausa_filter(pola_filter, params)
     return _daftar_resep(where, params, "r.jumlah_like DESC, r.id_resep", halaman, id_user)
 
 
 def cari_resep_nama(keyword, halaman, pola_filter, id_user=None):
     params = {"nama": _like(keyword)}
-    where = f"LOWER(r.nama_resep) LIKE :nama {ESC}" + _klausa_filter(pola_filter, params)
+    where = f"{SYARAT_BAHAN_LENGKAP} AND LOWER(r.nama_resep) LIKE :nama {ESC}" + _klausa_filter(pola_filter, params)
     return _daftar_resep(where, params, "r.jumlah_like DESC, r.id_resep", halaman, id_user)
 
 
@@ -146,10 +168,46 @@ def cek_nama_resep(keyword):
         return False
     with get_engine().connect() as conn:
         n = conn.execute(
-            text(f'SELECT COUNT(*) FROM {T_RESEP} WHERE LOWER(nama_resep) LIKE :n {ESC}'),
+            text(f'SELECT COUNT(*) FROM {T_RESEP} WHERE bahan_lengkap = TRUE AND LOWER(nama_resep) LIKE :n {ESC}'),
             {"n": _like(keyword)},
         ).scalar_one()
     return n > 0
+
+
+# ---------------------------------------------------------------- daftar resep tersimpan (bookmarks)
+
+def cari_resep_bookmark(id_user, keyword, halaman=1):
+    """Mengambil daftar resep yang disimpan user dengan filter pencarian, 
+    pagination, dan sorting berdasarkan waktu simpan terbaru (created_at DESC).
+    """
+    params = {"u": id_user}
+
+    base_where = f"FROM {T_SIMPAN} s JOIN {T_RESEP} r ON r.id_resep = s.id_resep WHERE s.id_user = :u"
+
+    if keyword:
+        params["keyword"] = _like(keyword)
+        base_where += f" AND LOWER(r.nama_resep) LIKE :keyword {ESC}"
+
+    params["limit"] = Settings.PAGE_SIZE
+    params["offset"] = (halaman - 1) * Settings.PAGE_SIZE
+
+    with get_engine().connect() as conn:
+        total = conn.execute(text(f"SELECT COUNT(*) {base_where}"), params).scalar_one()
+
+        rows = conn.execute(text(f"""
+            SELECT r.id_resep, r.nama_resep, r.jumlah_like, r.url, s.created_at
+            {base_where}
+            ORDER BY s.created_at DESC, r.id_resep DESC
+            LIMIT :limit OFFSET :offset
+        """), params).mappings().all()
+
+        data = [resep_ringkas(r) for r in rows]
+        lampirkan_lengkap(conn, data, id_user)
+
+    return {
+        "data": data,
+        **_meta_halaman(total, halaman)
+    }
 
 
 # ---------------------------------------------------------------- kombinasi bahan
@@ -373,6 +431,8 @@ def detail_resep(id_resep, id_user=None):
             "jumlah_like": row["jumlah_like"] or 0,
             "url": row["url"],
             "bahan": bahan,
+            "bahan_tersedia": len(bahan) > 0,
+            "pesan_bahan": None if bahan else PESAN_BAHAN_KOSONG,
             "bumbu_dasar": [b for b in bahan if b["is_bumbu_dasar"]],
             "langkah": langkah,
             "jumlah_langkah": len(langkah),
@@ -393,6 +453,8 @@ def mode_memasak(id_resep):
         "id_resep": row["id_resep"],
         "nama_resep": row["nama_resep"],
         "bahan": bahan,
+        "bahan_tersedia": len(bahan) > 0,
+        "pesan_bahan": None if bahan else PESAN_BAHAN_KOSONG,
         "total_langkah": len(langkah),
         "langkah": langkah,
     }

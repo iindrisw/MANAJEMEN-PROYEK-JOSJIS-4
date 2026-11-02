@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Montagu+Slab:wght@400&family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/base.css" />
@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="css/recipes.css" />
     <link rel="stylesheet" href="css/recipe-detail.css" />
     <link rel="stylesheet" href="css/views.css" />
+    <link rel="stylesheet" href="css/tailwind.css" />
     <script type="module" src="js/main.js"></script>
   </head>
   <body>
@@ -28,7 +29,7 @@
       <header class="search-panel">
         <div class="panel-heading">
           <h1 class="section-label">Cari Berdasarkan Bahan Yukk!</h1>
-          <a class="brand" href="#" aria-label="Racik Rasa">
+          <a class="brand" href="#" aria-label="Racik Rasa" data-home-link>
             <img src="assets/figma/persona-racik-rasa.png" alt="Racik Rasa" />
             <img class="brand-accent" src="assets/figma/logo-vector.svg" alt="" />
           </a>
@@ -173,7 +174,7 @@
               </label>
               <label class="filter-option" for="filter-pepper-free">
                 <input id="filter-pepper-free" type="checkbox" value="pepper" />
-                <span>Bebas Laba</span>
+                <span>Bebas Lada</span>
               </label>
             </div>
           </section>
@@ -229,7 +230,7 @@
             <h2 class="detail-section-title" id="detail-available-title">Bahan tersedia:</h2>
             <div class="detail-ingredient-card">
               <ul class="detail-ingredient-list" id="detail-available-list"></ul>
-              <button class="detail-copy" type="button" data-copy-list="detail-available-list" aria-label="Salin bahan tersedia">
+              <button class="detail-copy" id="detail-available-copy" type="button" data-copy-list="detail-available-list" aria-label="Salin bahan tersedia">
                 <span>SALIN</span>
                 <img src="assets/figma/detail-copy.svg" alt="" />
               </button>
@@ -246,15 +247,34 @@
       </section>
 
       <main class="recipe-content">
-        <section class="recipe-grid" id="recipe-grid" aria-label="Daftar resep"></section>
+        <section
+          class="recipe-grid transition-opacity duration-300 ease-in-out"
+          id="recipe-grid"
+          aria-label="Daftar resep"
+        ></section>
         <p class="empty-state" id="empty-state" hidden>Resep tidak ditemukan.</p>
         <nav class="pagination" aria-label="Halaman resep">
-          <button class="page-button is-current" type="button" aria-current="page">1</button>
-          <button class="page-button" type="button">2</button>
-          <button class="page-button" type="button">3</button>
-          <span class="page-more">...</span>
         </nav>
       </main>
+
+      <section class="saved-screen" id="view-saved" aria-label="Resep tersimpan" hidden>
+        <label class="sr-only" for="saved-search-input">Cari resep tersimpan</label>
+        <div class="search-field saved-search-field">
+          <input
+            id="saved-search-input"
+            type="search"
+            placeholder="Cari resep tersimpan..."
+            autocomplete="off"
+          />
+        </div>
+        <section
+          class="recipe-grid transition-opacity duration-300 ease-in-out"
+          id="saved-recipe-grid"
+          aria-label="Daftar resep tersimpan"
+        ></section>
+        <p class="empty-state" id="saved-empty-state" role="status" aria-live="polite" hidden></p>
+        <nav class="pagination" id="saved-pagination" aria-label="Halaman resep tersimpan" hidden></nav>
+      </section>
 
       <button
         class="drawer-backdrop"
@@ -273,37 +293,165 @@
         inert
         hidden
       >
-        <a class="drawer-signup" href="#" data-menu-link>Daftar atau Masuk</a>
+        <a class="drawer-signup" href="#" data-menu-link data-nav-action="login">Daftar atau Masuk</a>
         <div class="drawer-links">
-          <a class="drawer-link is-active" href="#" aria-current="page" data-menu-link>
+          <a class="drawer-link is-active" href="#" aria-current="page" data-menu-link data-nav-action="home">
             <img src="assets/figma/drawer-home.svg" alt="" />
-            <span>HOME</span>
+            <span>BERANDA</span>
           </a>
-          <a class="drawer-link" href="#" data-menu-link>
+          <a class="drawer-link" href="#" data-menu-link data-nav-action="bookmark">
             <img src="assets/figma/drawer-bookmark.svg" alt="" />
-            <span>BOOKMARK</span>
+            <span>SIMPAN</span>
           </a>
-          <a class="drawer-link" href="#" data-menu-link>
+          <a class="drawer-link" href="#" data-menu-link data-nav-action="profile">
             <img src="assets/figma/drawer-profile.svg" alt="" />
             <span>PROFIL</span>
           </a>
         </div>
       </nav>
      <!-- Ganti dialog langkah memasak yang lama dengan section ini -->
-      <section class="recipe-steps-screen" id="recipe-steps-screen" aria-label="Langkah Memasak" hidden>
-        <header class="steps-screen-header">
-          <button class="steps-back-button" id="steps-back" type="button" aria-label="Kembali ke detail resep">
-            <img src="assets/figma/detail-back.png" alt="" />
-          </button>
-          <h1>Langkah Memasak</h1>
-        </header>
-        
-        <div class="steps-screen-body">
-          <ol class="recipe-steps-list" id="recipe-steps-list">
-            <!-- Daftar langkah memasak akan dimuat secara dinamis di sini -->
-          </ol>
-        </div>
-      </section>
+      <!-- HALAMAN LANGKAH MEMASAK -->
+<section
+  class="recipe-steps-screen"
+  id="recipe-steps-screen"
+  aria-label="Langkah Memasak"
+  hidden
+>
+  <div class="steps-card">
+    <header class="steps-card-header">
+      <button
+        class="steps-back-button"
+        id="steps-back"
+        type="button"
+        aria-label="Kembali ke detail resep"
+      >
+        <img src="assets/figma/detail-back.png" alt="" />
+      </button>
+      <button
+        class="steps-like-button"
+        id="steps-like"
+        type="button"
+        aria-label="Sukai resep"
+        aria-pressed="false"
+      >
+        <img src="assets/figma/detail-heart.svg" alt="" />
+      </button>
+    </header>
+
+    <div class="steps-card-content">
+      <h2
+        class="steps-recipe-title"
+        id="steps-recipe-title"
+      >
+        Nama Resep
+      </h2>
+      <button class="mode-memasak-button" id="mode-memasak-button" type="button">
+        MODE MEMASAK
+      </button>
+      <ol
+        class="recipe-steps-list"
+        id="recipe-steps-list"
+      ></ol>
     </div>
+  </div>
+</section>
+<section
+  class="cooking-mode-screen"
+  id="cooking-mode-screen"
+  aria-label="Mode memasak"
+  hidden
+>
+  <button
+    class="cooking-mode-back"
+    id="cooking-mode-back"
+    type="button"
+    aria-label="Kembali ke daftar langkah"
+  >
+    <img src="assets/figma/detail-back.png" alt="" />
+  </button>
+  <h1 class="cooking-mode-page-title">DETAIL RESEP</h1>
+  <h2 class="cooking-mode-heading">MODE MEMASAK</h2>
+  <article class="cooking-mode-step">
+    <h3 class="cooking-mode-step-title" id="cooking-mode-step-title"></h3>
+    <p class="cooking-mode-step-description" id="cooking-mode-step-description"></p>
+  </article>
+  <footer class="cooking-mode-controls">
+    <button class="cooking-mode-control" id="cooking-mode-previous" type="button">
+      <img src="assets/figma/mode-next.svg" alt="" />
+      <span>SEBELUMNYA</span>
+    </button>
+    <button class="cooking-mode-control" id="cooking-mode-next" type="button">
+      <span id="cooking-mode-next-label">SELANJUTNYA</span>
+      <img id="cooking-mode-next-icon" src="assets/figma/mode-next.svg" alt="" />
+    </button>
+  </footer>
+</section>
+<dialog
+  class="bookmark-unavailable-dialog"
+  id="bookmark-unavailable-dialog"
+  aria-labelledby="bookmark-unavailable-message"
+>
+  <div class="bookmark-unavailable-card">
+    <button
+      class="bookmark-unavailable-close"
+      id="bookmark-unavailable-close"
+      type="button"
+      aria-label="Tutup pemberitahuan"
+    >
+      <span aria-hidden="true">X</span>
+    </button>
+    <p id="bookmark-unavailable-message">
+      Anda belum login
+    </p>
+  </div>
+  <button
+    class="bookmark-unavailable-login"
+    id="bookmark-unavailable-login"
+    type="button"
+    disabled
+    aria-describedby="bookmark-unavailable-message"
+    title="Login belum tersedia"
+  >
+    Login Sekarang
+  </button>
+</dialog>
+<dialog
+  class="bookmark-success-dialog"
+  id="bookmark-success-dialog"
+  aria-labelledby="bookmark-success-message"
+>
+  <p id="bookmark-success-message">Resep berhasil disimpan</p>
+  <button
+    class="button button-primary copy-success-button"
+    id="bookmark-success-close"
+    type="button"
+  >
+    Oke, Mengerti
+  </button>
+</dialog>
+    <dialog
+      class="validation-dialog"
+      id="validation-dialog"
+      aria-labelledby="validation-message"
+    >
+      <p id="validation-message" role="status" aria-live="polite"></p>
+      <button class="button button-primary validation-dialog-button" type="button">
+        Oke
+      </button>
+    </dialog>
+    <dialog
+      class="copy-success-dialog"
+      id="copy-success-dialog"
+      aria-labelledby="copy-success-message"
+    >
+      <p id="copy-success-message">Bahan berhasil disalin!</p>
+      <button
+        class="button button-primary copy-success-button"
+        id="copy-success-close"
+        type="button"
+      >
+        Oke
+      </button>
+    </dialog>
   </body>
 </html>

@@ -1,4 +1,4 @@
-export function createRecipeCard(recipe) {
+export function createRecipeCard(recipe, { searchedIngredientCount } = {}) {
   const card = document.createElement("article");
   const name = recipe.nama_resep || "Resep tanpa nama";
   const ingredients = Array.isArray(recipe.bahan_terpakai)
@@ -27,6 +27,7 @@ export function createRecipeCard(recipe) {
 
   // Bagian Daftar Bahan
   const ingredientSection = document.createElement("div");
+  ingredientSection.className = "recipe-ingredients";
   const ingredientList = document.createElement("ol");
   const mainIngredients = ingredients
     .filter((ingredient) => ingredient.is_bumbu_dasar !== true)
@@ -63,15 +64,16 @@ export function createRecipeCard(recipe) {
   meta.append(ingredientSection, likes);
 
   // Badge ketersediaan bahan (jika ada hasil pencarian kombinasi)
-  if (recipe.hasOwnProperty('bahan_cocok') && Array.isArray(recipe.bahan_cocok)) {
+  if (
+    Array.isArray(recipe.bahan_cocok) &&
+    Number.isInteger(searchedIngredientCount) &&
+    searchedIngredientCount > 0
+  ) {
     const matchedIngredients = recipe.bahan_cocok.length;
-    const totalIngredients = ingredients.filter(
-      (ingredient) => ingredient.is_bumbu_dasar !== true
-    ).length;
 
     const availabilityBadge = document.createElement("span");
     availabilityBadge.className = "recipe-availability";
-    availabilityBadge.textContent = `${matchedIngredients}/${totalIngredients < 5 ? totalIngredients : 5} Bahan Tersedia`;
+    availabilityBadge.textContent = `${matchedIngredients}/${searchedIngredientCount} Bahan Tersedia`;
     meta.append(availabilityBadge);
   }
 
@@ -89,22 +91,16 @@ export function renderPagination(container, page, totalPages, onPageSelect) {
   const visiblePageCount = 5;
   const firstPage = Math.max(
     1,
-    Math.min(page - Math.floor(visiblePageCount / 2), totalPages - visiblePageCount + 1),
+    Math.min(page, totalPages - visiblePageCount + 1),
   );
   const lastPage = Math.min(totalPages, firstPage + visiblePageCount - 1);
-
-  if (firstPage > 1) {
-    const more = document.createElement("span");
-    more.className = "page-more";
-    more.textContent = "...";
-    container.append(more);
-  }
 
   for (let pageNumber = firstPage; pageNumber <= lastPage; pageNumber += 1) {
     const button = document.createElement("button");
     button.className = "page-button";
     button.type = "button";
     button.textContent = String(pageNumber);
+    button.setAttribute("aria-label", `Halaman ${pageNumber}`);
     if (pageNumber === page) {
       button.classList.add("is-current");
       button.setAttribute("aria-current", "page");
@@ -119,50 +115,7 @@ export function renderPagination(container, page, totalPages, onPageSelect) {
     const more = document.createElement("span");
     more.className = "page-more";
     more.textContent = "...";
-    container.append(more);
-  }
-}
-
-export function renderPagination(container, page, totalPages, onPageSelect) {
-  container.replaceChildren();
-  container.hidden = totalPages <= 1;
-  if (totalPages <= 1) {
-    return;
-  }
-
-  const visiblePageCount = 5;
-  const firstPage = Math.max(
-    1,
-    Math.min(page - Math.floor(visiblePageCount / 2), totalPages - visiblePageCount + 1),
-  );
-  const lastPage = Math.min(totalPages, firstPage + visiblePageCount - 1);
-
-  if (firstPage > 1) {
-    const more = document.createElement("span");
-    more.className = "page-more";
-    more.textContent = "...";
-    container.append(more);
-  }
-
-  for (let pageNumber = firstPage; pageNumber <= lastPage; pageNumber += 1) {
-    const button = document.createElement("button");
-    button.className = "page-button";
-    button.type = "button";
-    button.textContent = String(pageNumber);
-    if (pageNumber === page) {
-      button.classList.add("is-current");
-      button.setAttribute("aria-current", "page");
-    }
-    button.addEventListener("click", () => {
-      onPageSelect(pageNumber);
-    });
-    container.append(button);
-  }
-
-  if (lastPage < totalPages) {
-    const more = document.createElement("span");
-    more.className = "page-more";
-    more.textContent = "...";
+    more.setAttribute("aria-label", "Masih ada halaman berikutnya");
     container.append(more);
   }
 }

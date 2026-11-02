@@ -85,5 +85,10 @@ export function initFilters(onChange) {
         (input) => input.value,
       );
     },
+    reset() {
+      for (const input of filterPanel.querySelectorAll('input[type="checkbox"]')) {
+        input.checked = false;
+      }
+    },
   };
 }
