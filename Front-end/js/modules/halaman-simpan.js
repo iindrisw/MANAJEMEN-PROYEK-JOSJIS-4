@@ -9,6 +9,7 @@ export function initHalamanSimpan() {
   const sectionLabel = document.querySelector(".section-label");
   const recipeContent = document.querySelector(".recipe-content");
   const savedScreen = document.querySelector("#view-saved");
+  const searchForm = document.querySelector("#saved-search-form");
   const searchInput = document.querySelector("#saved-search-input");
   const recipeGrid = document.querySelector("#saved-recipe-grid");
   const emptyState = document.querySelector("#saved-empty-state");
@@ -20,6 +21,7 @@ export function initHalamanSimpan() {
     !(sectionLabel instanceof HTMLElement) ||
     !(recipeContent instanceof HTMLElement) ||
     !(savedScreen instanceof HTMLElement) ||
+    !(searchForm instanceof HTMLFormElement) ||
     !(searchInput instanceof HTMLInputElement) ||
     !(recipeGrid instanceof HTMLElement) ||
     !(emptyState instanceof HTMLElement) ||
@@ -40,7 +42,7 @@ export function initHalamanSimpan() {
     savedScreen.hidden = !isOpen;
     searchPanel.hidden = false;
     recipeContent.hidden = isOpen;
-    sectionLabel.textContent = isOpen ? "RESEP TERSIMPAN" : homeTitle;
+    sectionLabel.textContent = isOpen ? "SIMPAN RESEP" : homeTitle;
   }
 
   async function fetchBookmarkPage(page, token) {
@@ -65,14 +67,19 @@ export function initHalamanSimpan() {
   }
 
   async function loadSavedRecipes() {
+    const requestId = ++latestRequestId;
     const token = localStorage.getItem("token");
     if (!token) {
-      setSavedView(false);
-      window.dispatchEvent(new Event("recipe:saved-auth-required"));
+      savedRecipes = [];
+      recipeGrid.replaceChildren();
+      paginationContainer.replaceChildren();
+      paginationContainer.hidden = true;
+      emptyState.textContent =
+        "Login belum tersedia. Resep tersimpan akan tampil setelah Anda masuk.";
+      emptyState.hidden = false;
       return;
     }
 
-    const requestId = ++latestRequestId;
     emptyState.textContent = "Memuat resep tersimpan...";
     emptyState.hidden = false;
     recipeGrid.replaceChildren();
@@ -101,7 +108,11 @@ export function initHalamanSimpan() {
       }
       if (error.status === 401) {
         localStorage.removeItem("token");
-        setSavedView(false);
+        savedRecipes = [];
+        recipeGrid.replaceChildren();
+        paginationContainer.replaceChildren();
+        paginationContainer.hidden = true;
+        emptyState.hidden = true;
         window.dispatchEvent(new Event("recipe:saved-auth-required"));
         return;
       }
@@ -193,9 +204,26 @@ export function initHalamanSimpan() {
     currentPage = 1;
     renderCurrentPage(true);
   });
+  searchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+  });
 
   window.addEventListener("recipe:navigate-saved", () => {
     setSavedView(true);
+    searchInput.value = "";
+    currentSearchQuery = "";
+    currentPage = 1;
+
+    if (!localStorage.getItem("token")) {
+      savedRecipes = [];
+      recipeGrid.replaceChildren();
+      paginationContainer.replaceChildren();
+      paginationContainer.hidden = true;
+      emptyState.hidden = true;
+      window.dispatchEvent(new Event("recipe:saved-auth-required"));
+      return;
+    }
+
     void loadSavedRecipes();
   });
   window.addEventListener("recipe:navigate-home", () => setSavedView(false));

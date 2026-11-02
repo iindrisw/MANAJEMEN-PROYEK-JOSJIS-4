@@ -97,6 +97,7 @@
   top: 52px;
   left: 10px;
   display: inline-flex;
+  isolation: isolate;
   flex: 0 0 auto;
   width: 50px;
   height: 20px;
@@ -104,11 +105,20 @@
   gap: 3px;
   padding: 0 0 0 3px;
   border-radius: 20px;
-  background: rgb(208 87 86 / 60%);
   font-family: var(--font-heading);
   font-size: 8px;
   font-weight: 500;
   line-height: 1;
+}
+
+.recipe-likes::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background: rgb(208 87 86 / 60%);
+  opacity: 0.6;
+  content: "";
 }
 
 .like-icon {

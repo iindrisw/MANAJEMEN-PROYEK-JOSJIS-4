@@ -1,0 +1,244 @@
+.login-screen {
+  position: absolute;
+  z-index: 8;
+  top: 0;
+  left: 0;
+  width: 440px;
+  min-height: 956px;
+  background: #fff;
+  color: #d05755;
+}
+
+.app-shell.is-login-view {
+  height: 956px;
+}
+
+.login-brand {
+  position: absolute;
+  top: 36px;
+  left: 147px;
+  display: block;
+  width: 163px;
+  height: 92px;
+}
+
+.login-brand img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.login-title {
+  position: absolute;
+  top: 178px;
+  left: 50%;
+  margin: 0;
+  color: #d05755;
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 40px;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.login-form {
+  position: absolute;
+  inset: 0;
+}
+
+.login-field-label {
+  position: absolute;
+  left: 46px;
+  color: #d05755;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.login-name-label {
+  top: 230px;
+}
+
+.login-password-label {
+  top: 350px;
+}
+
+.login-input {
+  position: absolute;
+  left: 32px;
+  width: 376px;
+  height: 60px;
+  padding: 0 16px;
+  border: 1px solid rgb(0 0 0 / 20%);
+  border-radius: 20px;
+  outline-color: #d05755;
+  background: #ffeeb5;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+  color: #252525;
+  font-family: "Roboto", sans-serif;
+  font-size: 16px;
+}
+
+.login-name-input {
+  top: 250px;
+}
+
+.login-password-input {
+  top: 370px;
+}
+
+.login-forgot-link {
+  position: absolute;
+  top: 441px;
+  right: 45px;
+  color: rgb(121 36 71 / 80%);
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 27px;
+  text-decoration: none;
+}
+
+.login-forgot-link:hover,
+.login-signup a:hover {
+  text-decoration: underline;
+}
+
+.login-feedback {
+  position: absolute;
+  top: 496px;
+  left: 32px;
+  width: 376px;
+  max-height: 40px;
+  margin: 0;
+  overflow: hidden;
+  color: #b3261e;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.login-feedback.is-success {
+  color: #26734d;
+}
+
+.login-submit {
+  position: absolute;
+  top: 540px;
+  left: 32px;
+  width: 376px;
+  height: 70px;
+  padding: 0;
+  border: 1px solid rgb(208 87 85 / 20%);
+  border-radius: 31.5px;
+  background: #d05756;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  line-height: 40px;
+}
+
+.login-submit:disabled {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+.login-separator {
+  position: absolute;
+  top: 630px;
+  left: 36px;
+  width: 376px;
+  height: 10px;
+  color: rgb(208 87 85 / 80%);
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 10px;
+  text-align: center;
+}
+
+.login-separator > span:nth-child(2) {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 118px;
+  background: #fff;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.login-rule {
+  position: absolute;
+  top: 4px;
+  display: flex;
+  width: 120px;
+  height: 2px;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-rule:first-child {
+  left: 0;
+}
+
+.login-rule:last-child {
+  right: 0;
+}
+
+.login-rule img {
+  display: block;
+  transform: rotate(-90deg);
+}
+
+.login-google-badge {
+  position: absolute;
+  top: 660px;
+  left: 180px;
+  width: 80px;
+  height: 60px;
+  border: 1px solid rgb(255 238 181 / 14%);
+  border-radius: 10px;
+  background: rgb(255 238 181 / 35%);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 17.5%);
+}
+
+.login-google-badge img {
+  position: absolute;
+  top: 12px;
+  left: 23px;
+  display: block;
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+}
+
+.login-signup {
+  position: absolute;
+  top: 760px;
+  left: 50%;
+  width: 214px;
+  margin: 0;
+  color: rgb(208 87 85 / 80%);
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  text-align: center;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.login-signup a {
+  margin-left: 8px;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}

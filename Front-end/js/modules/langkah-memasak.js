@@ -6,7 +6,6 @@ export function setupLangkahMemasak(recipe, detailScreen) {
   const stepsList = document.querySelector("#recipe-steps-list");
   const stepsRecipeTitle = document.querySelector("#steps-recipe-title");
   const detailStepsButton = document.querySelector("#detail-steps");
-  const detailLikeButton = document.querySelector("#detail-like");
   const stepsLikeButton = document.querySelector("#steps-like");
   const stepsContent = document.querySelector(".steps-card-content");
   const modeButton = document.querySelector("#mode-memasak-button");
@@ -27,7 +26,6 @@ export function setupLangkahMemasak(recipe, detailScreen) {
     !(stepsList instanceof HTMLOListElement) ||
     !(stepsRecipeTitle instanceof HTMLElement) ||
     !(detailStepsButton instanceof HTMLButtonElement) ||
-    !(detailLikeButton instanceof HTMLButtonElement) ||
     !(stepsLikeButton instanceof HTMLButtonElement) ||
     !(stepsContent instanceof HTMLElement) ||
     !(modeButton instanceof HTMLButtonElement) ||
@@ -156,10 +154,6 @@ export function setupLangkahMemasak(recipe, detailScreen) {
     }
     currentStepIndex += 1;
     renderCookingStep();
-  };
-
-  stepsLikeButton.onclick = () => {
-    detailLikeButton.click();
   };
 
   if (!stepsScreen.hidden) {

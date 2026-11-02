@@ -1,17 +1,20 @@
 import { initInput } from "./modules/input.js";
 import { initVoice } from "./modules/voice.js";
 import { initHalamanSimpan } from "./modules/halaman-simpan.js";
+import { initLogin } from "./modules/login.js";
 
 const menuButton = document.querySelector("#menu-button");
 const navigation = document.querySelector("#bottom-nav");
 const drawerBackdrop = document.querySelector("#drawer-backdrop");
 const brandLink = document.querySelector("[data-home-link]");
+const bookmarkLoginButton = document.querySelector("#bookmark-unavailable-login");
 
 if (
   !(menuButton instanceof HTMLButtonElement) ||
   !(navigation instanceof HTMLElement) ||
   !(drawerBackdrop instanceof HTMLButtonElement) ||
-  !(brandLink instanceof HTMLAnchorElement)
+  !(brandLink instanceof HTMLAnchorElement) ||
+  !(bookmarkLoginButton instanceof HTMLButtonElement)
 ) {
   throw new Error("Elemen navigasi tidak ditemukan.");
 }
@@ -20,6 +23,10 @@ menuButton.addEventListener("click", () => {
   const isExpanded = menuButton.getAttribute("aria-expanded") === "true";
   setNavigationOpen(!isExpanded);
 });
+
+function reloadHome() {
+  window.location.assign(window.location.pathname);
+}
 
 function setNavigationOpen(isOpen) {
   menuButton.setAttribute("aria-expanded", String(isOpen));
@@ -61,9 +68,13 @@ drawerBackdrop.addEventListener("click", () => {
   setNavigationOpen(false);
 });
 
+bookmarkLoginButton.addEventListener("click", () => {
+  window.dispatchEvent(new Event("recipe:login-request"));
+});
+
 brandLink.addEventListener("click", (event) => {
   event.preventDefault();
-  window.dispatchEvent(new Event("recipe:navigate-home"));
+  reloadHome();
 });
 
 navigation.addEventListener("click", (event) => {
@@ -77,35 +88,37 @@ navigation.addEventListener("click", (event) => {
     setNavigationOpen(false);
     menuButton.focus();
     if (link.dataset.navAction === "home") {
-      setActiveNavigation("home");
-      window.dispatchEvent(new Event("recipe:navigate-home"));
+      reloadHome();
     } else if (link.dataset.navAction === "bookmark") {
-      if (!localStorage.getItem("token")) {
-        const dialog = document.querySelector("#bookmark-unavailable-dialog");
-        if (!(dialog instanceof HTMLDialogElement)) {
-          throw new Error("Dialog validasi login tidak ditemukan.");
-        }
-        if (!dialog.open) {
-          dialog.showModal();
-        }
-        return;
-      }
       setActiveNavigation("bookmark");
       window.dispatchEvent(new Event("recipe:navigate-saved"));
     } else if (link.dataset.navAction === "login" || link.dataset.navAction === "profile") {
-      const dialog = document.querySelector("#bookmark-unavailable-dialog");
-      if (!(dialog instanceof HTMLDialogElement)) {
-        throw new Error("Dialog validasi login tidak ditemukan.");
-      }
-      if (!dialog.open) {
-        dialog.showModal();
-      }
+      setActiveNavigation(link.dataset.navAction === "profile" ? "profile" : "home");
+      window.dispatchEvent(new Event("recipe:navigate-login"));
     }
   }
 });
 
-window.addEventListener("recipe:saved-auth-required", () => {
+window.addEventListener("recipe:login-request", () => {
+  const dialog = document.querySelector("#bookmark-unavailable-dialog");
+  if (dialog instanceof HTMLDialogElement && dialog.open) {
+    dialog.close();
+  }
+  setActiveNavigation("profile");
+  window.dispatchEvent(new Event("recipe:navigate-login"));
+});
+
+window.addEventListener("recipe:login-success", () => {
   setActiveNavigation("home");
+  window.dispatchEvent(new Event("recipe:navigate-home"));
+});
+
+window.addEventListener("recipe:saved-auth-required", () => {
+  const savedScreen = document.querySelector("#view-saved");
+  if (!(savedScreen instanceof HTMLElement) || savedScreen.hidden) {
+    setActiveNavigation("home");
+  }
+
   const dialog = document.querySelector("#bookmark-unavailable-dialog");
   if (dialog instanceof HTMLDialogElement && !dialog.open) {
     dialog.showModal();
@@ -125,3 +138,4 @@ document.addEventListener("keydown", (event) => {
 initInput();
 initVoice();
 initHalamanSimpan();
+initLogin();

@@ -123,7 +123,7 @@
   color: var(--white);
   font-family: var(--font-heading);
   font-size: 24px;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.25;
   overflow-wrap: anywhere;
   text-align: center;
@@ -279,7 +279,8 @@
 
 .copy-success-dialog,
 .bookmark-unavailable-dialog,
-.bookmark-success-dialog {
+.bookmark-success-dialog,
+.validation-dialog {
   width: min(376px, calc(100vw - 40px));
   height: 216px;
   max-width: none;
@@ -294,12 +295,19 @@
 
 .copy-success-dialog::backdrop,
 .bookmark-unavailable-dialog::backdrop,
-.bookmark-success-dialog::backdrop {
+.bookmark-success-dialog::backdrop,
+.validation-dialog::backdrop {
   background: rgb(0 0 0 / 50%);
+}
+
+.bookmark-unavailable-dialog {
+  width: min(376px, calc(100vw - 40px));
+  height: 216px;
 }
 
 .copy-success-dialog p,
 .bookmark-success-dialog p,
+.validation-dialog p,
 .bookmark-unavailable-card {
   display: grid;
   width: 100%;
@@ -317,15 +325,18 @@
 
 .bookmark-unavailable-card {
   position: relative;
+  height: 162px;
+  padding: 16px;
 }
 
 .bookmark-unavailable-card p {
-  display: grid;
-  width: 100%;
-  height: 100%;
-  place-items: center;
+  position: absolute;
+  top: 43px;
+  left: 20px;
+  width: calc(100% - 40px);
+  height: auto;
   margin: 0;
-  padding: 16px 64px;
+  padding: 0;
   font-family: var(--font-body);
   font-size: 20px;
   line-height: 30px;
@@ -334,7 +345,7 @@
 .bookmark-unavailable-close {
   position: absolute;
   top: 11px;
-  right: 10px;
+  right: 8px;
   z-index: 1;
   display: grid;
   width: 48px;
@@ -347,6 +358,7 @@
   cursor: pointer;
   font-family: var(--font-heading);
   font-size: 16px;
+  opacity: 0.6;
 }
 
 .bookmark-unavailable-close::before,
@@ -380,16 +392,20 @@
 }
 
 .bookmark-unavailable-login {
+  position: absolute;
+  top: 96px;
+  left: 50%;
   display: block;
   width: 198px;
   height: 39px;
-  margin: 15px auto 0;
+  margin: 0;
   padding: 0 12px;
+  transform: translateX(-50%);
   border: 0;
   border-radius: 20px;
   background: var(--coral);
   color: var(--white);
-  cursor: not-allowed;
+  cursor: pointer;
   font-family: var(--font-heading);
   font-size: 14px;
   font-weight: 400;
@@ -397,6 +413,7 @@
   opacity: 1;
 }
 
+.validation-dialog-button,
 .copy-success-button {
   display: block;
   width: 198px;
@@ -565,7 +582,7 @@
   color: var(--charcoal);
   font-family: var(--font-heading);
   font-size: 36px;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.1;
   text-align: center;
   overflow-wrap: anywhere;
@@ -708,7 +725,7 @@
   color: var(--white);
   font-family: var(--font-heading);
   font-size: 24px;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 40px;
   text-align: center;
 }

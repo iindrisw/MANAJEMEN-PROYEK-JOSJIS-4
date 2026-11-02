@@ -2,7 +2,8 @@ import { createRecipeCard, renderPagination } from "./recipe-view.js";
 import { renderRecipeDetail } from "./recipe-detail.js";
 import { initFilters } from "./filters.js";
 
-const MAX_INGREDIENTS = 5;
+const MAX_ADDITIONAL_INGREDIENTS = 5;
+const MAX_TOTAL_INGREDIENTS = 6;
 const API_BASE_URL = "http://127.0.0.1:5000/api";
 
 function getIngredients(value) {
@@ -49,6 +50,7 @@ export function initInput() {
   const emptyState = document.querySelector("#empty-state");
   const pagination = document.querySelector(".pagination");
   const ingredientCount = document.querySelector("#ingredient-count");
+  const filterButton = document.querySelector("#filter-button");
   const ingredientSearchButton = ingredientSearchForm?.querySelector(
     'button[type="submit"]',
   );
@@ -88,6 +90,7 @@ export function initInput() {
     !(emptyState instanceof HTMLElement) ||
     !(pagination instanceof HTMLElement) ||
     !(ingredientCount instanceof HTMLElement) ||
+    !(filterButton instanceof HTMLButtonElement) ||
     !(ingredientSearchButton instanceof HTMLButtonElement) ||
     !(validationDialog instanceof HTMLDialogElement) ||
     !(validationMessage instanceof HTMLElement) ||
@@ -114,16 +117,35 @@ export function initInput() {
   }
 
   let currentSearch = null;
+  let submittedSearchValues = null;
   let latestRequestId = 0;
   let latestDetailRequestId = 0;
   let activeRecipe = null;
   let activeAvailableIngredients = [];
-  let activeRecipeWasSearched = false;
   let isSavedViewActive = false;
   let previousAdditionalSeparatorCount = 0;
   let previousScrollPosition = 0;
   let isCopyingMissingList = false;
   let lastMissingListCopyAt = 0;
+
+  function getCurrentSearchValues() {
+    return {
+      mainIngredient: mainIngredientInput.value.trim(),
+      additionalIngredients: additionalIngredientsInput.value.trim(),
+      recipeQuery: recipeQueryInput.value.trim(),
+    };
+  }
+
+  function updateFilterButtonState() {
+    const currentValues = getCurrentSearchValues();
+    const hasUnsubmittedInput =
+      Object.values(currentValues).some(Boolean) &&
+      (!submittedSearchValues ||
+        Object.keys(currentValues).some(
+          (key) => currentValues[key] !== submittedSearchValues[key],
+        ));
+    filterButton.disabled = hasUnsubmittedInput;
+  }
 
   function showValidationDialog(message) {
     validationMessage.textContent = message;
@@ -179,17 +201,20 @@ export function initInput() {
     const additionalIngredientCount = ingredients.length;
     const separatorCount = (rawValue.match(/[,;\n]/g) || []).length;
 
-    ingredientCount.textContent = `${additionalIngredientCount}/${MAX_INGREDIENTS}`;
+    ingredientCount.textContent = `${additionalIngredientCount}/${MAX_ADDITIONAL_INGREDIENTS}`;
     ingredientCount.setAttribute(
       "aria-label",
-      `${additionalIngredientCount} dari maksimal ${MAX_INGREDIENTS} bahan tambahan`,
+      `${additionalIngredientCount} dari maksimal ${MAX_ADDITIONAL_INGREDIENTS} bahan tambahan`,
     );
-    ingredientSearchButton.disabled = additionalIngredientCount > MAX_INGREDIENTS;
+    ingredientSearchButton.disabled =
+      additionalIngredientCount > MAX_ADDITIONAL_INGREDIENTS ||
+      getIngredients(mainIngredientInput.value).length + additionalIngredientCount >
+        MAX_TOTAL_INGREDIENTS;
 
     if (
       notifyLimit &&
-      previousAdditionalSeparatorCount < MAX_INGREDIENTS &&
-      separatorCount >= MAX_INGREDIENTS &&
+      previousAdditionalSeparatorCount < MAX_ADDITIONAL_INGREDIENTS &&
+      separatorCount >= MAX_ADDITIONAL_INGREDIENTS &&
       !validationDialog.open
     ) {
       showValidationDialog("Sudah mencapai batas maksimum bahan");
@@ -216,7 +241,6 @@ export function initInput() {
     }
     activeRecipe = null;
     activeAvailableIngredients = [];
-    activeRecipeWasSearched = false;
     if (stepsDialog && !stepsDialog.hidden) {
       stepsDialog.hidden = true;
     }
@@ -285,7 +309,6 @@ export function initInput() {
     detailTitle.textContent = "Memuat resep...";
     activeRecipe = null;
     activeAvailableIngredients = [];
-    activeRecipeWasSearched = currentSearch !== null;
     document.querySelector("#detail-missing-list")?.replaceChildren();
     document.querySelector("#detail-available-list")?.replaceChildren();
     setDetailFeedback("");
@@ -319,11 +342,7 @@ export function initInput() {
 
       activeRecipe = recipe;
       activeAvailableIngredients = availableIngredients;
-      renderRecipeDetail(
-        recipe,
-        activeAvailableIngredients,
-        activeRecipeWasSearched,
-      );
+      renderRecipeDetail(recipe, activeAvailableIngredients);
     } catch (error) {
       if (requestId !== latestDetailRequestId) {
         return;
@@ -347,6 +366,7 @@ export function initInput() {
     const recipeId = String(previousRecipe.id_resep);
     const guestLikeKey = `anonymous-recipe-like-${recipeId}`;
 
+    // Update state lokal lebih dulu (Optimistic UI)
     activeRecipe = {
       ...previousRecipe,
       sudah_like: isLiked,
@@ -355,26 +375,27 @@ export function initInput() {
         (Number(previousRecipe.jumlah_like) || 0) + (isLiked ? 1 : -1),
       ),
     };
+
     if (!token) {
       localStorage.setItem(guestLikeKey, String(isLiked));
     }
-    renderRecipeDetail(
-      activeRecipe,
-      activeAvailableIngredients,
-      activeRecipeWasSearched,
-    );
+    
+    renderRecipeDetail(activeRecipe, activeAvailableIngredients);
     updateRecipeCardLikeCount(activeRecipe);
-    if (!token) {
-      isLikeSubmitting = false;
-      return;
-    }
 
     try {
+      const headers = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      // Selalu kirim request ke backend seperti codingan Ayes
       const response = await fetch(`${API_BASE_URL}/recipes/${recipeId}/like`, {
         method: isLiked ? "POST" : "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: headers,
       });
       const result = await response.json();
+      
       if (!response.ok || result.status === "error") {
         throw new Error(result.message || "Aksi resep gagal.");
       }
@@ -384,19 +405,15 @@ export function initInput() {
         sudah_like: result.sudah_like === true,
         jumlah_like: Number(result.jumlah_like) || 0,
       };
-      renderRecipeDetail(
-        activeRecipe,
-        activeAvailableIngredients,
-        activeRecipeWasSearched,
-      );
+      renderRecipeDetail(activeRecipe, activeAvailableIngredients);
       updateRecipeCardLikeCount(activeRecipe);
     } catch (error) {
+      // Kembalikan state jika fetch gagal
       activeRecipe = previousRecipe;
-      renderRecipeDetail(
-        activeRecipe,
-        activeAvailableIngredients,
-        activeRecipeWasSearched,
-      );
+      if (!token) {
+        localStorage.setItem(guestLikeKey, String(previousRecipe.sudah_like));
+      }
+      renderRecipeDetail(activeRecipe, activeAvailableIngredients);
       updateRecipeCardLikeCount(activeRecipe);
       setDetailFeedback(error.message);
     } finally {
@@ -412,9 +429,7 @@ export function initInput() {
 
     const token = localStorage.getItem("token");
     if (!token) {
-      if (!bookmarkUnavailableDialog.open) {
-        bookmarkUnavailableDialog.showModal();
-      }
+      window.dispatchEvent(new Event("recipe:saved-auth-required"));
       return;
     }
 
@@ -433,9 +448,7 @@ export function initInput() {
       if (!response.ok || result.status === "error") {
         if (response.status === 401) {
           localStorage.removeItem("token");
-          if (!bookmarkUnavailableDialog.open) {
-            bookmarkUnavailableDialog.showModal();
-          }
+          window.dispatchEvent(new Event("recipe:saved-auth-required"));
           return;
         }
         throw new Error(result.message || "Aksi simpan resep gagal.");
@@ -445,11 +458,7 @@ export function initInput() {
         ...activeRecipe,
         sudah_simpan: result.sudah_simpan === true,
       };
-      renderRecipeDetail(
-        activeRecipe,
-        activeAvailableIngredients,
-        activeRecipeWasSearched,
-      );
+      renderRecipeDetail(activeRecipe, activeAvailableIngredients);
       if (!wasSaved && activeRecipe.sudah_simpan) {
         bookmarkSuccessDialog.showModal();
       }
@@ -563,7 +572,10 @@ export function initInput() {
           : undefined;
       recipeGrid.replaceChildren(
         ...visibleRecipes.map((recipe) =>
-          createRecipeCard(recipe, { searchedIngredientCount }),
+          createRecipeCard(recipe, {
+            searchedIngredientCount,
+            maxIngredientCount: MAX_TOTAL_INGREDIENTS,
+          }),
         ),
       );
       requestAnimationFrame(() => {
@@ -618,18 +630,20 @@ export function initInput() {
     return true;
   }
 
-
   mainIngredientInput.addEventListener("input", () => {
     updateIngredientCount();
+    updateFilterButtonState();
     const val = mainIngredientInput.value;
     if (val.includes(",")) {
       showValidationDialog(
-        "Bahan utama hanya boleh diisi satu jenis bahan saja, masukkan bahan lainnya di kolom bahan tambahan",);
+        "Bahan utama hanya boleh diisi satu jenis bahan saja, masukkan bahan lainnya di kolom bahan tambahan",
+      );
     }
   });
 
   additionalIngredientsInput.addEventListener("input", () => {
     updateIngredientCount({ notifyLimit: true });
+    updateFilterButtonState();
     const val = additionalIngredientsInput.value;
     if (/^\s*[,;\n]/.test(val)) {
       showValidationDialog("Format penulisan bahan tambahan tidak valid (tidak boleh diawali koma)");
@@ -639,6 +653,7 @@ export function initInput() {
   updateIngredientCount();
 
   recipeQueryInput.addEventListener("input", () => {
+    updateFilterButtonState();
     if (getIngredients(recipeQueryInput.value).length > 1) {
       showValidationDialog("Masukkan hanya 1 nama resep");
     }
@@ -664,6 +679,8 @@ export function initInput() {
     }
 
     filters.reset();
+    submittedSearchValues = getCurrentSearchValues();
+    updateFilterButtonState();
     void loadRecipes({ type: "name", query: recipeName });
   });
 
@@ -672,7 +689,7 @@ export function initInput() {
 
     const mainVal = mainIngredientInput.value;
     if (mainVal.includes(",")) {
-      showValidationDialog("Bahan utama tidak boleh mengandung tanda koma!");
+      showValidationDialog("Bahan utama hanya boleh diisi satu jenis bahan saja, masukkan bahan lainnya di kolom bahan tambahan!");
       return;
     }
 
@@ -685,7 +702,7 @@ export function initInput() {
     }
 
     const ingredientTotal = updateIngredientCount();
-    if (ingredientTotal > MAX_INGREDIENTS) {
+    if (ingredientTotal > MAX_ADDITIONAL_INGREDIENTS) {
       showValidationDialog("Sudah mencapai batas maksimum bahan");
       return;
     }
@@ -710,6 +727,8 @@ export function initInput() {
 
     const ingredients = [...mainIngredients, ...additionalIngredients];
     filters.reset();
+    submittedSearchValues = getCurrentSearchValues();
+    updateFilterButtonState();
     void loadRecipes({ type: "ingredients", query: ingredients.join(",") });
   });
 
@@ -769,6 +788,7 @@ export function initInput() {
     void loadRecipes(currentSearch);
   });
 
+  updateFilterButtonState();
   void loadRecipes(null);
   const recipeIdFromLogin = new URLSearchParams(window.location.search).get("recipe");
   if (recipeIdFromLogin && /^\d+$/.test(recipeIdFromLogin)) {

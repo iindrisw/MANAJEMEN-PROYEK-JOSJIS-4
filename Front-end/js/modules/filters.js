@@ -49,6 +49,10 @@ export function initFilters(onChange) {
   });
 
   closeButton.addEventListener("click", () => {
+    for (const input of filterPanel.querySelectorAll('input[type="checkbox"]')) {
+      input.checked = false;
+    }
+    onChange();
     closeFilter();
     filterButton.focus();
   });

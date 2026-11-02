@@ -45,7 +45,6 @@ function fitTitleFontSize(element, maxSize, minSize) {
 export function renderRecipeDetail(
   recipe,
   availableIngredientNames = [],
-  showAvailableCopy = false,
 ) {
   const recipeTitle = document.querySelector("#detail-recipe-title");
   const missingSection = document.querySelector("#detail-missing-section");
@@ -53,7 +52,6 @@ export function renderRecipeDetail(
   const missingList = document.querySelector("#detail-missing-list");
   const availableTitle = document.querySelector("#detail-available-title");
   const availableList = document.querySelector("#detail-available-list");
-  const availableCopyButton = document.querySelector("#detail-available-copy");
   const likeButton = document.querySelector("#detail-like");
   const bookmarkButton = document.querySelector("#detail-bookmark");
   const stepsList = document.querySelector("#recipe-steps-list");
@@ -69,7 +67,6 @@ export function renderRecipeDetail(
     !(missingList instanceof HTMLUListElement) ||
     !(availableTitle instanceof HTMLElement) ||
     !(availableList instanceof HTMLUListElement) ||
-    !(availableCopyButton instanceof HTMLButtonElement) ||
     !(likeButton instanceof HTMLButtonElement) ||
     !(bookmarkButton instanceof HTMLButtonElement) ||
     !(stepsList instanceof HTMLOListElement) ||
@@ -110,7 +107,6 @@ export function renderRecipeDetail(
     ? "Bahan tersedia:"
     : "Bahan resep:";
   detailScreen.classList.toggle("has-availability", hasAvailabilityComparison);
-  availableCopyButton.hidden = !showAvailableCopy;
 
   if (unavailable.length > 0) {
     missingList.replaceChildren(...unavailable.map(createIngredientItem));

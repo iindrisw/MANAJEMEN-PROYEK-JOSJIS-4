@@ -115,6 +115,10 @@
   color: var(--white);
 }
 
+.drawer-link.is-active img {
+  filter: brightness(0) invert(1);
+}
+
 .empty-state {
   margin: 18px 8px;
   color: #686868;
@@ -123,7 +127,11 @@
 }
 
 .app-shell.is-saved-view .search-panel {
-  height: 150px;
+  height: 356px;
+}
+
+.app-shell.is-saved-view .menu-button {
+  top: 40px;
 }
 
 .app-shell.is-saved-view .ingredient-search,
@@ -132,51 +140,55 @@
   display: none;
 }
 
-.saved-screen {
-  padding: 24px 36px 20px;
+.saved-search-row {
+  display: none;
+}
+
+.app-shell.is-saved-view .section-label {
+  position: absolute;
+  top: 138px;
+  left: 32px;
+  display: grid;
+  width: 376px;
+  max-width: calc(100% - 64px);
+  height: 100px;
+  place-items: center;
+  margin: 0;
+  border: 1px solid rgb(0 0 0 / 20%);
+  border-radius: 20px;
+  background: var(--coral);
+  color: var(--white);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 40px;
+  text-align: center;
+}
+
+.app-shell.is-saved-view .saved-search-row {
+  position: absolute;
+  top: 268px;
+  left: 35px;
+  display: grid;
+  width: 373px;
+  grid-template-columns: minmax(0, 302px) 44px;
+  column-gap: 27px;
+  align-items: center;
 }
 
 .saved-search-field {
-  height: 36px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 6px rgb(0 0 0 / 12%);
+  height: 32px;
+  margin: 0;
+  box-shadow: none;
+}
+
+.saved-screen {
+  padding: 40px 32px 5px;
 }
 
 .saved-screen .recipe-grid {
   width: 100%;
-}
-
-.validation-dialog {
-  position: fixed;
-  width: min(78vw, 300px);
-  max-width: none;
-  padding: 0;
-  overflow: visible;
-  border: 0;
-  background: transparent;
-  color: var(--charcoal);
-  text-align: center;
-}
-
-.validation-dialog::backdrop {
-  background: rgb(0 0 0 / 58%);
-}
-
-.validation-dialog p {
-  margin: 0;
-  padding: 22px 12px;
-  border: 3px solid var(--white);
-  border-radius: 13px;
-  background: var(--cream);
-  font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.validation-dialog-button {
-  display: block;
-  min-width: 150px;
-  min-height: 30px;
-  margin: 8px auto 0;
-  font-size: 12px;
+  padding: 1px 0 0 2px;
+  grid-template-columns: repeat(2, 176px);
+  column-gap: 22px;
+  row-gap: 24px;
 }

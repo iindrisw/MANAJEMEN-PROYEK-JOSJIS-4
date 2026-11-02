@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Montagu+Slab:wght@400&family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Montagu+Slab:wght@400&family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&family=Roboto:wght@400&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/base.css" />
@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="css/recipes.css" />
     <link rel="stylesheet" href="css/recipe-detail.css" />
     <link rel="stylesheet" href="css/views.css" />
+    <link rel="stylesheet" href="css/login.css" />
     <link rel="stylesheet" href="css/tailwind.css" />
     <script type="module" src="js/main.js"></script>
   </head>
@@ -191,6 +192,31 @@
             <span>Terapkan Filter</span>
           </button>
         </section>
+        <form class="saved-search-row" id="saved-search-form">
+          <div class="search-field saved-search-field">
+            <label class="sr-only" for="saved-search-input">Cari resep tersimpan</label>
+            <input
+              id="saved-search-input"
+              name="resep"
+              type="search"
+              placeholder="Cari Nama Resep Langsung  (Contoh: Nasi Goreng)"
+              autocomplete="off"
+            />
+            <button
+              class="microphone-button"
+              type="button"
+              data-voice-target="saved-search-input"
+              aria-label="Cari resep tersimpan dengan suara"
+              aria-pressed="false"
+              title="Cari resep tersimpan dengan suara"
+            >
+              <img class="field-icon" src="assets/figma/microphone.svg" alt="" />
+            </button>
+          </div>
+          <button class="icon-button search-button" type="submit" aria-label="Cari resep tersimpan">
+            <img src="assets/figma/search.svg" alt="" />
+          </button>
+        </form>
       </header>
 
       <section
@@ -230,10 +256,6 @@
             <h2 class="detail-section-title" id="detail-available-title">Bahan tersedia:</h2>
             <div class="detail-ingredient-card">
               <ul class="detail-ingredient-list" id="detail-available-list"></ul>
-              <button class="detail-copy" id="detail-available-copy" type="button" data-copy-list="detail-available-list" aria-label="Salin bahan tersedia">
-                <span>SALIN</span>
-                <img src="assets/figma/detail-copy.svg" alt="" />
-              </button>
             </div>
           </section>
         </div>
@@ -258,15 +280,6 @@
       </main>
 
       <section class="saved-screen" id="view-saved" aria-label="Resep tersimpan" hidden>
-        <label class="sr-only" for="saved-search-input">Cari resep tersimpan</label>
-        <div class="search-field saved-search-field">
-          <input
-            id="saved-search-input"
-            type="search"
-            placeholder="Cari resep tersimpan..."
-            autocomplete="off"
-          />
-        </div>
         <section
           class="recipe-grid transition-opacity duration-300 ease-in-out"
           id="saved-recipe-grid"
@@ -274,6 +287,53 @@
         ></section>
         <p class="empty-state" id="saved-empty-state" role="status" aria-live="polite" hidden></p>
         <nav class="pagination" id="saved-pagination" aria-label="Halaman resep tersimpan" hidden></nav>
+      </section>
+
+      <section class="login-screen" id="login-screen" aria-label="Masuk" hidden>
+        <a class="login-brand" href="#" aria-label="Kembali ke beranda">
+          <img src="assets/figma/login-persona.png" alt="" />
+        </a>
+        <h1 class="login-title">MASUK</h1>
+        <form class="login-form" id="login-form" novalidate>
+          <label class="login-field-label login-name-label" for="login-name">NAMA</label>
+          <input
+            class="login-input login-name-input"
+            id="login-name"
+            name="nama"
+            type="text"
+            autocomplete="username"
+            maxlength="100"
+            required
+          />
+          <label class="login-field-label login-password-label" for="login-password">KATA SANDI</label>
+          <input
+            class="login-input login-password-input"
+            id="login-password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+          <a class="login-forgot-link" id="login-forgot-link" href="#">Lupa Kata sandi</a>
+          <p class="login-feedback" id="login-feedback" role="status" aria-live="polite" hidden></p>
+          <button class="login-submit" id="login-submit" type="submit">MASUK</button>
+          <div class="login-separator" aria-hidden="true">
+            <span class="login-rule">
+              <img src="assets/figma/login-divider-left.svg" alt="" />
+            </span>
+            <span>Atau Login Dengan</span>
+            <span class="login-rule">
+              <img src="assets/figma/login-divider-right.svg" alt="" />
+            </span>
+          </div>
+          <div class="login-google-badge" role="img" aria-label="Google">
+            <img src="assets/figma/login-google.png" alt="" />
+          </div>
+          <p class="login-signup">
+            Tidak Punya Akun?
+            <a id="login-signup-link" href="#">DAFTAR</a>
+          </p>
+        </form>
       </section>
 
       <button
@@ -334,7 +394,6 @@
         aria-label="Sukai resep"
         aria-pressed="false"
       >
-        <img src="assets/figma/detail-heart.svg" alt="" />
       </button>
     </header>
 
@@ -400,20 +459,17 @@
     >
       <span aria-hidden="true">X</span>
     </button>
-    <p id="bookmark-unavailable-message">
-      Anda belum login
-    </p>
+    <p id="bookmark-unavailable-message">Anda belum Login</p>
+    <button
+      class="bookmark-unavailable-login"
+      id="bookmark-unavailable-login"
+      type="button"
+      aria-describedby="bookmark-unavailable-message"
+      title="Masuk ke akun"
+    >
+      Login Sekarang
+    </button>
   </div>
-  <button
-    class="bookmark-unavailable-login"
-    id="bookmark-unavailable-login"
-    type="button"
-    disabled
-    aria-describedby="bookmark-unavailable-message"
-    title="Login belum tersedia"
-  >
-    Login Sekarang
-  </button>
 </dialog>
 <dialog
   class="bookmark-success-dialog"
@@ -436,7 +492,7 @@
     >
       <p id="validation-message" role="status" aria-live="polite"></p>
       <button class="button button-primary validation-dialog-button" type="button">
-        Oke
+        Oke, Mengerti
       </button>
     </dialog>
     <dialog
@@ -444,13 +500,13 @@
       id="copy-success-dialog"
       aria-labelledby="copy-success-message"
     >
-      <p id="copy-success-message">Bahan berhasil disalin!</p>
+      <p id="copy-success-message">Daftar bahan berhasil disalin</p>
       <button
         class="button button-primary copy-success-button"
         id="copy-success-close"
         type="button"
       >
-        Oke
+        Oke, Mengerti
       </button>
     </dialog>
   </body>
