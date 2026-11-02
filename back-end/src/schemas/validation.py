@@ -145,11 +145,12 @@ def validasi_register(data):
 
 def validasi_login(data):
     data = data or {}
-    email = (data.get("email") or "").strip().lower()
+    raw_identifier = data.get("nama") or data.get("email") or ""
+    identifier = raw_identifier.strip().lower() if isinstance(raw_identifier, str) else ""
     password = data.get("password") or ""
-    if not email or not password:
-        raise AppError("Email dan password wajib diisi.", 400)
-    return email, password
+    if not identifier or not isinstance(password, str) or not password:
+        raise AppError("Nama/email dan password wajib diisi.", 400)
+    return identifier, password
 
 
 def validasi_google(data):

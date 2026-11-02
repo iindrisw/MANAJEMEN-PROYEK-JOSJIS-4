@@ -1,4 +1,4 @@
-"""Register, login email+password, dan login Google."""
+"""Register, login nama/email+password, dan login Google."""
 import secrets
 
 from sqlalchemy import text
@@ -35,21 +35,30 @@ def register(nama, email, password):
     return _hasil_login(row)
 
 
-def login(email, password):
+def login(identifier, password):
     with get_engine().connect() as conn:
-        row = _cari_by_email(conn, email)
-    # Pesan sama untuk email salah / password salah agar tidak membocorkan email terdaftar.
-    salah = AppError("Email atau password salah.", 401, code="KREDENSIAL_SALAH")
-    if not row:
-        raise salah
-    if not row["password"]:
+        row = _cari_by_email(conn, identifier)
+        if row:
+            candidates = [row]
+        else:
+            candidates = conn.execute(
+                text(f"SELECT {_KOLOM} FROM {T_USER} WHERE LOWER(nama) = :n"),
+                {"n": identifier},
+            ).mappings().all()
+    salah = AppError("Nama/email atau kata sandi salah.", 401, code="KREDENSIAL_SALAH")
+    if row and not row["password"]:
         raise AppError(
             "Akun ini terdaftar lewat Google. Silakan masuk dengan Google.", 400,
             code="AKUN_GOOGLE",
         )
-    if not check_password_hash(row["password"], password):
+    cocok = [
+        candidate
+        for candidate in candidates
+        if candidate["password"] and check_password_hash(candidate["password"], password)
+    ]
+    if len(cocok) != 1:
         raise salah
-    return _hasil_login(row)
+    return _hasil_login(cocok[0])
 
 
 def _verifikasi_google(id_token_str):

@@ -26,23 +26,38 @@ def _jumlah_like(conn, id_resep):
 def like(id_user, id_resep):
     with get_engine().begin() as conn:
         _pastikan_resep_ada(conn, id_resep)
+        if id_user is None:  # like tamu = dukungan anonim: hanya counter, tanpa baris Resep_like
+            conn.execute(text(
+                f"UPDATE {T_RESEP} SET jumlah_like = COALESCE(jumlah_like, 0) + 1 WHERE id_resep = :r"
+            ), {"r": id_resep})
+            return {"sudah_like": True, "jumlah_like": _jumlah_like(conn, id_resep), "tamu": True}
+        
         hasil = conn.execute(text(f"""
             INSERT INTO {T_LIKE} (id_user, id_resep) VALUES (:u, :r)
             ON CONFLICT (id_user, id_resep) DO NOTHING
         """), {"u": id_user, "r": id_resep})
-        if hasil.rowcount == 1:  # benar-benar like baru
+        
+        if hasil.rowcount == 1:
             conn.execute(text(
                 f"UPDATE {T_RESEP} SET jumlah_like = COALESCE(jumlah_like, 0) + 1 WHERE id_resep = :r"
             ), {"r": id_resep})
         return {"sudah_like": True, "jumlah_like": _jumlah_like(conn, id_resep)}
 
-
 def unlike(id_user, id_resep):
     with get_engine().begin() as conn:
         _pastikan_resep_ada(conn, id_resep)
+        if id_user is None:
+            conn.execute(text(f"""
+                UPDATE {T_RESEP}
+                SET jumlah_like = CASE WHEN COALESCE(jumlah_like, 0) > 0 THEN jumlah_like - 1 ELSE 0 END
+                WHERE id_resep = :r
+            """), {"r": id_resep})
+            return {"sudah_like": False, "jumlah_like": _jumlah_like(conn, id_resep), "tamu": True}
+        
         hasil = conn.execute(text(
             f"DELETE FROM {T_LIKE} WHERE id_user = :u AND id_resep = :r"
         ), {"u": id_user, "r": id_resep})
+        
         if hasil.rowcount >= 1:
             conn.execute(text(f"""
                 UPDATE {T_RESEP}
@@ -50,7 +65,6 @@ def unlike(id_user, id_resep):
                 WHERE id_resep = :r
             """), {"r": id_resep})
         return {"sudah_like": False, "jumlah_like": _jumlah_like(conn, id_resep)}
-
 
 def simpan(id_user, id_resep):
     with get_engine().begin() as conn:

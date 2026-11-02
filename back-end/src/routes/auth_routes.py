@@ -17,8 +17,8 @@ def register():
 
 @auth_bp.post("/login")
 def login():
-    email, password = validasi_login(request.get_json(silent=True))
-    return success_response(auth_service.login(email, password))
+    identifier, password = validasi_login(request.get_json(silent=True))
+    return success_response(auth_service.login(identifier, password))
 
 
 @auth_bp.post("/google")
