@@ -127,14 +127,25 @@ export function renderRecipeDetail(
   }
 
   for (const [button, isSelected, selectedLabel, defaultLabel] of [
-    [likeButton, recipe.sudah_like === true, "Batal sukai resep", "Sukai resep"],
-    [stepsLikeButton, recipe.sudah_like === true, "Batal sukai resep", "Sukai resep"],
-    [bookmarkButton, recipe.sudah_simpan === true, "Hapus dari tersimpan", "Simpan resep"],
+  [likeButton, recipe.sudah_like === true, "Batal sukai resep", "Sukai resep"],
+  [stepsLikeButton, recipe.sudah_like === true, "Batal sukai resep", "Sukai resep"],
+  [bookmarkButton, recipe.sudah_simpan === true, "Hapus dari tersimpan", "Simpan resep"],
   ]) {
     button.setAttribute("aria-pressed", String(isSelected));
     button.setAttribute("aria-label", isSelected ? selectedLabel : defaultLabel);
     button.classList.toggle("is-active", isSelected);
+
+    if (button === bookmarkButton) {
+      const bookmarkImage = button.querySelector("img");
+
+      if (bookmarkImage) {
+        bookmarkImage.src = isSelected
+          ? "assets/figma/bookmark-save.svg"
+          : "assets/figma/detail-bookmark.svg";
+      }
+    }
   }
+  
 
   feedback.hidden = true;
   feedback.textContent = "";

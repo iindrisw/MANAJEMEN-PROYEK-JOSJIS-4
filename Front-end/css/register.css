@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #D05755;
+}
+
+.register-container,
+.login-container {
+  width: 100%;
+  max-width: 440px;
+  background-color: #ffffff;
+  padding: 24px 32px; /* <--- Padding kiri dan kanan 32px pas sesuai Figma */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* Membuat form dan input memenuhi lebar kontainer */
+  position: relative;
+  margin: 0 auto;
+}
+
+.login-title,
+.register-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-align: center;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.form-group input {
+  width: 100%;
+  height: 60px; /* <--- Tinggi persis 60px dari Figma */
+  background-color: #FFEEB5;
+  border: 1px solid rgba(0, 0, 0, 0.2); /* <--- Border hitam transparan 20% */
+  border-radius: 20px; /* <--- Radius sudut 20px */
+  padding: 0 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); /* <--- Drop shadow Y:4, Blur:10 */
+  outline: none;
+}
+
+.form-group input[type="password"] {
+  padding-right: 48px;
+}
+
+.brand-logo-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.brand-logo-img {
+  width: 160px;
+  height: auto;
+  object-fit: contain;
+}
+
+.login-title,
+.register-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #D05755;
+  letter-spacing: 0.5px;
+  margin-bottom: 30px;
+}
+
+.login-form,
+.register-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 580;
+  color: #D05755;
+  letter-spacing: 0.5px;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.form-group input::placeholder {
+  color: rgba(208, 87, 85, 0.4);
+}
+
+.form-group.error input {
+  border-color: #D05755;
+  box-shadow: 0 0 0 3px rgba(208, 87, 85, 0.15);
+}
+
+.toggle-password {
+  position: absolute;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #D05755;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.forgot-password-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.forgot-password-link {
+  font-size: 11px;
+  font-weight: 700;
+  color: #D05755;
+  text-decoration: none;
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  font-size: 11px;
+  font-weight: 700;
+  color: #D05755;
+  margin-top: 2px;
+  display: none;
+}
+
+.form-group.error .error-message {
+  display: block;
+}
+
+.btn-submit-masuk,
+.btn-submit-daftar {
+  width: 100%;
+  height: 54px;
+  background-color: #D05755;
+  border: none;
+  border-radius: 27px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #FFFFFF;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(208, 87, 85, 0.35);
+  margin-top: 10px;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.5px;
+}
+
+.btn-submit-masuk:active,
+.btn-submit-daftar:active {
+  transform: scale(0.98);
+}
+
+.btn-submit-masuk:disabled,
+.btn-submit-daftar:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.divider-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 25px 0 15px 0;
+}
+
+.divider-container::before,
+.divider-container::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1.5px solid #D05755;
+  opacity: 0.4;
+}
+
+.divider-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: #D05755;
+  padding: 0 12px;
+  opacity: 0.8;
+}
+
+.btn-google-login {
+  width: 80px;
+  height: 60px;
+  background-color: #ffffff;
+  border: 1.5px solid rgba(208, 87, 85, 0.2);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  margin: 0 auto;
+  padding: 12px 23px 13px 22px;
+  transition: transform 0.1s ease;
+}
+
+.btn-google-login:active {
+  transform: scale(0.95);
+}
+
+.google-icon-svg {
+  width: 35px;
+  height: 35px;
+}
+
+.register-link-wrapper,
+.login-link-wrapper {
+  margin-top: 25px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #D05755;
+}
+
+.register-redirect-link,
+.login-redirect-link {
+  color: #D05755;
+  font-weight: 900;
+  text-decoration: underline;
+  margin-left: 4px;
+}

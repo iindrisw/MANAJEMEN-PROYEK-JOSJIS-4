@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="css/recipes.css" />
     <link rel="stylesheet" href="css/recipe-detail.css" />
     <link rel="stylesheet" href="css/views.css" />
-    <link rel="stylesheet" href="css/login.css" />
     <link rel="stylesheet" href="css/tailwind.css" />
     <script type="module" src="js/main.js"></script>
   </head>
@@ -234,7 +233,13 @@
             <img src="assets/figma/detail-heart.svg" alt="" />
           </button>
           <h2 class="detail-recipe-title" id="detail-recipe-title">Memuat resep...</h2>
-          <button class="detail-action detail-bookmark" id="detail-bookmark" type="button" aria-label="Simpan resep" aria-pressed="false">
+          <button
+            class="detail-action detail-bookmark"
+            id="detail-bookmark"
+            type="button"
+            aria-label="Simpan resep"
+            aria-pressed="false"
+          >
             <img src="assets/figma/detail-bookmark.svg" alt="" />
           </button>
         </header>
@@ -289,53 +294,6 @@
         <nav class="pagination" id="saved-pagination" aria-label="Halaman resep tersimpan" hidden></nav>
       </section>
 
-      <section class="login-screen" id="login-screen" aria-label="Masuk" hidden>
-        <a class="login-brand" href="#" aria-label="Kembali ke beranda">
-          <img src="assets/figma/login-persona.png" alt="" />
-        </a>
-        <h1 class="login-title">MASUK</h1>
-        <form class="login-form" id="login-form" novalidate>
-          <label class="login-field-label login-name-label" for="login-name">NAMA</label>
-          <input
-            class="login-input login-name-input"
-            id="login-name"
-            name="nama"
-            type="text"
-            autocomplete="username"
-            maxlength="100"
-            required
-          />
-          <label class="login-field-label login-password-label" for="login-password">KATA SANDI</label>
-          <input
-            class="login-input login-password-input"
-            id="login-password"
-            name="password"
-            type="password"
-            autocomplete="current-password"
-            required
-          />
-          <a class="login-forgot-link" id="login-forgot-link" href="#">Lupa Kata sandi</a>
-          <p class="login-feedback" id="login-feedback" role="status" aria-live="polite" hidden></p>
-          <button class="login-submit" id="login-submit" type="submit">MASUK</button>
-          <div class="login-separator" aria-hidden="true">
-            <span class="login-rule">
-              <img src="assets/figma/login-divider-left.svg" alt="" />
-            </span>
-            <span>Atau Login Dengan</span>
-            <span class="login-rule">
-              <img src="assets/figma/login-divider-right.svg" alt="" />
-            </span>
-          </div>
-          <div class="login-google-badge" role="img" aria-label="Google">
-            <img src="assets/figma/login-google.png" alt="" />
-          </div>
-          <p class="login-signup">
-            Tidak Punya Akun?
-            <a id="login-signup-link" href="#">DAFTAR</a>
-          </p>
-        </form>
-      </section>
-
       <button
         class="drawer-backdrop"
         id="drawer-backdrop"
@@ -353,14 +311,14 @@
         inert
         hidden
       >
-        <a class="drawer-signup" href="#" data-menu-link data-nav-action="login">Daftar atau Masuk</a>
+        <a class="drawer-signup" href="login.html" data-menu-link>Daftar atau Masuk</a>
         <div class="drawer-links">
           <a class="drawer-link is-active" href="#" aria-current="page" data-menu-link data-nav-action="home">
             <img src="assets/figma/drawer-home.svg" alt="" />
             <span>BERANDA</span>
           </a>
           <a class="drawer-link" href="#" data-menu-link data-nav-action="bookmark">
-            <img src="assets/figma/drawer-bookmark.svg" alt="" />
+            <img src="assets/figma/bookmark-merah.svg" alt="" />
             <span>SIMPAN</span>
           </a>
           <a class="drawer-link" href="#" data-menu-link data-nav-action="profile">
@@ -369,145 +327,151 @@
           </a>
         </div>
       </nav>
-     <!-- Ganti dialog langkah memasak yang lama dengan section ini -->
-      <!-- HALAMAN LANGKAH MEMASAK -->
-<section
-  class="recipe-steps-screen"
-  id="recipe-steps-screen"
-  aria-label="Langkah Memasak"
-  hidden
->
-  <div class="steps-card">
-    <header class="steps-card-header">
-      <button
-        class="steps-back-button"
-        id="steps-back"
-        type="button"
-        aria-label="Kembali ke detail resep"
-      >
-        <img src="assets/figma/detail-back.png" alt="" />
-      </button>
-      <button
-        class="steps-like-button"
-        id="steps-like"
-        type="button"
-        aria-label="Sukai resep"
-        aria-pressed="false"
-      >
-      </button>
-    </header>
 
-    <div class="steps-card-content">
-      <h2
-        class="steps-recipe-title"
-        id="steps-recipe-title"
+      <section
+        class="recipe-steps-screen"
+        id="recipe-steps-screen"
+        aria-label="Langkah Memasak"
+        hidden
       >
-        Nama Resep
-      </h2>
-      <button class="mode-memasak-button" id="mode-memasak-button" type="button">
-        MODE MEMASAK
-      </button>
-      <ol
-        class="recipe-steps-list"
-        id="recipe-steps-list"
-      ></ol>
+        <div class="steps-card">
+          <header class="steps-card-header">
+            <button
+              class="steps-back-button"
+              id="steps-back"
+              type="button"
+              aria-label="Kembali ke detail resep"
+            >
+              <img src="assets/figma/detail-back.png" alt="" />
+            </button>
+            <button
+              class="steps-like-button"
+              id="steps-like"
+              type="button"
+              aria-label="Sukai resep"
+              aria-pressed="false"
+            >
+            </button>
+          </header>
+
+          <div class="steps-card-content">
+            <h2
+              class="steps-recipe-title"
+              id="steps-recipe-title"
+            >
+              Nama Resep
+            </h2>
+            <button class="mode-memasak-button" id="mode-memasak-button" type="button">
+              MODE MEMASAK
+            </button>
+            <ol
+              class="recipe-steps-list"
+              id="recipe-steps-list"
+            ></ol>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="cooking-mode-screen"
+        id="cooking-mode-screen"
+        aria-label="Mode memasak"
+        hidden
+      >
+        <button
+          class="cooking-mode-back"
+          id="cooking-mode-back"
+          type="button"
+          aria-label="Kembali ke daftar langkah"
+        >
+          <img src="assets/figma/detail-back.png" alt="" />
+        </button>
+        <h1 class="cooking-mode-page-title">DETAIL RESEP</h1>
+        <h2 class="cooking-mode-heading">MODE MEMASAK</h2>
+        <article class="cooking-mode-step">
+          <h3 class="cooking-mode-step-title" id="cooking-mode-step-title"></h3>
+          <p class="cooking-mode-step-description" id="cooking-mode-step-description"></p>
+        </article>
+        <footer class="cooking-mode-controls">
+          <button class="cooking-mode-control" id="cooking-mode-previous" type="button">
+            <img src="assets/figma/mode-next.svg" alt="" />
+            <span>SEBELUMNYA</span>
+          </button>
+          <button class="cooking-mode-control" id="cooking-mode-next" type="button">
+            <span id="cooking-mode-next-label">SELANJUTNYA</span>
+            <img id="cooking-mode-next-icon" src="assets/figma/mode-next.svg" alt="" />
+          </button>
+        </footer>
+      </section>
+
+      <dialog
+        class="bookmark-unavailable-dialog"
+        id="bookmark-unavailable-dialog"
+        aria-labelledby="bookmark-unavailable-message"
+      >
+        <div class="bookmark-unavailable-card">
+          <button
+            class="bookmark-unavailable-close"
+            id="bookmark-unavailable-close"
+            type="button"
+            aria-label="Tutup pemberitahuan"
+          >
+            <span aria-hidden="true">X</span>
+          </button>
+          <p id="bookmark-unavailable-message">Anda belum Login</p>
+          <a
+            class="bookmark-unavailable-login"
+            id="bookmark-unavailable-login"
+            href="login.html"
+            title="Masuk ke akun"
+            style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;"
+          >
+            Login Sekarang
+          </a>
+        </div>
+      </dialog>
+
+      <dialog
+        class="bookmark-success-dialog"
+        id="bookmark-success-dialog"
+        aria-labelledby="bookmark-success-message"
+      >
+        <p id="bookmark-success-message">Resep berhasil disimpan</p>
+        <button
+          class="button button-primary copy-success-button"
+          id="bookmark-success-close"
+          type="button"
+        >
+          Oke, Mengerti
+        </button>
+      </dialog>
+
+      <dialog
+        class="validation-dialog"
+        id="validation-dialog"
+        aria-labelledby="validation-message"
+      >
+        <p id="validation-message" role="status" aria-live="polite"></p>
+        <button class="button button-primary validation-dialog-button" type="button">
+          Oke, Mengerti
+        </button>
+      </dialog>
+
+      <dialog
+        class="copy-success-dialog"
+        id="copy-success-dialog"
+        aria-labelledby="copy-success-message"
+      >
+        <p id="copy-success-message">Daftar bahan berhasil disalin</p>
+        <button
+          class="button button-primary copy-success-button"
+          id="copy-success-close"
+          type="button"
+        >
+          Oke, Mengerti
+        </button>
+      </dialog>
+
     </div>
-  </div>
-</section>
-<section
-  class="cooking-mode-screen"
-  id="cooking-mode-screen"
-  aria-label="Mode memasak"
-  hidden
->
-  <button
-    class="cooking-mode-back"
-    id="cooking-mode-back"
-    type="button"
-    aria-label="Kembali ke daftar langkah"
-  >
-    <img src="assets/figma/detail-back.png" alt="" />
-  </button>
-  <h1 class="cooking-mode-page-title">DETAIL RESEP</h1>
-  <h2 class="cooking-mode-heading">MODE MEMASAK</h2>
-  <article class="cooking-mode-step">
-    <h3 class="cooking-mode-step-title" id="cooking-mode-step-title"></h3>
-    <p class="cooking-mode-step-description" id="cooking-mode-step-description"></p>
-  </article>
-  <footer class="cooking-mode-controls">
-    <button class="cooking-mode-control" id="cooking-mode-previous" type="button">
-      <img src="assets/figma/mode-next.svg" alt="" />
-      <span>SEBELUMNYA</span>
-    </button>
-    <button class="cooking-mode-control" id="cooking-mode-next" type="button">
-      <span id="cooking-mode-next-label">SELANJUTNYA</span>
-      <img id="cooking-mode-next-icon" src="assets/figma/mode-next.svg" alt="" />
-    </button>
-  </footer>
-</section>
-<dialog
-  class="bookmark-unavailable-dialog"
-  id="bookmark-unavailable-dialog"
-  aria-labelledby="bookmark-unavailable-message"
->
-  <div class="bookmark-unavailable-card">
-    <button
-      class="bookmark-unavailable-close"
-      id="bookmark-unavailable-close"
-      type="button"
-      aria-label="Tutup pemberitahuan"
-    >
-      <span aria-hidden="true">X</span>
-    </button>
-    <p id="bookmark-unavailable-message">Anda belum Login</p>
-    <button
-      class="bookmark-unavailable-login"
-      id="bookmark-unavailable-login"
-      type="button"
-      aria-describedby="bookmark-unavailable-message"
-      title="Masuk ke akun"
-    >
-      Login Sekarang
-    </button>
-  </div>
-</dialog>
-<dialog
-  class="bookmark-success-dialog"
-  id="bookmark-success-dialog"
-  aria-labelledby="bookmark-success-message"
->
-  <p id="bookmark-success-message">Resep berhasil disimpan</p>
-  <button
-    class="button button-primary copy-success-button"
-    id="bookmark-success-close"
-    type="button"
-  >
-    Oke, Mengerti
-  </button>
-</dialog>
-    <dialog
-      class="validation-dialog"
-      id="validation-dialog"
-      aria-labelledby="validation-message"
-    >
-      <p id="validation-message" role="status" aria-live="polite"></p>
-      <button class="button button-primary validation-dialog-button" type="button">
-        Oke, Mengerti
-      </button>
-    </dialog>
-    <dialog
-      class="copy-success-dialog"
-      id="copy-success-dialog"
-      aria-labelledby="copy-success-message"
-    >
-      <p id="copy-success-message">Daftar bahan berhasil disalin</p>
-      <button
-        class="button button-primary copy-success-button"
-        id="copy-success-close"
-        type="button"
-      >
-        Oke, Mengerti
-      </button>
-    </dialog>
   </body>
 </html>

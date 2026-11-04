@@ -79,22 +79,44 @@
   right: 32px;
   width: 30px;
   height: 40px;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
 }
 
 .detail-bookmark img {
   display: block;
-  position: relative;
-  z-index: 1;
   width: 30px;
   height: 40px;
+  border: none;
+  object-fit: contain;
+}
+
+.detail-bookmark.is-active img {
+  filter: none;
 }
 
 .detail-action.is-active {
   background: transparent;
 }
 
-.detail-bookmark.is-active img {
-  filter: brightness(0);
+.detail-bookmark {
+  top: 235px;
+  right: 32px;
+  width: 30px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.detail-bookmark img {
+  display: block;
+  width: 30px;
+  height: 40px;
+  object-fit: contain;
+  filter: none;
 }
 
 .detail-back:focus-visible,

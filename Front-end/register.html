@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Racik Rasa - Pendaftaran Akun</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/register.css">
+</head>
+<body>
+
+  <div class="register-container">
+    
+    <!-- Brand Logo -->
+    <div class="brand-logo-wrapper">
+      <img src="assets/logo-racik-rasa.png" alt="Racik Rasa Logo" class="brand-logo-img">
+    </div>
+
+    <h1 class="register-title">DAFTAR</h1>
+
+    <form id="registerForm" class="register-form" novalidate>
+      
+      <!-- Nama -->
+      <div class="form-group">
+        <label for="registerNama">NAMA</label>
+        <div class="input-wrapper">
+          <input type="text" id="registerNama" autocomplete="name" />
+        </div>
+        <span class="error-message"></span>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="registerEmail">EMAIL</label>
+        <div class="input-wrapper">
+          <input type="email" id="registerEmail" autocomplete="email" />
+        </div>
+        <span class="error-message"></span>
+      </div>
+
+      <!-- Kata Sandi -->
+      <div class="form-group">
+        <label for="registerSandi">KATA SANDI</label>
+        <div class="input-wrapper">
+          <input type="password" id="registerSandi" autocomplete="new-password" />
+          <button type="button" class="toggle-password" data-target="registerSandi" title="Tampilkan/Sembunyikan Sandi">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+        <span class="error-message"></span>
+      </div>
+
+      <!-- Konfirmasi Kata Sandi -->
+      <div class="form-group">
+        <label for="registerKonfirmasi">KONFIRMASI KATA SANDI</label>
+        <div class="input-wrapper">
+          <input type="password" id="registerKonfirmasi" autocomplete="new-password" />
+          <button type="button" class="toggle-password" data-target="registerKonfirmasi" title="Tampilkan/Sembunyikan Sandi">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+        <span class="error-message"></span>
+      </div>
+
+      <button type="submit" id="btnDaftar" class="btn-submit-daftar">DAFTAR</button>
+    </form>
+
+    <div class="divider-container">
+      <span class="divider-text">Atau Masuk Dengan</span>
+    </div>
+
+    <!-- Google Button -->
+    <button type="button" class="btn-google-login" title="Masuk dengan Google">
+      <svg class="google-icon-svg" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.17 21.36 7.23 24 12 24z"/>
+        <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.15 0 9.89 0 11.75s.43 3.6 1.19 5.14l4.08-2.65z"/>
+        <path inkscape:connector-curvature="0" fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.64 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/>
+      </svg>
+    </button>
+
+    <div class="login-link-wrapper">
+      Sudah Punya Akun? <a href="login.html" class="login-redirect-link">MASUK</a>
+    </div>
+
+  </div>
+
+  <script type="module" src="js/modules/register.js"></script>
+</body>
+</html>

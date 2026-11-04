@@ -1,121 +1,117 @@
-const API_BASE_URL = "http://127.0.0.1:5000/api";
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('loginForm');
+  const inputIdentifier = document.getElementById('loginNama'); // Menyesuaikan dengan input nama/email di login.html
+  const inputSandi = document.getElementById('loginSandi');
+  const btnMasuk = document.getElementById('btnMasuk');
+  const forgotLink = document.getElementById('forgotPasswordLink');
 
-export function initLogin() {
-  const appShell = document.querySelector(".app-shell");
-  const loginScreen = document.querySelector("#login-screen");
-  const loginBrand = document.querySelector(".login-brand");
-  const loginForm = document.querySelector("#login-form");
-  const nameInput = document.querySelector("#login-name");
-  const passwordInput = document.querySelector("#login-password");
-  const submitButton = document.querySelector("#login-submit");
-  const feedback = document.querySelector("#login-feedback");
-  const forgotLink = document.querySelector("#login-forgot-link");
-  const signupLink = document.querySelector("#login-signup-link");
+  // Toggle Visibility Password
+  document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', () => {
+      const targetId = button.getAttribute('data-target');
+      const inputEl = document.getElementById(targetId);
+      const icon = button.querySelector('i');
 
-  if (
-    !(appShell instanceof HTMLElement) ||
-    !(loginScreen instanceof HTMLElement) ||
-    !(loginBrand instanceof HTMLAnchorElement) ||
-    !(loginForm instanceof HTMLFormElement) ||
-    !(nameInput instanceof HTMLInputElement) ||
-    !(passwordInput instanceof HTMLInputElement) ||
-    !(submitButton instanceof HTMLButtonElement) ||
-    !(feedback instanceof HTMLElement) ||
-    !(forgotLink instanceof HTMLAnchorElement) ||
-    !(signupLink instanceof HTMLAnchorElement)
-  ) {
-    throw new Error("Elemen halaman masuk tidak ditemukan.");
-  }
-
-  function setLoginView(isOpen) {
-    loginScreen.hidden = !isOpen;
-    appShell.classList.toggle("is-login-view", isOpen);
-    if (isOpen) {
-      nameInput.focus();
-    }
-  }
-
-  function showFeedback(message, isSuccess = false) {
-    feedback.textContent = message;
-    feedback.classList.toggle("is-success", isSuccess);
-    feedback.hidden = !message;
-  }
-
-  window.addEventListener("recipe:navigate-login", () => {
-    loginForm.reset();
-    showFeedback("");
-    setLoginView(true);
-  });
-
-  window.addEventListener("recipe:navigate-home", () => {
-    setLoginView(false);
-  });
-
-  loginBrand.addEventListener("click", (event) => {
-    event.preventDefault();
-    window.dispatchEvent(new Event("recipe:navigate-home"));
-  });
-
-  for (const link of [forgotLink, signupLink]) {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      showFeedback(
-        link === forgotLink
-          ? "Fitur lupa kata sandi belum tersedia."
-          : "Fitur pendaftaran belum tersedia.",
-      );
+      if (inputEl.type === 'password') {
+        inputEl.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        inputEl.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
     });
+  });
+
+  // Helper setError
+  function setError(inputElement, message) {
+    const formGroup = inputElement.closest('.form-group');
+    const errorMsgEl = formGroup.querySelector('.error-message');
+    formGroup.classList.add('error');
+    if (errorMsgEl) {
+      errorMsgEl.textContent = message;
+    }
   }
 
-  for (const input of [nameInput, passwordInput]) {
-    input.addEventListener("input", () => showFeedback(""));
+  // Helper clearError
+  function clearError(inputElement) {
+    const formGroup = inputElement.closest('.form-group');
+    const errorMsgEl = formGroup.querySelector('.error-message');
+    formGroup.classList.remove('error');
+    if (errorMsgEl) errorMsgEl.textContent = '';
   }
 
-  loginForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const nama = nameInput.value.trim();
-    const password = passwordInput.value;
+  [inputIdentifier, inputSandi].forEach(input => {
+    input.addEventListener('input', () => clearError(input));
+  });
 
-    if (!nama || !password) {
-      showFeedback("Nama dan kata sandi wajib diisi.");
-      (nama ? passwordInput : nameInput).focus();
-      return;
+  // Lupa kata sandi alert
+  forgotLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    alert('Fitur lupa kata sandi belum tersedia.');
+  });
+
+  // Event Submit Form Login ke Backend API
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    let isValid = true;
+    const identifier = inputIdentifier.value.trim();
+    const password = inputSandi.value;
+
+    if (!identifier) {
+      setError(inputIdentifier, 'Nama atau email wajib diisi');
+      isValid = false;
+    }
+    if (!password) {
+      setError(inputSandi, 'Kata sandi wajib diisi');
+      isValid = false;
     }
 
-    submitButton.disabled = true;
-    submitButton.textContent = "MEMPROSES...";
-    showFeedback("");
+    if (!isValid) return;
+
+    // Indikator Loading
+    btnMasuk.disabled = true;
+    btnMasuk.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> MEMPROSES...';
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nama, password }),
+      // Sesuaikan endpoint API backend-mu (misal: /api/auth/login atau sesuaikan routernya)
+      const response = await fetch('http://127.0.0.1:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({ 
+          identifier: identifier, // Sesuai dengan parameter backend auth_service.py
+          password: password 
+        })
       });
+
       const result = await response.json();
 
-      if (!response.ok || result.status === "error") {
-        throw new Error(result.message || "Nama atau kata sandi salah.");
-      }
-      if (typeof result.token !== "string" || !result.token || !result.user) {
-        throw new Error("Respons login dari server tidak valid.");
+      if (!response.ok) {
+        // Menangani kode error dari backend (misal: AKUN_GOOGLE, KREDENSIAL_SALAH, dll)
+        throw new Error(result.message || 'Nama/email atau kata sandi salah.');
       }
 
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
-      showFeedback(`Berhasil masuk, ${result.user.nama || nama}.`, true);
-      window.setTimeout(() => {
-        window.dispatchEvent(new Event("recipe:login-success"));
-      }, 700);
+      // Simpan token dan data user ke localStorage
+      if (result.token) {
+        localStorage.setItem('token', result.token);
+      }
+      if (result.user) {
+        localStorage.setItem('user', JSON.stringify(result.user));
+      }
+
+      // Berhasil masuk, arahkan ke halaman utama/dashboard aplikasi
+      window.location.href = 'index.html';
+
     } catch (error) {
-      showFeedback(
-        error instanceof TypeError
-          ? "Server tidak dapat dijangkau. Periksa koneksi lalu coba lagi."
-          : error.message,
-      );
+      console.error('Login error:', error);
+      setError(inputSandi, error.message || 'Gagal terhubung ke server backend.');
     } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = "MASUK";
+      btnMasuk.disabled = false;
+      btnMasuk.textContent = 'MASUK';
     }
   });
-}
+});
