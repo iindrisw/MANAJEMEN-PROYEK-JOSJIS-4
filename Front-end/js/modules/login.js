@@ -1,117 +1,115 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('loginForm');
-  const inputIdentifier = document.getElementById('loginNama'); // Menyesuaikan dengan input nama/email di login.html
-  const inputSandi = document.getElementById('loginSandi');
-  const btnMasuk = document.getElementById('btnMasuk');
-  const forgotLink = document.getElementById('forgotPasswordLink');
+const API_BASE_URL = "http://127.0.0.1:5000/api";
 
-  // Toggle Visibility Password
-  document.querySelectorAll('.toggle-password').forEach(button => {
-    button.addEventListener('click', () => {
-      const targetId = button.getAttribute('data-target');
-      const inputEl = document.getElementById(targetId);
-      const icon = button.querySelector('i');
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector("#loginForm");
+  const inputIdentifier = document.querySelector("#loginNama");
+  const inputPassword = document.querySelector("#loginSandi");
+  const submitButton = document.querySelector("#btnMasuk");
+  const forgotLink = document.querySelector("#forgotPasswordLink");
 
-      if (inputEl.type === 'password') {
-        inputEl.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-      } else {
-        inputEl.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-      }
+  if (
+    !(form instanceof HTMLFormElement) ||
+    !(inputIdentifier instanceof HTMLInputElement) ||
+    !(inputPassword instanceof HTMLInputElement) ||
+    !(submitButton instanceof HTMLButtonElement)
+  ) {
+    throw new Error("Elemen formulir login tidak ditemukan.");
+  }
+
+  function setError(input, message) {
+    const group = input.closest(".form-group");
+    const errorMessage = group?.querySelector(".error-message");
+    group?.classList.add("error");
+    if (errorMessage) errorMessage.textContent = message;
+  }
+
+  function clearError(input) {
+    const group = input.closest(".form-group");
+    const errorMessage = group?.querySelector(".error-message");
+    group?.classList.remove("error");
+    if (errorMessage) errorMessage.textContent = "";
+  }
+
+  for (const input of [inputIdentifier, inputPassword]) {
+    input.addEventListener("input", () => {
+      clearError(input);
     });
-  });
-
-  // Helper setError
-  function setError(inputElement, message) {
-    const formGroup = inputElement.closest('.form-group');
-    const errorMsgEl = formGroup.querySelector('.error-message');
-    formGroup.classList.add('error');
-    if (errorMsgEl) {
-      errorMsgEl.textContent = message;
-    }
   }
 
-  // Helper clearError
-  function clearError(inputElement) {
-    const formGroup = inputElement.closest('.form-group');
-    const errorMsgEl = formGroup.querySelector('.error-message');
-    formGroup.classList.remove('error');
-    if (errorMsgEl) errorMsgEl.textContent = '';
+  for (const button of document.querySelectorAll(".toggle-password")) {
+    button.addEventListener("click", () => {
+      const target = document.getElementById(button.dataset.target);
+      const icon = button.querySelector("i");
+      if (!(target instanceof HTMLInputElement) || !icon) return;
+
+      const showPassword = target.type === "password";
+      target.type = showPassword ? "text" : "password";
+      icon.classList.toggle("fa-eye", !showPassword);
+      icon.classList.toggle("fa-eye-slash", showPassword);
+    });
   }
 
-  [inputIdentifier, inputSandi].forEach(input => {
-    input.addEventListener('input', () => clearError(input));
+  forgotLink?.addEventListener("click", (event) => {
+    event.preventDefault();
+    window.alert("Fitur lupa kata sandi belum tersedia.");
   });
 
-  // Lupa kata sandi alert
-  forgotLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    alert('Fitur lupa kata sandi belum tersedia.');
-  });
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-  // Event Submit Form Login ke Backend API
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    let isValid = true;
     const identifier = inputIdentifier.value.trim();
-    const password = inputSandi.value;
+    const password = inputPassword.value;
+    let isValid = true;
 
     if (!identifier) {
-      setError(inputIdentifier, 'Nama atau email wajib diisi');
+      setError(inputIdentifier, "Nama atau email wajib diisi.");
       isValid = false;
     }
     if (!password) {
-      setError(inputSandi, 'Kata sandi wajib diisi');
+      setError(inputPassword, "Kata sandi wajib diisi.");
       isValid = false;
     }
-
     if (!isValid) return;
 
-    // Indikator Loading
-    btnMasuk.disabled = true;
-    btnMasuk.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> MEMPROSES...';
+    submitButton.disabled = true;
+    submitButton.textContent = "MEMPROSES...";
 
     try {
-      // Sesuaikan endpoint API backend-mu (misal: /api/auth/login atau sesuaikan routernya)
-      const response = await fetch('http://127.0.0.1:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify({ 
-          identifier: identifier, // Sesuai dengan parameter backend auth_service.py
-          password: password 
-        })
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nama: identifier, password }),
       });
+      const result = await response.json().catch(() => null);
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        // Menangani kode error dari backend (misal: AKUN_GOOGLE, KREDENSIAL_SALAH, dll)
-        throw new Error(result.message || 'Nama/email atau kata sandi salah.');
+      if (!result || typeof result !== "object") {
+        throw new Error("Respons server tidak valid. Silakan coba lagi.");
+      }
+      if (!response.ok || result.status !== "success") {
+        throw new Error(result.message || "Nama/email atau kata sandi salah.");
+      }
+      if (typeof result.token !== "string" || !result.token) {
+        throw new Error("Login berhasil tetapi token tidak diterima dari server.");
       }
 
-      // Simpan token dan data user ke localStorage
-      if (result.token) {
-        localStorage.setItem('token', result.token);
+      localStorage.setItem("token", result.token);
+      if (result.user && typeof result.user === "object") {
+        localStorage.setItem("user", JSON.stringify(result.user));
+      } else {
+        localStorage.removeItem("user");
       }
-      if (result.user) {
-        localStorage.setItem('user', JSON.stringify(result.user));
-      }
-
-      // Berhasil masuk, arahkan ke halaman utama/dashboard aplikasi
-      window.location.href = 'index.html';
-
+      window.location.assign("index.html");
     } catch (error) {
-      console.error('Login error:', error);
-      setError(inputSandi, error.message || 'Gagal terhubung ke server backend.');
+      console.error("Login gagal:", error);
+      setError(
+        inputPassword,
+        error instanceof TypeError
+          ? "Tidak dapat menghubungi server. Pastikan API berjalan dan alamatnya benar."
+          : error.message || "Login gagal. Silakan coba lagi.",
+      );
     } finally {
-      btnMasuk.disabled = false;
-      btnMasuk.textContent = 'MASUK';
+      submitButton.disabled = false;
+      submitButton.textContent = "MASUK";
     }
   });
 });

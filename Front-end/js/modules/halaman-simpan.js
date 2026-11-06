@@ -60,10 +60,18 @@ export function initHalamanSimpan() {
     }
 
     const pageData = result.data;
-    if (!pageData || !Array.isArray(pageData.data)) {
-      throw new Error("Format daftar resep tersimpan dari server tidak valid.");
+
+    // Jika server langsung mengembalikan array daftar resep
+    if (Array.isArray(pageData)) {
+      return { data: pageData, total_halaman: 1 };
     }
-    return pageData;
+
+    // Jika server mengembalikan objek berpaginasi standar { data: [...], total_halaman: ... }
+    if (pageData && Array.isArray(pageData.data)) {
+      return pageData;
+    }
+
+    throw new Error("Format daftar resep tersimpan dari server tidak valid.");
   }
 
   async function loadSavedRecipes() {

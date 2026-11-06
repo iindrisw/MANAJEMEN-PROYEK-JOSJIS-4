@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="css/recipes.css" />
     <link rel="stylesheet" href="css/recipe-detail.css" />
     <link rel="stylesheet" href="css/views.css" />
+    <link rel="stylesheet" href="css/humberger.css" />
+    <link rel="stylesheet" href="css/profil.css" />
     <link rel="stylesheet" href="css/tailwind.css" />
     <script type="module" src="js/main.js"></script>
   </head>
@@ -471,6 +473,72 @@
           Oke, Mengerti
         </button>
       </dialog>
+
+      <dialog
+        class="bookmark-unavailable-dialog"
+        id="guest-modal"
+        aria-labelledby="guest-modal-message"
+      >
+        <div class="bookmark-unavailable-card">
+          <button
+            class="bookmark-unavailable-close"
+            id="close-guest-modal"
+            type="button"
+            aria-label="Tutup pemberitahuan"
+          >
+            <span aria-hidden="true">X</span>
+          </button>
+          <p id="guest-modal-message">Anda belum login, silakan login</p>
+          <button
+            class="bookmark-unavailable-login"
+            id="btn-modal-login"
+            type="button"
+            style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer;"
+          >
+            Login
+          </button>
+        </div>
+      </dialog>
+
+      <dialog
+        class="bookmark-unavailable-dialog"
+        id="logout-confirm-modal"
+        aria-labelledby="logout-confirm-message"
+      >
+        <div class="bookmark-unavailable-card">
+          <p id="logout-confirm-message">Apakah Anda yakin ingin keluar dari akun?</p>
+          <div style="display: flex; gap: 10px; width: 100%; margin-top: 15px;">
+            <button class="button button-primary" id="btn-confirm-logout" type="button" style="flex: 1; background-color: #dc2626; border-radius: 20px;">Keluar</button>
+            <button class="button" id="btn-cancel-logout" type="button" style="flex: 1; background-color: #ccc; color: #333; border-radius: 20px;">Batal</button>
+          </div>
+        </div>
+      </dialog>
+
+      <section class="profile-screen" id="view-profile" aria-label="Profil pengguna" hidden>
+        <div class="profile-container" style="padding: 40px 32px; display: flex; flex-direction: column; gap: 20px;">
+          <div class="profile-header">
+            <h1 class="profile-title">PROFIL</h1>
+          </div>
+          <div class="form-group">
+            <label>NAMA LENGKAP</label>
+            <div class="input-wrapper">
+              <div id="profile-fullname" class="profile-info-box" style="width: 100%; height: 60px; background-color: #FFEEB5; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 20px; padding: 18px 20px; font-size: 14px; font-weight: 600; color: #333333; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);">Memuat...</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>ALAMAT EMAIL</label>
+            <div class="input-wrapper">
+              <div id="profile-email" class="profile-info-box" style="width: 100%; height: 60px; background-color: #FFEEB5; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 20px; padding: 18px 20px; font-size: 14px; font-weight: 600; color: #333333; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);">Memuat...</div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+            <button id="btn-goto-changepass" class="button button-primary" style="width: 100%; height: 54px; border-radius: 27px; font-weight: 700;">Ubah Kata Sandi</button>
+            <button id="btn-trigger-logout" class="button" style="width: 100%; height: 54px; background-color: #fee2e2; color: #dc2626; border-radius: 27px; font-weight: 700; box-shadow: none;">Keluar</button>
+          </div>
+        </div>
+      </section>
 
     </div>
   </body>
