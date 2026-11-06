@@ -80,37 +80,39 @@ document.addEventListener("DOMContentLoaded", () => {
     let isValid = true;
 
     if (!nama) {
-      setError(inputName, "Nama wajib diisi.");
+      setError(inputName, "Kolom ini wajib diisi");
       isValid = false;
-    } else if (nama.length > 100) {
-      setError(inputName, "Nama maksimal 100 karakter.");
+    } else if (nama.length > 64) {
+      setError(inputName, "Nama maksimal 64 karakter.");
       isValid = false;
     }
 
     if (!email) {
-      setError(inputEmail, "Email wajib diisi.");
+      setError(inputEmail, "Kolom ini wajib diisi");
       isValid = false;
     } else if (
       email.length > 100 ||
       !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
     ) {
-      setError(inputEmail, "Format email tidak valid.");
+      setError(inputEmail, "Format email tidak valid (contoh: madinatul@gmail.com)");
       isValid = false;
     }
 
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/;
+
     if (!password) {
-      setError(inputPassword, "Kata sandi wajib diisi.");
+      setError(inputPassword, "Kolom ini wajib diisi");
       isValid = false;
-    } else if (password.length < 8) {
-      setError(inputPassword, "Kata sandi minimal 8 karakter.");
+    } else if (!passwordRegex.test(password)) {
+      setError(inputPassword, "Kata sandi harus terdiri dari 8-64 karakter serta mengandung kombinasi huruf, angka, dan simbol");
       isValid = false;
     }
 
     if (!confirmation) {
-      setError(inputConfirmation, "Konfirmasi kata sandi wajib diisi.");
+      setError(inputConfirmation, "Kolom ini wajib diisi");
       isValid = false;
     } else if (password !== confirmation) {
-      setError(inputConfirmation, "Kata sandi tidak sama.");
+      setError(inputConfirmation, "Kata sandi tidak sama, silakan periksa kembali");
       isValid = false;
     }
 
