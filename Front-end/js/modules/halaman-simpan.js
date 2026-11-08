@@ -38,10 +38,19 @@ export function initHalamanSimpan() {
   let renderTimer = 0;
 
   function setSavedView(isOpen) {
+    const profileView = document.querySelector("#view-profile");
+
     appShell.classList.toggle("is-saved-view", isOpen);
     savedScreen.hidden = !isOpen;
     searchPanel.hidden = false;
     recipeContent.hidden = isOpen;
+
+    // Sembunyikan Tampilan Profil jika Halaman Simpan dibuka
+    if (profileView && isOpen) {
+      profileView.hidden = true;
+      appShell.classList.remove("is-profile-view");
+    }
+
     sectionLabel.textContent = isOpen ? "SIMPAN RESEP" : homeTitle;
   }
 
@@ -61,12 +70,10 @@ export function initHalamanSimpan() {
 
     const pageData = result.data;
 
-    // Jika server langsung mengembalikan array daftar resep
     if (Array.isArray(pageData)) {
       return { data: pageData, total_halaman: 1 };
     }
 
-    // Jika server mengembalikan objek berpaginasi standar { data: [...], total_halaman: ... }
     if (pageData && Array.isArray(pageData.data)) {
       return pageData;
     }
@@ -217,23 +224,27 @@ export function initHalamanSimpan() {
   });
 
   window.addEventListener("recipe:navigate-saved", () => {
-    setSavedView(true);
-    searchInput.value = "";
-    currentSearchQuery = "";
-    currentPage = 1;
-
+    // 1. Cek ketersediaan token terlebih dahulu sebelum mengubah view UI
     if (!localStorage.getItem("token")) {
       savedRecipes = [];
       recipeGrid.replaceChildren();
       paginationContainer.replaceChildren();
       paginationContainer.hidden = true;
       emptyState.hidden = true;
+
       window.dispatchEvent(new Event("recipe:saved-auth-required"));
       return;
     }
 
+    // 2. Jika user terautentikasi, tampilkan view halaman simpan
+    setSavedView(true);
+    searchInput.value = "";
+    currentSearchQuery = "";
+    currentPage = 1;
+
     void loadSavedRecipes();
   });
+
   window.addEventListener("recipe:navigate-home", () => setSavedView(false));
   window.addEventListener("recipe:saved-refresh", () => {
     if (!savedScreen.hidden) {
