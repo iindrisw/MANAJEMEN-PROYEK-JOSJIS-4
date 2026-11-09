@@ -501,60 +501,85 @@
       </dialog>
 
       <dialog
-        class="bookmark-unavailable-dialog"
+        class="profile-dialog profile-logout-dialog"
         id="logout-confirm-modal"
-        aria-labelledby="logout-confirm-message"
+        aria-labelledby="logout-confirm-title"
       >
-        <div class="bookmark-unavailable-card">
+        <div class="profile-dialog-card profile-logout-card">
+          <h2 id="logout-confirm-title">Konfirmasi Keluar</h2>
           <p id="logout-confirm-message">Apakah Anda yakin ingin keluar dari akun?</p>
-          <div style="display: flex; gap: 10px; width: 100%; margin-top: 15px;">
-            <button class="button button-primary" id="btn-confirm-logout" type="button" style="flex: 1; background-color: #dc2626; border-radius: 20px;">Keluar</button>
-            <button class="button" id="btn-cancel-logout" type="button" style="flex: 1; background-color: #ccc; color: #333; border-radius: 20px;">Batal</button>
+          <div class="profile-dialog-actions">
+            <button class="profile-dialog-button profile-dialog-button-secondary" id="btn-cancel-logout" type="button">Batal</button>
+            <button class="profile-dialog-button" id="btn-confirm-logout" type="button">Keluar</button>
           </div>
         </div>
       </dialog>
 
-      <dialog id="logout-confirm-modal" class="p-6 rounded-2xl bg-[#FFF8F0] shadow-2xl max-w-sm w-full backdrop:bg-black/50">
-        <div class="text-center">
-          <div class="w-12 h-12 rounded-full bg-rose-100 text-[#A83F68] flex items-center justify-center mx-auto mb-3 text-xl">
-            ⚠️
-          </div>
-          <h3 class="text-lg font-semibold text-gray-800 mb-2">Konfirmasi Keluar</h3>
-          <p class="text-sm text-gray-600 mb-6">Apakah Anda yakin ingin keluar dari akun?</p>
-          
-          <div class="flex space-x-3">
-            <button id="btn-cancel-logout" type="button" class="flex-1 py-2.5 px-4 bg-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-300 transition">
-              Batal
+      <dialog
+        class="profile-dialog profile-edit-dialog"
+        id="profile-name-dialog"
+        aria-labelledby="profile-name-confirmation"
+      >
+        <div class="profile-edit-card">
+          <label class="profile-dialog-label" for="profile-name-current">NAMA SEBELUMNYA</label>
+          <div class="profile-dialog-value" id="profile-name-current"></div>
+          <label class="profile-dialog-label profile-dialog-label-next" for="profile-name-next">NAMA SELANJUTNYA</label>
+          <input class="profile-dialog-input" id="profile-name-next" type="text" maxlength="100" autocomplete="name" />
+          <p class="profile-edit-confirmation" id="profile-name-confirmation">Apakah anda yakin ingin mengubah Nama?</p>
+        </div>
+        <div class="profile-edit-actions">
+          <button class="profile-dialog-button" id="btn-cancel-name" type="button">Tidak</button>
+          <button class="profile-dialog-button" id="btn-confirm-name" type="button">Iya</button>
+        </div>
+      </dialog>
+
+      <dialog
+        class="profile-dialog profile-edit-dialog"
+        id="profile-password-dialog"
+        aria-labelledby="profile-password-confirmation"
+      >
+        <div class="profile-edit-card">
+          <label class="profile-dialog-label" for="profile-password-current">KATA SANDI SEBELUMNYA</label>
+          <div class="profile-password-field">
+            <input class="profile-dialog-input" id="profile-password-current" type="password" autocomplete="current-password" />
+            <button class="profile-password-toggle" type="button" data-password-target="profile-password-current" aria-label="Tampilkan kata sandi sebelumnya" aria-pressed="false">
+              <img src="assets/figma/profile-eye.svg" alt="" />
             </button>
-            <button id="btn-confirm-logout" type="button" class="flex-1 py-2.5 px-4 bg-[#A83F68] text-white font-medium rounded-xl hover:bg-[#923358] transition">
-              Keluar
+          </div>
+          <label class="profile-dialog-label profile-dialog-label-next" for="profile-password-next">KATA SANDI SELANJUTNYA</label>
+          <div class="profile-password-field profile-password-field-next">
+            <input class="profile-dialog-input" id="profile-password-next" type="password" autocomplete="new-password" />
+            <button class="profile-password-toggle" type="button" data-password-target="profile-password-next" aria-label="Tampilkan kata sandi selanjutnya" aria-pressed="false">
+              <img src="assets/figma/profile-eye.svg" alt="" />
             </button>
           </div>
+          <p class="profile-edit-confirmation" id="profile-password-confirmation">Apakah anda yakin ingin mengubah Kata Sandi?</p>
+        </div>
+        <div class="profile-edit-actions">
+          <button class="profile-dialog-button" id="btn-cancel-password" type="button">Tidak</button>
+          <button class="profile-dialog-button" id="btn-confirm-password" type="button">Iya</button>
         </div>
       </dialog>
 
       <section class="profile-screen" id="view-profile" aria-label="Profil pengguna" hidden>
-        <div class="profile-container" style="padding: 40px 32px; display: flex; flex-direction: column; gap: 20px;">
-          <div class="profile-header">
-            <h1 class="profile-title">PROFIL</h1>
-          </div>
-          <div class="form-group">
-            <label>NAMA LENGKAP</label>
-            <div class="input-wrapper">
-              <div id="profile-fullname" class="profile-info-box" style="width: 100%; height: 60px; background-color: #FFEEB5; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 20px; padding: 18px 20px; font-size: 14px; font-weight: 600; color: #333333; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);">Memuat...</div>
+        <header class="profile-header">
+          <h2 class="profile-title">PROFILE</h2>
+        </header>
+        <div class="profile-container">
+          <div class="profile-card">
+            <div class="user-info-group">
+              <label class="info-label" for="profile-fullname">NAMA</label>
+              <div class="info-value-box" id="profile-fullname"></div>
             </div>
-          </div>
-
-          <div class="form-group">
-            <label>ALAMAT EMAIL</label>
-            <div class="input-wrapper">
-              <div id="profile-email" class="profile-info-box" style="width: 100%; height: 60px; background-color: #FFEEB5; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 20px; padding: 18px 20px; font-size: 14px; font-weight: 600; color: #333333; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);">Memuat...</div>
+            <div class="user-info-group">
+              <label class="info-label" for="profile-email">EMAIL</label>
+              <div class="info-value-box" id="profile-email"></div>
             </div>
-          </div>
-
-          <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
-            <button id="btn-goto-changepass" class="button button-primary" style="width: 100%; height: 54px; border-radius: 27px; font-weight: 700;">Ubah Kata Sandi</button>
-            <button id="btn-trigger-logout" class="button" style="width: 100%; height: 54px; background-color: #fee2e2; color: #dc2626; border-radius: 27px; font-weight: 700; box-shadow: none;">Keluar</button>
+            <div class="profile-actions">
+              <button class="btn-action" id="btn-ubah-nama" type="button">UBAH NAMA</button>
+              <button class="btn-action" id="btn-ubah-sandi" type="button">UBAH KATA SANDI</button>
+              <button class="btn-danger-outline" id="btn-trigger-logout" type="button">KELUAR</button>
+            </div>
           </div>
         </div>
       </section>

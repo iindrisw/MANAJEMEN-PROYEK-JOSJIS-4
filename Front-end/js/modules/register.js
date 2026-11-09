@@ -7,6 +7,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputPassword = document.querySelector("#registerSandi");
   const inputConfirmation = document.querySelector("#registerKonfirmasi");
   const submitButton = document.querySelector("#btnDaftar");
+  const noticeDialog = document.querySelector("#register-notice-dialog");
+  const noticeMessage = document.querySelector("#register-notice-message");
+  const noticeDismiss = document.querySelector("#register-notice-dismiss");
+  const modalValidationMessages = new Set([
+    "Nama Lengkap maksimal 64 karakter",
+    "Kata sandi tidak sama, silakan periksa kembali",
+    "Email sudah terdaftar, silakan beralih ke login",
+  ]);
 
   if (
     !(form instanceof HTMLFormElement) ||
@@ -19,31 +27,40 @@ document.addEventListener("DOMContentLoaded", () => {
     throw new Error("Elemen formulir pendaftaran tidak ditemukan.");
   }
 
-  function setError(input, message, showLoginLink = false) {
+  function setError(input, message) {
     const group = input.closest(".form-group");
     const errorMessage = group?.querySelector(".error-message");
     group?.classList.add("error");
-
     if (errorMessage) {
-      if (showLoginLink) {
-        errorMessage.replaceChildren(
-          document.createTextNode(`${message} `),
-        );
-        const link = document.createElement("a");
-        link.href = "login.html";
-        link.textContent = "Login di sini";
-        errorMessage.append(link);
-      } else {
-        errorMessage.textContent = message;
-      }
+      errorMessage.textContent = message;
+      errorMessage.classList.toggle(
+        "is-long",
+        message.includes("tidak boleh mengandung spasi"),
+      );
     }
+    if (
+      modalValidationMessages.has(message) &&
+      noticeDialog instanceof HTMLDialogElement &&
+      noticeMessage instanceof HTMLElement &&
+      !noticeDialog.open
+    ) {
+      noticeMessage.textContent = message;
+      noticeDialog.showModal();
+    }
+  }
+
+  if (noticeDismiss && noticeDialog instanceof HTMLDialogElement) {
+    noticeDismiss.addEventListener("click", () => noticeDialog.close());
   }
 
   function clearError(input) {
     const group = input.closest(".form-group");
     const errorMessage = group?.querySelector(".error-message");
     group?.classList.remove("error");
-    if (errorMessage) errorMessage.textContent = "";
+    if (errorMessage) {
+      errorMessage.textContent = "";
+      errorMessage.classList.remove("is-long");
+    }
   }
 
   for (const input of [
@@ -73,20 +90,32 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    // Disable tombol sementara saat proses berjalan
+    submitButton.disabled = true;
+    submitButton.textContent = "MEMPROSES...";
+
     const nama = inputName.value.trim();
     const email = inputEmail.value.trim().toLowerCase();
     const password = inputPassword.value;
     const confirmation = inputConfirmation.value;
     let isValid = true;
 
+    // Bersihkan semua error sebelumnya sebelum validasi ulang
+    clearError(inputName);
+    clearError(inputEmail);
+    clearError(inputPassword);
+    clearError(inputConfirmation);
+
+    // 1. Validasi Nama
     if (!nama) {
       setError(inputName, "Kolom ini wajib diisi");
       isValid = false;
     } else if (nama.length > 64) {
-      setError(inputName, "Nama maksimal 64 karakter.");
+      setError(inputName, "Nama Lengkap maksimal 64 karakter");
       isValid = false;
     }
 
+    // 2. Validasi Email (Format lokal)
     if (!email) {
       setError(inputEmail, "Kolom ini wajib diisi");
       isValid = false;
@@ -94,20 +123,24 @@ document.addEventListener("DOMContentLoaded", () => {
       email.length > 100 ||
       !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
     ) {
-      setError(inputEmail, "Format email tidak valid (contoh: madinatul@gmail.com)");
+      setError(inputEmail, "Format email tidak sesuai (contoh: madinatul@gmail.com)");
       isValid = false;
     }
 
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/;
-
+    // 3. Validasi Kata Sandi
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,64}$/;
     if (!password) {
       setError(inputPassword, "Kolom ini wajib diisi");
       isValid = false;
+    } else if (/\s/.test(password)) {
+      setError(inputPassword, "Kata sandi tidak boleh mengandung spasi");
+      isValid = false;
     } else if (!passwordRegex.test(password)) {
-      setError(inputPassword, "Kata sandi harus terdiri dari 8-64 karakter serta mengandung kombinasi huruf, angka, dan simbol");
+      setError(inputPassword, "Kata sandi harus terdiri dari 8 hingga 64 karakter serta mengandung kombinasi huruf dan angka");
       isValid = false;
     }
 
+    // 4. Validasi Konfirmasi Kata Sandi
     if (!confirmation) {
       setError(inputConfirmation, "Kolom ini wajib diisi");
       isValid = false;
@@ -116,45 +149,37 @@ document.addEventListener("DOMContentLoaded", () => {
       isValid = false;
     }
 
-    if (!isValid) return;
+    // 5. Cek ke Server (Email Duplikat) secara bersamaan jika format email valid
+    let isEmailConflict = false;
+    if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nama, email, password }),
+        });
+        const result = await response.json().catch(() => null);
 
-    submitButton.disabled = true;
-    submitButton.textContent = "MEMPROSES...";
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nama, email, password }),
-      });
-      const result = await response.json().catch(() => null);
-
-      if (!result || typeof result !== "object") {
-        throw new Error("Respons server tidak valid. Silakan coba lagi.");
+        if (result && (response.status === 409 || result.code === "EMAIL_SUDAH_ADA")) {
+          setError(inputEmail, "Email sudah terdaftar, silakan beralih ke login");
+          isEmailConflict = true;
+          isValid = false;
+        } else if (!response.ok && result && result.status !== "success" && !isEmailConflict) {
+          console.warn("Pesan server:", result.message);
+        }
+      } catch (error) {
+        console.error("Gagal menghubungi server:", error);
       }
-      if (
-        response.status === 409 ||
-        result.code === "EMAIL_SUDAH_ADA"
-      ) {
-        setError(inputEmail, "Email sudah terdaftar.", true);
-        return;
-      }
-      if (!response.ok || result.status !== "success") {
-        throw new Error(result.message || "Pendaftaran gagal. Silakan coba lagi.");
-      }
+    }
 
-      window.location.assign("login.html");
-    } catch (error) {
-      console.error("Pendaftaran gagal:", error);
-      setError(
-        inputPassword,
-        error instanceof TypeError
-          ? "Tidak dapat menghubungi server. Pastikan API berjalan dan alamatnya benar."
-          : error.message || "Pendaftaran gagal. Silakan coba lagi.",
-      );
-    } finally {
+    // Jika ada error dari validasi lokal ATAU konflik email dari server, stop dan tampilkan semua barengan
+    if (!isValid) {
       submitButton.disabled = false;
       submitButton.textContent = "DAFTAR";
+      return;
     }
+
+    // Jika lolos semua validasi lokal & server, arahkan ke login
+    window.location.assign("login.html");
   });
 });

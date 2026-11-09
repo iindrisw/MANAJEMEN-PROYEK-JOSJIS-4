@@ -13,7 +13,7 @@ body {
   background-color: #ffffff;
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* Menggunakan flex-start agar saat layar terdorong keyboard, elemen atas tidak terpotong */
+  align-items: flex-start;
   color: #D05755;
   overflow-y: auto;
 }
@@ -23,10 +23,10 @@ body {
   width: 100%;
   max-width: 440px;
   background-color: #ffffff;
-  padding: 24px 32px 120px 32px; /* Ditambahkan padding bawah agar saat keyboard muncul, tombol tetap aman di-scroll */
+  padding: 24px 32px 120px 32px;
   display: flex;
   flex-direction: column;
-  align-items: stretch; /* Membuat form dan input memenuhi lebar kontainer */
+  align-items: stretch;
   position: relative;
   margin: 0 auto;
   min-height: 100vh;
@@ -39,7 +39,7 @@ body {
   left: 0;
   width: 100%;
   padding: 12px 16px;
-  background-color: #ffffff; /* Biar kalau di-scroll teks di bawahnya ketutupan rapi */
+  background-color: #ffffff;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -68,41 +68,6 @@ body {
   outline-offset: 3px;
 }
 
-.login-title,
-.register-title {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 32px;
-  font-weight: 400;
-  letter-spacing: 1px;
-  text-align: center;
-  width: 100%;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 100%;
-}
-
-.form-group input {
-  width: 100%;
-  height: 60px; /* <--- Tinggi persis 60px dari Figma */
-  background-color: #FFEEB5;
-  border: 1px solid rgba(0, 0, 0, 0.2); /* <--- Border hitam transparan 20% */
-  border-radius: 20px; /* <--- Radius sudut 20px */
-  padding: 0 20px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333333;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); /* <--- Drop shadow Y:4, Blur:10 */
-  outline: none;
-}
-
-.form-group input[type="password"] {
-  padding-right: 48px;
-}
-
 .brand-logo-wrapper {
   display: flex;
   justify-content: center;
@@ -124,6 +89,7 @@ body {
   color: #D05755;
   letter-spacing: 0.5px;
   margin-bottom: 30px;
+  text-align: center;
 }
 
 .login-form,
@@ -139,6 +105,7 @@ body {
   flex-direction: column;
   gap: 6px;
   position: relative;
+  width: 100%;
 }
 
 .form-group label {
@@ -155,18 +122,85 @@ body {
   align-items: center;
 }
 
+.form-group input {
+  width: 100%;
+  height: 60px;
+  background-color: #FFEEB5;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  padding: 0 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  outline: none;
+}
+
+.form-group input[type="password"],
+.form-group input[type="text"],
+.form-group input[type="email"] {
+  padding-right: 45px; 
+}
+
 .form-group input::placeholder {
   color: rgba(208, 87, 85, 0.4);
 }
 
-.form-group.error input {
-  border-color: #D05755;
-  box-shadow: 0 0 0 3px rgba(208, 87, 85, 0.15);
+/* === PENYESUAIAN STATE ERROR SEPERTI GAMBAR 2 === */
+.register-container .form-group.error input {
+  width: calc(100% - 22px); /* Lebar kotak input tetap penuh */
+  border: 2px solid #D05755;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
+/* Munculkan ikon tanda seru di sebelah kanan luar / ujung kanan input */
+.register-container .input-wrapper::after {
+  position: absolute;
+  top: 50%;
+  right: -18px; /* Posisi di luar kotak input sebelah kanan */
+  display: none;
+  width: 24px;
+  height: 24px;
+  transform: translateY(-50%);
+  background: url("../assets/figma/register-warning.svg") center / contain no-repeat;
+  content: "";
+}
+
+.register-container .form-group.error .input-wrapper::after {
+  display: block;
+}
+
+
+/* Pesan error di bawah input bergeser rapi */
+.register-container .error-message {
+  position: relative;
+  width: 100%;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #D05755;
+  display: none;
+  text-align: left;
+}
+
+.register-container .form-group.error .error-message {
+  display: block;
+}
+/* ================================================ */
+
+/* Pastikan kotak input tetap penuh 100% dan tidak menyusut aneh */
+.register-container .form-group.error input {
+  width: 100%;
+  border: 2px solid #D05755;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Posisi normal ikon mata di dalam pojok kanan input */
 .toggle-password {
   position: absolute;
   right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
@@ -175,6 +209,46 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 3;
+}
+
+/* JANGAN geser posisi ikon mata saat error, biarkan tetap di tempatnya */
+.register-container .form-group.error .toggle-password {
+  right: 16px; 
+}
+
+/* Posisi ikon tanda seru (warning) di luar sebelah kanan kotak input */
+.register-container .input-wrapper::after {
+  position: absolute;
+  top: 50%;
+  right: -36px; /* Posisi di luar kotak sebelah kanan */
+  display: none;
+  width: 24px;
+  height: 24px;
+  transform: translateY(-50%);
+  background: url("../assets/figma/register-warning.svg") center / contain no-repeat;
+  content: "";
+  z-index: 2;
+}
+
+.register-container .form-group.error .input-wrapper::after {
+  display: block;
+}
+
+/* Pesan error di bawah input */
+.register-container .error-message {
+  position: relative;
+  width: 100%;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #D05755;
+  display: none;
+  text-align: left;
+}
+
+.register-container .form-group.error .error-message {
+  display: block;
 }
 
 .forgot-password-wrapper {
@@ -192,18 +266,6 @@ body {
 
 .forgot-password-link:hover {
   text-decoration: underline;
-}
-
-.error-message {
-  font-size: 11px;
-  font-weight: 700;
-  color: #D05755;
-  margin-top: 2px;
-  display: none;
-}
-
-.form-group.error .error-message {
-  display: block;
 }
 
 .btn-submit-masuk,
@@ -300,4 +362,72 @@ body {
   font-weight: 900;
   text-decoration: underline;
   margin-left: 4px;
+}
+
+.register-notice-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(376px, calc(100vw - 40px));
+  height: 216px;
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  color: #252525;
+}
+
+.register-notice-dialog::backdrop {
+  background: rgb(0 0 0 / 50%);
+}
+
+.register-notice-card {
+  display: grid;
+  width: 100%;
+  height: 162px;
+  place-items: center;
+  padding: 16px 20px;
+  border-radius: 20px;
+  background: #ffefb5;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+}
+
+.register-notice-card p {
+  display: grid;
+  width: 100%;
+  height: 100px;
+  place-items: center;
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 30px;
+  text-align: center;
+}
+
+.register-notice-button {
+  position: absolute;
+  top: 177px;
+  left: 50%;
+  display: grid;
+  width: 198px;
+  height: 39px;
+  place-items: center;
+  transform: translateX(-50%);
+  border: 0;
+  border-radius: 20px;
+  background: #d05756;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+}
+
+.register-notice-button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
 }
