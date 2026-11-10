@@ -13,8 +13,9 @@ body {
   background-color: #ffffff;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* Menggunakan flex-start agar saat layar terdorong keyboard, elemen atas tidak terpotong */
   color: #D05755;
+  overflow-y: auto;
 }
 
 .register-container,
@@ -22,23 +23,38 @@ body {
   width: 100%;
   max-width: 440px;
   background-color: #ffffff;
-  padding: 24px 32px; /* <--- Padding kiri dan kanan 32px pas sesuai Figma */
+  padding: 24px 32px 120px 32px; /* Ditambahkan padding bawah agar saat keyboard muncul, tombol tetap aman di-scroll */
   display: flex;
   flex-direction: column;
   align-items: stretch; /* Membuat form dan input memenuhi lebar kontainer */
   position: relative;
   margin: 0 auto;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+.auth-back-nav {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #ffffff; /* Biar kalau di-scroll teks di bawahnya ketutupan rapi */
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .auth-back {
-  position: fixed;
-  top: 20px;
-  left: max(20px, calc((100vw - 440px) / 2 + 32px));
   display: grid;
   width: 40px;
   height: 40px;
   place-items: center;
   cursor: pointer;
+  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .auth-back img {

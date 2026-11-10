@@ -1,4 +1,4 @@
-"""Register, login nama/email+password, dan login Google."""
+"""Register, login nama/email+password, login Google, kelola profil, dan kata sandi."""
 import secrets
 
 from sqlalchemy import text
@@ -115,3 +115,59 @@ def ambil_user(id_user):
     if not row:
         raise AppError("User tidak ditemukan.", 404, code="USER_TIDAK_ADA")
     return user_publik(row)
+
+
+def ubah_nama(id_user, nama_baru):
+    """Mengubah nama pengguna yang sedang terautentikasi."""
+    nama_clean = (nama_baru or "").strip()
+    if not nama_clean:
+        raise AppError("Nama tidak boleh kosong.", 400, code="NAMA_KOSONG")
+    if len(nama_clean) > 100:
+        raise AppError("Nama maksimal 100 karakter.", 400, code="NAMA_TERLALU_PANJANG")
+
+    with get_engine().begin() as conn:
+        conn.execute(
+            text(f"UPDATE {T_USER} SET nama = :n WHERE id_user = :i"),
+            {"n": nama_clean, "i": id_user}
+        )
+        row = conn.execute(
+            text(f"SELECT {_KOLOM} FROM {T_USER} WHERE id_user = :i"),
+            {"i": id_user}
+        ).mappings().first()
+
+    if not row:
+        raise AppError("User tidak ditemukan.", 404, code="USER_TIDAK_ADA")
+
+    return {"message": "Nama berhasil diperbarui.", "user": user_publik(row)}
+
+
+def ubah_password(id_user, password_lama, password_baru):
+    """Mengubah kata sandi pengguna lokal yang sedang terautentikasi."""
+    if not password_lama or not password_baru:
+        raise AppError("Kata sandi lama dan baru wajib diisi.", 400, code="PASSWORD_KOSONG")
+
+    with get_engine().begin() as conn:
+        row = conn.execute(
+            text(f"SELECT {_KOLOM} FROM {T_USER} WHERE id_user = :i"), {"i": id_user}
+        ).mappings().first()
+
+        if not row:
+            raise AppError("User tidak ditemukan.", 404, code="USER_TIDAK_ADA")
+
+        # Tolak pengguna yang mendaftar via Google (tidak punya password lokal)
+        if not row["password"]:
+            raise AppError(
+                "Akun Google tidak menggunakan kata sandi lokal.", 400, code="AKUN_GOOGLE"
+            )
+
+        # Cek kata sandi lama
+        if not check_password_hash(row["password"], password_lama):
+            raise AppError("Kata sandi lama tidak sesuai.", 400, code="PASSWORD_LAMA_SALAH")
+
+        # Update kata sandi baru
+        conn.execute(
+            text(f"UPDATE {T_USER} SET password = :p WHERE id_user = :i"),
+            {"p": generate_password_hash(password_baru), "i": id_user}
+        )
+
+    return {"message": "Kata sandi berhasil diperbarui."}
