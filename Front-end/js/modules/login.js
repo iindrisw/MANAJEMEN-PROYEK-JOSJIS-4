@@ -113,3 +113,63 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+// Konstanta Client ID Google
+const GOOGLE_CLIENT_ID = "105928934373-ai6hsqd7o7h985it0v6ngja0f62qs1aa.apps.googleusercontent.com";
+
+// Referensi container tombol Google di DOM
+const googleBtnContainer = document.querySelector("#btnGoogleLogin");
+
+// Callback setelah Pengguna Berhasil Login via Popup Google
+async function handleGoogleCredentialResponse(googleResponse) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_token: googleResponse.credential }),
+    });
+
+    const result = await response.json().catch(() => null);
+
+    if (!result || typeof result !== "object") {
+      throw new Error("Respons server tidak valid.");
+    }
+    if (!response.ok || result.status !== "success") {
+      throw new Error(result.message || "Gagal autentikasi via Google.");
+    }
+
+    const token = result.data?.token || result.token;
+    const user = result.data?.user || result.user;
+
+    if (!token) {
+      throw new Error("Token autentikasi tidak ditemukan.");
+    }
+
+    localStorage.setItem("token", token);
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+
+    window.location.assign("index.html");
+  } catch (error) {
+    console.error("Login Google gagal:", error);
+    alert(error.message || "Gagal masuk menggunakan akun Google.");
+  }
+}
+
+// Inisialisasi Google Identity Services SDK
+if (window.google?.accounts?.id) {
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredentialResponse,
+  });
+
+  if (googleBtnContainer) {
+    google.accounts.id.renderButton(googleBtnContainer, {
+      theme: "outline",
+      size: "large",
+      width: "100%",
+      text: "signin_with",
+    });
+  }
+}
