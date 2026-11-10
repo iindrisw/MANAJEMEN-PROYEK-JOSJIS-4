@@ -26,6 +26,9 @@ refactor: Merapikan atau merestrukturisasi kode tanpa mengubah fungsi.
 chore: Perubahan konfigurasi build, tooling, atau dependensi.
 
 Aturan Pull Request: Langsung push ke main dengan tetap memastikan kode lokal sudah diperbarui (git pull) sebelum mengirim perubahan.
+Jumlah persetujuan minimal: Karena kelompok menggunakan strategi *Direct to main*, proses *Pull Request* bersifat opsional. Jika menggunakan *branch* terpisah, minimal 1 orang rekan tim harus menyetujui (approve) sebelum merge.
+Siapa yang tidak boleh menyetujui:Pembuat kode atau *developer* yang mengajukan *Pull Request* tersebut dilarang menyetujui *pull request* miliknya sendiri (harus divalidasi oleh anggota tim lain).
+5
 GitHub Actions & CI/CD: Disiapkan dan dikelola oleh tim secara berkala untuk otomatisasi pengujian kode.
 Tag Baseline: Setiap akhir Sprint ditandai dengan penamaan tag khusus (contoh: v0.4-sprint4).
 
