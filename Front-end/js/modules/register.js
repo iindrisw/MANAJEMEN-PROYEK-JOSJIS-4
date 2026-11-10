@@ -111,7 +111,11 @@ document.addEventListener("DOMContentLoaded", () => {
       setError(inputName, "Kolom ini wajib diisi");
       isValid = false;
     } else if (nama.length > 64) {
+<<<<<<< HEAD
       setError(inputName, "Nama Lengkap maksimal 64 karakter");
+=======
+      setError(inputName, "Nama maksimal 64 karakter.");
+>>>>>>> ea9b487fa2ea25c7a6417f9b30ad494e243fc720
       isValid = false;
     }
 
