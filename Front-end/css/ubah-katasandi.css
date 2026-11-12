@@ -1,0 +1,355 @@
+/* =========================================
+   HALAMAN PROFIL - FINAL PLEK KETIPLEK
+========================================= */
+
+.profile-screen {
+  z-index: 8;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 956px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--white);
+  scrollbar-width: thin;
+  scrollbar-color: rgb(37 37 37 / 70%) transparent;
+}
+
+.profile-screen[hidden] {
+  display: none !important;
+}
+
+/* 1. HERO / PANEL ATAS KUNING */
+.app-shell.is-profile-view .search-panel {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  height: 295px;
+  border-radius: 0 0 20px 20px;
+  background: var(--cream);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+  padding:  12px 0;
+}
+
+/* 2. PANEL HEADING (LOGO & TOMBOL MENU/HAMBURGER) */
+.app-shell.is-profile-view .panel-heading {
+  position: absolute;
+  top: 20px;
+  left: 32px;
+  display: flex;
+  width: calc(100% - 64px);
+  height: 40px;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 2;
+}
+
+.app-shell.is-profile-view .brand {
+  display: block;
+  width: auto;
+  height: 40px;
+}
+
+.app-shell.is-profile-view .brand img {
+  display: block;
+  width: auto !important;
+  height: 45.93px !important;
+  object-fit: contain;
+}
+
+.app-shell.is-profile-view .menu-button img {
+  width: 25px;
+  height: 20px;
+}
+
+.app-shell.is-profile-view .menu-button {
+  display: grid;
+  width: 25px;
+  height: 20px;
+  place-items: center;
+  top: auto !important;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  visibility: visible;
+}
+
+/* Sembunyikan elemen pencarian beranda */
+.app-shell.is-profile-view .ingredient-search,
+.app-shell.is-profile-view .recipe-search,
+.app-shell.is-profile-view .filter-panel,
+.app-shell.is-profile-view .saved-search-row,
+.app-shell.is-profile-view .section-label {
+  display: none !important;
+}
+
+/* 3. KOTAK JUDUL "PROFILE" MELAYANG */
+.profile-header {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  margin-top: -142px;
+  padding: 0 32px;
+}
+
+.profile-title {
+  display: grid;
+  width: 100%;
+  height: 100px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgb(0 0 0 / 20%);
+  border-radius: 20px;
+  background: var(--coral);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+  color: var(--white);
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* 4. KONTINER KARTU PROFIL DI BAWAH */
+.profile-container {
+  padding: 110px 32px 110px;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 30px 24px;
+  border-radius: 20px;
+  background: var(--cream);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+}
+
+.user-info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-label {
+  color: #d05755;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.info-value-box {
+  display: flex;
+  width: 100%;
+  height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: var(--white);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+  color: var(--charcoal);
+  font-family: var(--font-body);
+  font-size: 20px;
+  word-break: break-word;
+}
+
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.btn-action,
+.btn-danger-outline {
+  width: 100%;
+  height: 48px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--coral);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+  color: var(--white);
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  transition: filter 160ms ease, transform 160ms ease;
+}
+
+.btn-action:hover,
+.btn-danger-outline:hover {
+  filter: brightness(0.94);
+}
+
+.btn-action:active,
+.btn-danger-outline:active {
+  transform: translateY(1px);
+}
+
+/* 5. MODAL & POP-UP UMUM */
+.profile-dialog {
+  width: min(376px, calc(100vw - 40px));
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  color: var(--charcoal);
+}
+
+.profile-dialog::backdrop {
+  background: rgb(0 0 0 / 50%);
+  backdrop-filter: blur(2px);
+}
+
+/* Khusus Modal Ubah Nama (Mempertahankan struktur aslinya) */
+#profile-name-dialog .profile-edit-card {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 274px;
+  border-radius: 20px;
+  background: var(--cream);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+  padding: 24px;
+}
+
+#profile-name-dialog .profile-dialog-label {
+  position: absolute;
+  top: 28px;
+  left: 24px;
+  color: #d05755;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+}
+
+#profile-name-dialog .profile-dialog-input {
+  position: absolute;
+  top: 50px;
+  left: 16px;
+  display: flex;
+  width: calc(100% - 32px);
+  height: 48px;
+  align-items: center;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--white);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+  color: var(--charcoal);
+  font-family: var(--font-body);
+  font-size: 20px;
+}
+
+#profile-name-dialog .profile-edit-actions {
+  position: absolute;
+  top: 185px;
+  left: 16px;
+  display: flex;
+  width: calc(100% - 32px);
+  justify-content: space-between;
+}
+
+#profile-name-dialog .profile-edit-actions .profile-dialog-button {
+  width: 100%;
+  height: 45px;
+  border-radius: 20px;
+  background: var(--coral);
+  color: var(--white);
+  font-family: var(--font-heading);
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+}
+
+
+/* ==========================================================
+   6. MODAL UBAH KATA SANDI (DIAMANKAN DARI POSISI ABSOLUTE)
+   ========================================================== */
+
+#profile-password-dialog {
+  width: min(390px, calc(100vw - 40px));
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+}
+
+#profile-password-dialog .profile-edit-card {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: unset !important;
+  border-radius: 20px !important;
+  background: var(--cream) !important;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 25%) !important;
+  padding: 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.password-input-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  width: 100% !important;
+}
+
+#profile-password-dialog .profile-dialog-label {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  color: #d05755 !important;
+  font-family: "Roboto", sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  margin-left: 2px !important;
+}
+
+.password-input-wrapper {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+#profile-password-dialog .profile-dialog-input {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  height: 44px !important;
+  padding: 44px 16px !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  border-radius: 10px !important;
+  background: var(--white) !important;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 10%) !important;
+  color: var(--charcoal) !important;
+  font-family: var(--font-body) !important;
+  font-size: 16px !important;
+  box-sizing: border-box !important;
+}
+
+/* Tombol Toggle Eye (Ikon Mata) */
+.btn-toggle-password {
+  position: absolute !important;
+  right: 12px !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+}

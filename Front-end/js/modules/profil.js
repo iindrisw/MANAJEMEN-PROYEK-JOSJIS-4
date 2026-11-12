@@ -16,7 +16,6 @@ export function initProfile() {
   const btnTriggerLogout = document.querySelector("#btn-trigger-logout");
   const btnCancelLogout = document.querySelector("#btn-cancel-logout");
   const btnConfirmLogout = document.querySelector("#btn-confirm-logout");
-<<<<<<< HEAD
   const nameDialog = document.querySelector("#profile-name-dialog");
   const nameCurrentBox = document.querySelector("#profile-name-current");
   const nameNextInput = document.querySelector("#profile-name-next");
@@ -29,15 +28,10 @@ export function initProfile() {
   const btnChangePassword = document.querySelector("#btn-ubah-sandi");
   const btnCancelPassword = document.querySelector("#btn-cancel-password");
   const btnConfirmPassword = document.querySelector("#btn-confirm-password");
-=======
-  const btnGotoChangePass = document.querySelector("#btn-goto-changepass");
-
->>>>>>> ea9b487fa2ea25c7a6417f9b30ad494e243fc720
   const fullnameBox = document.querySelector("#profile-fullname");
   const emailBox = document.querySelector("#profile-email");
 
   const homeTitle = sectionLabel ? sectionLabel.textContent : "Cari Resep";
-<<<<<<< HEAD
 
   function clearAuthState() {
     localStorage.removeItem("token");
@@ -68,13 +62,11 @@ export function initProfile() {
     }
     return result;
   }
-=======
->>>>>>> ea9b487fa2ea25c7a6417f9b30ad494e243fc720
 
   function setProfileView(isOpen) {
     if (appShell) appShell.classList.toggle("is-profile-view", isOpen);
     if (profileView) profileView.hidden = !isOpen;
-    if (searchPanel) searchPanel.hidden = isOpen;
+    if (searchPanel) searchPanel.hidden = false;
     if (recipeContent) recipeContent.hidden = isOpen;
 
     if (savedView && isOpen) {
@@ -97,23 +89,12 @@ export function initProfile() {
       if (fullnameBox) fullnameBox.textContent = "Memuat...";
       if (emailBox) emailBox.textContent = "Memuat...";
 
-      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      const result = await requestApi("/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const result = await response.json();
-
-      if (!response.ok || result.status === "error") {
-        localStorage.removeItem("token");
-        setProfileView(false);
-        if (guestModal instanceof HTMLDialogElement && !guestModal.open) {
-          guestModal.showModal();
-        }
-        return;
-      }
 
       const user = result.data?.user || result.user || result.data || result;
 
->>>>>>> ea9b487fa2ea25c7a6417f9b30ad494e243fc720
       if (fullnameBox) {
         fullnameBox.textContent = user.nama || user.nama_lengkap || user.name || "Pengguna Racik Rasa";
       }
@@ -122,34 +103,18 @@ export function initProfile() {
       }
     } catch (error) {
       console.error("Gagal mengambil profil:", error);
-<<<<<<< HEAD
       clearAuthState();
       setProfileView(false);
       openDialog(guestModal);
     }
   }
 
-=======
-      localStorage.removeItem("token");
-      setProfileView(false);
-      if (guestModal instanceof HTMLDialogElement && !guestModal.open) {
-        guestModal.showModal();
-      }
-    }
-  }
-
-  // API Handler untuk Ubah Nama
->>>>>>> ea9b487fa2ea25c7a6417f9b30ad494e243fc720
   async function handleUbahNama(namaBaru) {
     const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
-<<<<<<< HEAD
       const result = await requestApi("/auth/profile", {
-=======
-      const response = await fetch(`${API_BASE_URL}/auth/profile`, {
->>>>>>> ea9b487fa2ea25c7a6417f9b30ad494e243fc720
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -157,55 +122,9 @@ export function initProfile() {
         },
         body: JSON.stringify({ nama: namaBaru }),
       });
-<<<<<<< HEAD
       const updatedUser = result.data?.user || result.user || result.data;
       if (fullnameBox) {
         fullnameBox.textContent = updatedUser?.nama || namaBaru;
-=======
-
-      const result = await response.json();
-
-      if (!response.ok || result.status === "error") {
-        alert(result.message || "Gagal mengubah nama.");
-        return;
-      }
-
-      const updatedUser = result.data?.user || result.data;
-      if (fullnameBox) {
-        fullnameBox.textContent = updatedUser?.nama || namaBaru;
-      }
-      alert("Nama berhasil diperbarui!");
-    } catch (error) {
-      console.error("Error ubah nama:", error);
-      alert("Terjadi kesalahan koneksi ke server.");
-    }
-  }
-
-  // Klik pada Kotak Nama Lengkap untuk Ubah Nama
-  if (fullnameBox) {
-    // Memberikan indikasi bahwa kotak nama bisa diklik
-    fullnameBox.style.cursor = "pointer";
-    fullnameBox.title = "Klik untuk mengubah nama";
-
-    fullnameBox.parentElement?.addEventListener("click", () => {
-      const namaLama = fullnameBox.textContent !== "Memuat..." ? fullnameBox.textContent : "";
-      const namaBaru = prompt("Edit Nama Lengkap:", namaLama);
-      
-      if (namaBaru !== null && namaBaru.trim() !== "" && namaBaru.trim() !== namaLama) {
-        void handleUbahNama(namaBaru.trim());
-      }
-    });
-  }
-
-  // Event Navigasi
-  function handleProfileNavigation(e) {
-    if (e) e.preventDefault();
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      if (guestModal instanceof HTMLDialogElement && !guestModal.open) {
-        guestModal.showModal();
->>>>>>> ea9b487fa2ea25c7a6417f9b30ad494e243fc720
       }
       if (nameDialog instanceof HTMLDialogElement) nameDialog.close();
     } catch (error) {
@@ -257,14 +176,6 @@ export function initProfile() {
     void fetchUserData();
   }
 
-<<<<<<< HEAD
-=======
-  const profileLinks = document.querySelectorAll('[data-nav-action="profile"]');
-  profileLinks.forEach((link) => {
-    link.addEventListener("click", handleProfileNavigation);
-  });
-
->>>>>>> ea9b487fa2ea25c7a6417f9b30ad494e243fc720
   window.addEventListener("recipe:navigate-profile", () => {
     handleProfileNavigation();
   });
@@ -273,14 +184,10 @@ export function initProfile() {
     setProfileView(false);
     if (guestModal instanceof HTMLDialogElement && guestModal.open) guestModal.close();
     if (logoutModal instanceof HTMLDialogElement && logoutModal.open) logoutModal.close();
-<<<<<<< HEAD
     if (nameDialog instanceof HTMLDialogElement && nameDialog.open) nameDialog.close();
     if (passwordDialog instanceof HTMLDialogElement && passwordDialog.open) passwordDialog.close();
-=======
->>>>>>> ea9b487fa2ea25c7a6417f9b30ad494e243fc720
   });
 
-  // Modal Handlers
   if (btnModalLogin) {
     btnModalLogin.addEventListener("click", () => {
       if (guestModal instanceof HTMLDialogElement) guestModal.close();
@@ -294,7 +201,6 @@ export function initProfile() {
     });
   }
 
-<<<<<<< HEAD
   if (btnChangeName) {
     btnChangeName.addEventListener("click", () => {
       if (!localStorage.getItem("token")) {
@@ -305,11 +211,6 @@ export function initProfile() {
       if (nameNextInput) nameNextInput.value = "";
       openDialog(nameDialog);
       nameNextInput?.focus();
-=======
-  if (btnGotoChangePass) {
-    btnGotoChangePass.addEventListener("click", () => {
-      window.location.assign("change-password.html");
->>>>>>> ea9b487fa2ea25c7a6417f9b30ad494e243fc720
     });
   }
 
@@ -325,7 +226,6 @@ export function initProfile() {
     });
   }
 
-<<<<<<< HEAD
   if (btnCancelName) {
     btnCancelName.addEventListener("click", () => {
       if (nameDialog instanceof HTMLDialogElement) nameDialog.close();
@@ -408,32 +308,4 @@ export function initProfile() {
       window.location.assign(window.location.pathname);
     });
   }
-=======
-  if (btnConfirmLogout) {
-    btnConfirmLogout.addEventListener("click", async () => {
-      const token = localStorage.getItem("token");
-
-      if (token) {
-        try {
-          await fetch(`${API_BASE_URL}/auth/logout`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`,
-            },
-          });
-        } catch (err) {
-          console.warn("Gagal request logout ke BE:", err);
-        }
-      }
-
-      localStorage.removeItem("token");
-      if (logoutModal instanceof HTMLDialogElement) {
-        logoutModal.close();
-      }
-      setProfileView(false);
-      window.location.assign("login.html");
-    });
-  }
->>>>>>> ea9b487fa2ea25c7a6417f9b30ad494e243fc720
 }

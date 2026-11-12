@@ -1,5 +1,4 @@
 const API_BASE_URL = "http://127.0.0.1:5000/api";
-// Ganti dengan Client ID yang kamu dapat dari Google Cloud Console
 const GOOGLE_CLIENT_ID = "105928934373-ai6hsqd7o7h985it0v6ngja0f62qs1aa.apps.googleusercontent.com";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -8,15 +7,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputPassword = document.querySelector("#loginSandi");
   const submitButton = document.querySelector("#btnMasuk");
   const forgotLink = document.querySelector("#forgotPasswordLink");
-  const googleBtnContainer = document.querySelector("#btnGoogleLogin"); // Container tombol Google
+  const googleBtnContainer = document.querySelector("#btnGoogleLogin");
 
+  // Type guard checking untuk mencegah error jika elemen DOM tidak ditemukan
   if (
     !(form instanceof HTMLFormElement) ||
     !(inputIdentifier instanceof HTMLInputElement) ||
     !(inputPassword instanceof HTMLInputElement) ||
     !(submitButton instanceof HTMLButtonElement)
   ) {
-    throw new Error("Elemen formulir login tidak ditemukan.");
+    console.warn("Beberapa elemen formulir login tidak ditemukan di halaman ini.");
+    return;
   }
 
   function setError(input, message) {
@@ -33,12 +34,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (errorMessage) errorMessage.textContent = "";
   }
 
+  // Bersihkan error saat pengguna mulai mengetik ulang
   for (const input of [inputIdentifier, inputPassword]) {
     input.addEventListener("input", () => {
       clearError(input);
     });
   }
 
+  // Toggle Password Visibility (Ikon Mata)
   for (const button of document.querySelectorAll(".toggle-password")) {
     button.addEventListener("click", () => {
       const target = document.getElementById(button.dataset.target);
@@ -52,12 +55,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Handler Lupa Kata Sandi
   forgotLink?.addEventListener("click", (event) => {
     event.preventDefault();
     window.alert("Fitur lupa kata sandi belum tersedia.");
   });
 
-  // Login Form Biasa (Nama/Email + Password)
+  // Login Form Manual (Nama/Email + Password)
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -93,7 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(result.message || "Nama/email atau kata sandi salah.");
       }
 
-      // Dukung format token langsung (result.token) atau terbungkus (result.data.token)
       const token = result.data?.token || result.token;
       const user = result.data?.user || result.user;
 
@@ -107,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         localStorage.removeItem("user");
       }
+      
       window.location.assign("index.html");
     } catch (error) {
       console.error("Login gagal:", error);
@@ -114,125 +118,63 @@ document.addEventListener("DOMContentLoaded", () => {
         inputPassword,
         error instanceof TypeError
           ? "Tidak dapat menghubungi server. Pastikan API berjalan dan alamatnya benar."
-          : error.message || "Login gagal. Silakan coba lagi.",
+          : error.message || "Login gagal. Silakan coba lagi."
       );
     } finally {
       submitButton.disabled = false;
       submitButton.textContent = "MASUK";
     }
   });
-});
-
-    // Konstanta Client ID Google
-    const GOOGLE_CLIENT_ID = "105928934373-ai6hsqd7o7h985it0v6ngja0f62qs1aa.apps.googleusercontent.com";
-
-    // Referensi container tombol Google di DOM
-    const googleBtnContainer = document.querySelector("#btnGoogleLogin");
-
-    // Callback setelah Pengguna Berhasil Login via Popup Google
-    async function handleGoogleCredentialResponse(googleResponse) {
-      try {
-        const response = await fetch(`${API_BASE_URL}/auth/google`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id_token: googleResponse.credential }),
-        });
-
-        const result = await response.json().catch(() => null);
-
-        if (!result || typeof result !== "object") {
-          throw new Error("Respons server tidak valid.");
-        }
-        if (!response.ok || result.status !== "success") {
-          throw new Error(result.message || "Gagal autentikasi via Google.");
-        }
-
-        const token = result.data?.token || result.token;
-        const user = result.data?.user || result.user;
-
-        if (!token) {
-          throw new Error("Token autentikasi tidak ditemukan.");
-        }
-
-        localStorage.setItem("token", token);
-        if (user) {
-          localStorage.setItem("user", JSON.stringify(user));
-        }
-
-        window.location.assign("index.html");
-      } catch (error) {
-        console.error("Login Google gagal:", error);
-        alert(error.message || "Gagal masuk menggunakan akun Google.");
-      }
-    }
-
-    // Inisialisasi Google Identity Services SDK
-    if (window.google?.accounts?.id) {
-      google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleCredentialResponse,
-      });
-
-      if (googleBtnContainer) {
-        google.accounts.id.renderButton(googleBtnContainer, {
-          size: "large",
-          width: "100%",
-          text: "signin_with",
-        });
-      }
-    }
-
-  // Callback setelah Pengguna Berhasil Login via Popup Google
-  async function handleGoogleCredentialResponse(googleResponse) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/google`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_token: googleResponse.credential }),
-      });
-
-      const result = await response.json().catch(() => null);
-
-      if (!result || typeof result !== "object") {
-        throw new Error("Respons server tidak valid.");
-      }
-      if (!response.ok || result.status !== "success") {
-        throw new Error(result.message || "Gagal autentikasi via Google.");
-      }
-
-      const token = result.data?.token || result.token;
-      const user = result.data?.user || result.user;
-
-      if (!token) {
-        throw new Error("Token autentikasi tidak ditemukan.");
-      }
-
-      localStorage.setItem("token", token);
-      if (user) {
-        localStorage.setItem("user", JSON.stringify(user));
-      }
-
-      window.location.assign("index.html");
-    } catch (error) {
-      console.error("Login Google gagal:", error);
-      alert(error.message || "Gagal masuk menggunakan akun Google.");
-    }
-  }
 
   // Inisialisasi Google Identity Services SDK
-  if (window.google?.accounts?.id) {
+  if (window.google?.accounts?.id && googleBtnContainer) {
     google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: handleGoogleCredentialResponse,
     });
 
-    if (googleBtnContainer) {
-      google.accounts.id.renderButton(googleBtnContainer, {
-        theme: "outline",
-        size: "large",
-        width: "100%",
-        text: "signin_with",
-      });
-    }
+    google.accounts.id.renderButton(googleBtnContainer, {
+      theme: "outline",
+      size: "large",
+      width: "100%",
+      text: "signin_with",
+    });
   }
 });
+
+// Callback setelah Pengguna Berhasil Login via Popup Google
+async function handleGoogleCredentialResponse(googleResponse) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_token: googleResponse.credential }),
+    });
+
+    const result = await response.json().catch(() => null);
+
+    if (!result || typeof result !== "object") {
+      throw new Error("Respons server tidak valid.");
+    }
+    if (!response.ok || result.status !== "success") {
+      throw new Error(result.message || "Gagal autentikasi via Google.");
+    }
+
+    const token = result.data?.token || result.token;
+    const user = result.data?.user || result.user;
+
+    if (!token) {
+      throw new Error("Token autentikasi tidak ditemukan.");
+    }
+
+    localStorage.setItem("token", token);
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+
+    window.location.assign("index.html");
+  } catch (error) {
+    console.error("Login Google gagal:", error);
+    alert(error.message || "Gagal masuk menggunakan akun Google.");
+  }
+}

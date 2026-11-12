@@ -1,71 +1,71 @@
 <!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Racik Rasa - Masuk Akun</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/login.css">
-  </head>
-  <body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Racik Rasa - Masuk Akun</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
 
-    <div class="login-container">
-      <a class="auth-back" href="index.html" aria-label="Kembali ke halaman utama" title="Kembali ke halaman utama">
-        <img src="assets/figma/detail-back.png" alt="">
-      </a>
-      
-      <!-- Brand Logo -->
-      <div class="brand-logo-wrapper">
-        <img src="assets/logo-racik-rasa.png" alt="Racik Rasa Logo" class="brand-logo-img">
-      </div>
-
-      <h1 class="login-title">MASUK</h1>
-
-      <form id="loginForm" class="login-form" novalidate>
-        
-        <!-- Nama / Identifier -->
-        <div class="form-group">
-          <label for="loginNama">NAMA</label>
-          <div class="input-wrapper">
-            <input type="text" id="loginNama" autocomplete="username" />
-          </div>
-          <span class="error-message"></span>
-        </div>
-
-        <!-- Kata Sandi -->
-        <div class="form-group">
-          <label for="loginSandi">KATA SANDI</label>
-          <div class="input-wrapper">
-            <input type="password" id="loginSandi" autocomplete="current-password" />
-            <button type="button" class="toggle-password" data-target="loginSandi" title="Tampilkan/Sembunyikan Sandi">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-          </div>
-          <div class="forgot-password-wrapper">
-            <a href="#" id="forgotPasswordLink" class="forgot-password-link">Lupa Kata sandi</a>
-          </div>
-          <span class="error-message"></span>
-        </div>
-
-        <button type="submit" id="btnMasuk" class="btn-submit-masuk">MASUK</button>
-      </form>
-
-      <div class="divider-container">
-        <span class="divider-text">Atau Masuk Dengan</span>
-      </div>
-
-      <!-- Google Button Container (Digunakan oleh SDK Google untuk merender tombol interaktif) -->
-      <div id="btnGoogleLogin" style="display: flex; justify-content: center; width: 100%; margin-top: 10px;"></div>
-
-      <div class="register-link-wrapper">
-        Tidak Punya Akun? <a href="register.html" class="register-redirect-link">DAFTAR</a>
-      </div>
-
+  <div class="login-container">
+    <a class="auth-back" href="index.html" aria-label="Kembali ke halaman utama" title="Kembali ke halaman utama">
+      <img src="assets/figma/detail-back.png" alt="">
+    </a>
+    
+    <!-- Brand Logo -->
+    <div class="brand-logo-wrapper">
+      <img src="assets/logo-racik-rasa.png" alt="Racik Rasa Logo" class="brand-logo-img">
     </div>
 
-    <!-- Script Google Identity Services SDK -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <h1 class="login-title">MASUK</h1>
 
-    <script type="module" src="js/modules/login.js"></script>
-  </body>
-  </html>
+    <form id="loginForm" class="login-form" novalidate>
+      
+      <!-- Nama / Identifier -->
+      <div class="form-group">
+        <label for="loginNama">NAMA</label>
+        <div class="input-wrapper">
+          <input type="text" id="loginNama" autocomplete="username" />
+        </div>
+        <span class="error-message"></span>
+      </div>
+
+      <!-- Kata Sandi -->
+      <div class="form-group">
+        <label for="loginSandi">KATA SANDI</label>
+        <div class="input-wrapper">
+          <input type="password" id="loginSandi" autocomplete="current-password" />
+          <button type="button" class="toggle-password" data-target="loginSandi" title="Tampilkan/Sembunyikan Sandi">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+        <div class="forgot-password-wrapper">
+          <a href="#" id="forgotPasswordLink" class="forgot-password-link">Lupa Kata sandi</a>
+        </div>
+        <span class="error-message"></span>
+      </div>
+
+      <button type="submit" id="btnMasuk" class="btn-submit-masuk">MASUK</button>
+    </form>
+
+    <div class="divider-container">
+      <span class="divider-text">Atau Masuk Dengan</span>
+    </div>
+
+    <!-- Google Button Container (Digunakan oleh SDK Google untuk merender tombol interaktif) -->
+    <div id="btnGoogleLogin" style="display: flex; justify-content: center; width: 100%; margin-top: 10px;"></div>
+
+    <div class="register-link-wrapper">
+      Tidak Punya Akun? <a href="register.html" class="register-redirect-link">DAFTAR</a>
+    </div>
+
+  </div>
+
+  <!-- Script Google Identity Services SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <script type="module" src="js/modules/login.js"></script>
+</body>
+</html>
