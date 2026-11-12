@@ -4,7 +4,7 @@ Repositori ini berisi kode sumber untuk proyek kolaborasi kelompok kami.
 👥 Anggota Kelompok
 Madinatul Dzahra Aulia Gusman (Project Manager / PM)
 Indri (Backend / BE)
-Laila (Frontend / FE)
+Laila (Frontend/FE)
 Ahmad Miftah Hadi Pramana Arsjad (SQA)
 Pasya Nur Rizki (UI/UX)
 
