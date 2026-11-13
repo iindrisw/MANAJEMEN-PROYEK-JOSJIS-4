@@ -20,9 +20,10 @@
     <link rel="stylesheet" href="css/recipes.css" />
     <link rel="stylesheet" href="css/recipe-detail.css" />
     <link rel="stylesheet" href="css/views.css" />
-    <link rel="stylesheet" href="css/humberger.css" />
+    <link rel="stylesheet" href="css/hamburger.css" />
     <link rel="stylesheet" href="css/profil.css" />
     <link rel="stylesheet" href="css/tailwind.css" />
+    <link rel="stylesheet" href="css/ubah-katasandi.css" />
     <script type="module" src="js/main.js"></script>
   </head>
   <body>
@@ -99,7 +100,8 @@
             >
           </div>
           <button class="button button-primary mix-button" type="submit">
-            Racik Resep Sekarang!
+            <span>Racik Resep Sekarang!</span>
+            <img src="assets/figma/search.svg" alt="" />
           </button>
         </form>
 
@@ -419,13 +421,12 @@
           >
             <span aria-hidden="true">X</span>
           </button>
-          <p id="bookmark-unavailable-message">Anda belum Login</p>
+          <p id="bookmark-unavailable-message">Anda belum Login, silakan login</p>
           <a
             class="bookmark-unavailable-login"
             id="bookmark-unavailable-login"
             href="login.html"
             title="Masuk ke akun"
-            style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;"
           >
             Login Sekarang
           </a>
@@ -487,30 +488,194 @@
           >
             <span aria-hidden="true">X</span>
           </button>
-          <p id="guest-modal-message">Anda belum login, silakan login</p>
+          <p id="guest-modal-message">Anda belum Login, silakan login</p>
           <button
             class="bookmark-unavailable-login"
             id="btn-modal-login"
             type="button"
-            style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer;"
           >
-            Login
+            Login Sekarang
           </button>
         </div>
+      </dialog>
+
+      <dialog
+        class="bookmark-success-dialog profile-name-success-dialog"
+        id="profile-name-success-dialog"
+        aria-labelledby="profile-name-success-message"
+      >
+        <p id="profile-name-success-message">Nama berhasil diperbarui</p>
+        <button
+          class="button button-primary copy-success-button"
+          id="profile-name-success-close"
+          type="button"
+        >
+          Oke, Mengerti
+        </button>
       </dialog>
 
         <dialog
           class="profile-dialog profile-logout-dialog"
           id="logout-confirm-modal"
-          aria-labelledby="logout-confirm-title"
+          aria-labelledby="logout-confirm-message"
         >
           <div class="profile-dialog-card profile-logout-card">
-            <h2 id="logout-confirm-title">Konfirmasi Keluar</h2>
             <p id="logout-confirm-message">Apakah Anda yakin ingin keluar dari akun?</p>
             <div class="profile-dialog-actions">
               <button class="profile-dialog-button profile-dialog-button-secondary" id="btn-cancel-logout" type="button">Batal</button>
               <button class="profile-dialog-button" id="btn-confirm-logout" type="button">Keluar</button>
             </div>
+          </div>
+        </dialog>
+
+        <dialog
+          class="profile-dialog profile-edit-dialog"
+          id="profile-name-dialog"
+          aria-labelledby="profile-name-dialog-title"
+        >
+          <div class="profile-edit-card profile-name-edit-card">
+            <h2 class="sr-only" id="profile-name-dialog-title">Ubah nama lengkap</h2>
+            <button
+              class="profile-close-button"
+              id="btn-cancel-name"
+              type="button"
+              aria-label="Batalkan perubahan nama"
+            >
+              <span aria-hidden="true">X</span>
+            </button>
+            <label class="profile-dialog-label" for="profile-name-next">NAMA</label>
+            <div class="profile-name-input-wrap">
+              <input
+                class="profile-dialog-input"
+                id="profile-name-next"
+                type="text"
+                autocomplete="name"
+                aria-describedby="profile-name-error"
+              />
+              <img
+                class="profile-name-input-icon"
+                src="assets/figma/profile-pencil.svg"
+                alt=""
+                aria-hidden="true"
+              />
+            </div>
+            <small class="profile-field-error" id="profile-name-error" hidden></small>
+            <button
+              class="profile-dialog-button profile-name-save"
+              id="btn-confirm-name"
+              type="button"
+            >
+              SIMPAN
+            </button>
+          </div>
+        </dialog>
+
+        <dialog
+          class="profile-dialog profile-password-dialog"
+          id="profile-password-dialog"
+          aria-labelledby="profile-password-title"
+        >
+          <form class="profile-password-card" id="profile-password-form" autocomplete="off" novalidate>
+            <button
+              class="profile-close-button"
+              id="btn-cancel-password"
+              type="button"
+              aria-label="Tutup dialog ubah kata sandi"
+            >
+              <span aria-hidden="true">X</span>
+            </button>
+            <h2 id="profile-password-title">Ubah Kata Sandi</h2>
+            <div class="password-input-group">
+              <label class="profile-dialog-label" for="profile-password-current">Kata Sandi Lama</label>
+              <div class="password-input-wrapper">
+                <input
+                  class="profile-dialog-input"
+                  id="profile-password-current"
+                  type="password"
+                  autocomplete="new-password"
+                  aria-describedby="profile-password-current-error"
+                />
+                <button
+                  class="profile-password-toggle"
+                  type="button"
+                  data-password-target="profile-password-current"
+                  aria-label="Tampilkan kata sandi"
+                  aria-pressed="false"
+                >
+                  <img src="assets/figma/profile-eye.svg" alt="" />
+                </button>
+              </div>
+              <small class="profile-field-error" id="profile-password-current-error" hidden></small>
+            </div>
+            <div class="password-input-group">
+              <label class="profile-dialog-label" for="profile-password-next">Kata Sandi Baru</label>
+              <div class="password-input-wrapper">
+                <input
+                  class="profile-dialog-input"
+                  id="profile-password-next"
+                  type="password"
+                  autocomplete="new-password"
+                  aria-describedby="profile-password-next-error"
+                />
+                <button
+                  class="profile-password-toggle"
+                  type="button"
+                  data-password-target="profile-password-next"
+                  aria-label="Tampilkan kata sandi"
+                  aria-pressed="false"
+                >
+                  <img src="assets/figma/profile-eye.svg" alt="" />
+                </button>
+              </div>
+              <small class="profile-field-error" id="profile-password-next-error" hidden></small>
+            </div>
+            <div class="password-input-group">
+              <label class="profile-dialog-label" for="profile-password-confirm">Konfirmasi Kata Sandi</label>
+              <div class="password-input-wrapper">
+                <input
+                  class="profile-dialog-input"
+                  id="profile-password-confirm"
+                  type="password"
+                  autocomplete="new-password"
+                  aria-describedby="profile-password-confirm-error"
+                />
+                <button
+                  class="profile-password-toggle"
+                  type="button"
+                  data-password-target="profile-password-confirm"
+                  aria-label="Tampilkan kata sandi"
+                  aria-pressed="false"
+                >
+                  <img src="assets/figma/profile-eye.svg" alt="" />
+                </button>
+              </div>
+              <small class="profile-field-error" id="profile-password-confirm-error" hidden></small>
+            </div>
+            <p class="profile-form-error" id="profile-password-form-error" role="alert" hidden></p>
+            <div class="profile-dialog-actions">
+
+              <button
+                class="profile-dialog-button"
+                id="btn-confirm-password"
+                type="submit"
+              >
+                Simpan
+              </button>
+            </div>
+          </form>
+        </dialog>
+
+        <dialog
+          class="profile-dialog profile-success-dialog"
+          id="password-success-modal"
+          aria-labelledby="password-success-title"
+        >
+          <div class="profile-success-card">
+            <h2 id="password-success-title">Informasi</h2>
+            <p>Kata sandi berhasil diperbarui</p>
+            <button class="profile-dialog-button" id="btn-success-ok" type="button">
+              Oke Mengerti
+            </button>
           </div>
         </dialog>
       
@@ -540,11 +705,22 @@
         <div class="profile-container">
           <div class="profile-card">
             <div class="user-info-group">
-              <label class="info-label" for="profile-fullname">NAMA</label>
-              <div class="info-value-box" id="profile-fullname"></div>
+              <p class="info-label" id="profile-name-label">NAMA</p>
+              <div class="info-value-box" aria-labelledby="profile-name-label">
+                <span id="profile-fullname"></span>
+                <button
+                  class="profile-name-edit-button"
+                  id="btn-ubah-nama"
+                  type="button"
+                  aria-label="Ubah nama lengkap"
+                >
+                  <img src="assets/figma/profile-pencil.svg" alt="" />
+                </button>
+              </div>
+              <p class="profile-name-status" id="profile-name-status" role="status" hidden></p>
             </div>
             <div class="user-info-group">
-              <label class="info-label" for="profile-email">EMAIL</label>
+              <p class="info-label" id="profile-email-label">EMAIL</p>
               <div class="info-value-box" id="profile-email"></div>
             </div>
             <div class="profile-actions">

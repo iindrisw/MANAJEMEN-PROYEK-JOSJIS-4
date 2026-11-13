@@ -100,16 +100,31 @@ export function initHumberger() {
     }
 
     event.preventDefault();
+
+    const action = link.dataset.navAction;
+    const isGuest = !localStorage.getItem("token");
+    if (isGuest && (action === "bookmark" || action === "profile")) {
+      setActiveNavigation(action === "bookmark" ? "bookmark" : "home");
+      window.dispatchEvent(
+        new Event(
+          action === "bookmark"
+            ? "recipe:navigate-saved"
+            : "recipe:navigate-profile",
+        ),
+      );
+      return;
+    }
+
     setNavigationOpen(false);
     const currentMenuButton = getActiveMenuButton();
     currentMenuButton.focus();
 
-    if (link.dataset.navAction === "home") {
+    if (action === "home") {
       window.location.assign(window.location.pathname);
-    } else if (link.dataset.navAction === "bookmark") {
+    } else if (action === "bookmark") {
       setActiveNavigation("bookmark");
       window.dispatchEvent(new Event("recipe:navigate-saved"));
-    } else if (link.dataset.navAction === "profile") {
+    } else if (action === "profile") {
       setActiveNavigation("profile");
       window.dispatchEvent(new Event("recipe:navigate-profile"));
     }
@@ -126,11 +141,6 @@ export function initHumberger() {
   });
 
   window.addEventListener("recipe:saved-auth-required", () => {
-    const savedScreen = document.querySelector("#view-saved");
-    if (!(savedScreen instanceof HTMLElement) || savedScreen.hidden) {
-      setActiveNavigation("home");
-    }
-
     window.dispatchEvent(new Event("recipe:auth-required"));
   });
 

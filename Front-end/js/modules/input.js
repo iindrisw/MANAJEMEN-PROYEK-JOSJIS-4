@@ -229,6 +229,15 @@ export function initInput() {
     detailFeedback.hidden = !message;
   }
 
+  function isConnectionAvailable() {
+    if (navigator.onLine) {
+      return true;
+    }
+
+    setDetailFeedback("Tidak ada koneksi internet. Coba lagi saat terhubung.");
+    return false;
+  }
+
   function closeRecipeDetail() {
     const shouldRefreshMostLiked = currentSearch === null && !isSavedViewActive;
     latestDetailRequestId += 1;
@@ -357,6 +366,9 @@ export function initInput() {
     if (!activeRecipe || isLikeSubmitting) {
       return;
     }
+    if (!isConnectionAvailable()) {
+      return;
+    }
 
     isLikeSubmitting = true;
     const previousRecipe = activeRecipe;
@@ -365,23 +377,6 @@ export function initInput() {
     const isLiked = !wasLiked;
     const recipeId = String(previousRecipe.id_resep);
     const guestLikeKey = `anonymous-recipe-like-${recipeId}`;
-
-    // Update state lokal lebih dulu (Optimistic UI)
-    activeRecipe = {
-      ...previousRecipe,
-      sudah_like: isLiked,
-      jumlah_like: Math.max(
-        0,
-        (Number(previousRecipe.jumlah_like) || 0) + (isLiked ? 1 : -1),
-      ),
-    };
-
-    if (!token) {
-      localStorage.setItem(guestLikeKey, String(isLiked));
-    }
-    
-    renderRecipeDetail(activeRecipe, activeAvailableIngredients);
-    updateRecipeCardLikeCount(activeRecipe);
 
     try {
       const headers = {};
@@ -401,20 +396,16 @@ export function initInput() {
       }
 
       activeRecipe = {
-        ...activeRecipe,
+        ...previousRecipe,
         sudah_like: result.sudah_like === true,
         jumlah_like: Number(result.jumlah_like) || 0,
       };
-      renderRecipeDetail(activeRecipe, activeAvailableIngredients);
-      updateRecipeCardLikeCount(activeRecipe);
-    } catch (error) {
-      // Kembalikan state jika fetch gagal
-      activeRecipe = previousRecipe;
       if (!token) {
-        localStorage.setItem(guestLikeKey, String(previousRecipe.sudah_like));
+        localStorage.setItem(guestLikeKey, String(activeRecipe.sudah_like));
       }
       renderRecipeDetail(activeRecipe, activeAvailableIngredients);
       updateRecipeCardLikeCount(activeRecipe);
+    } catch (error) {
       setDetailFeedback(error.message);
     } finally {
       isLikeSubmitting = false;
@@ -430,6 +421,9 @@ export function initInput() {
     const token = localStorage.getItem("token");
     if (!token) {
       window.dispatchEvent(new Event("recipe:saved-auth-required"));
+      return;
+    }
+    if (!isConnectionAvailable()) {
       return;
     }
 
@@ -598,7 +592,7 @@ export function initInput() {
       }
       renderPagination(pagination, page, result.total_halaman || 1, (selectedPage) => {
         void loadRecipes(currentSearch, selectedPage);
-      });
+      }, 5);
     } catch (error) {
       if (requestId !== latestRequestId) {
         return;
@@ -756,6 +750,9 @@ export function initInput() {
 
   detailBackButton.addEventListener("click", closeRecipeDetail);
   detailLikeButton.addEventListener("click", () => {
+    void handleLikeAction();
+  });
+  stepsLikeButton.addEventListener("click", () => {
     void handleLikeAction();
   });
   detailBookmarkButton.addEventListener("click", () => {

@@ -94,8 +94,8 @@
 
 .recipe-likes {
   position: absolute;
-  top: 52px;
-  left: 10px;
+  top: 54px;
+  left: 12px;
   display: inline-flex;
   isolation: isolate;
   flex: 0 0 auto;
@@ -139,6 +139,7 @@
   width: 30px;
   min-width: 0;
   overflow: hidden;
+  line-height: 15px;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
