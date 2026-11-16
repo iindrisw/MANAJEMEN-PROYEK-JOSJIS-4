@@ -1,0 +1,22 @@
+info:
+  name: filter resep
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: http://127.0.0.1:5000/api/search-bahan?&q=ayam&filters=chili
+  params:
+    - name: q
+      value: ayam
+      type: query
+    - name: filters
+      value: chili
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

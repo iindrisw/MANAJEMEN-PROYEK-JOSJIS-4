@@ -1,0 +1,21 @@
+info:
+  name: Profil
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: http://127.0.0.1:5000/api/auth/me
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMSIsImlhdCI6MTc5NDU1OTE3NCwiZXhwIjoxNzk1MTYzOTc0fQ.hDSw9NGZv1qYicsLXBf-S6ZXn2zFofC_cmqbBvVPLt0
+  body:
+    type: json
+    data: ""
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -5,6 +5,12 @@
   margin: 0;
   padding: 0;
   font-family: 'Montserrat', sans-serif;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -430,4 +436,28 @@ body {
 .register-notice-button:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 3px;
+}
+
+@media (min-width: 1024px) {
+  .register-container,
+  .login-container {
+    max-width: 760px;
+    padding: 40px 80px 80px;
+  }
+
+  .register-container > .auth-back {
+    position: fixed;
+    top: 20px;
+    left: max(20px, calc((100vw - 760px) / 2 + 80px));
+  }
+
+  .register-container > .brand-logo-wrapper {
+    margin-top: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-container .form-group.error .input-wrapper {
+    width: calc(100% - 10px);
+  }
 }

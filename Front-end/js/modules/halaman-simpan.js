@@ -1,4 +1,5 @@
 import { createRecipeCard, renderPagination } from "./recipe-view.js";
+import { readViewState, updateViewState } from "./view-state.js";
 
 const API_BASE_URL = "http://127.0.0.1:5000/api";
 const ITEMS_PER_PAGE = 6;
@@ -123,6 +124,7 @@ export function initHalamanSimpan() {
       }
       if (error.status === 401) {
         localStorage.removeItem("token");
+        updateViewState({ view: null });
         savedRecipes = [];
         recipeGrid.replaceChildren();
         paginationContainer.replaceChildren();
@@ -238,6 +240,7 @@ export function initHalamanSimpan() {
 
     // 2. Jika user terautentikasi, tampilkan view halaman simpan
     setSavedView(true);
+    updateViewState({ view: "saved", recipe: null });
     searchInput.value = "";
     currentSearchQuery = "";
     currentPage = 1;
@@ -245,10 +248,25 @@ export function initHalamanSimpan() {
     void loadSavedRecipes();
   });
 
-  window.addEventListener("recipe:navigate-home", () => setSavedView(false));
+  window.addEventListener("recipe:navigate-home", () => {
+    updateViewState({ view: null });
+    setSavedView(false);
+  });
   window.addEventListener("recipe:saved-refresh", () => {
     if (!savedScreen.hidden) {
       void loadSavedRecipes();
     }
   });
+
+  // Pulihkan halaman simpan setelah refresh (?view=saved). Jika ada ?recipe=, detail
+  // yang membukanya ditumpuk di atas oleh input.js (restoreFromUrl).
+  if (readViewState().view === "saved") {
+    if (!localStorage.getItem("token")) {
+      updateViewState({ view: null });
+    } else {
+      setSavedView(true);
+      window.dispatchEvent(new Event("recipe:saved-view-restored"));
+      void loadSavedRecipes();
+    }
+  }
 }
