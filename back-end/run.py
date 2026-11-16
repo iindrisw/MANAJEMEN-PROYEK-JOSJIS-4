@@ -6,3 +6,6 @@ app = create_app()
 
 if __name__ == "__main__":
     app.run(debug=Settings.DEBUG, port=Settings.PORT)
+@app.route("/")
+def home():
+    return {"status": "success", "message": "Backend Racik Rasa is running!"}
