@@ -1,6 +1,6 @@
 import { readViewState, updateViewState } from "./view-state.js";
 
-const API_BASE_URL = "http://127.0.0.1:5000/api";
+const API_BASE_URL = "https://manajemen-proyek-josjis-4-j2jc.vercel.app/api";
 
 export function initProfile() {
   const appShell = document.querySelector(".app-shell");

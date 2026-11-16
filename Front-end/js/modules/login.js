@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://127.0.0.1:5000/api";
+const API_BASE_URL = "https://manajemen-proyek-josjis-4-j2jc.vercel.app/api";
 const GOOGLE_CLIENT_ID = "105928934373-ai6hsqd7o7h985it0v6ngja0f62qs1aa.apps.googleusercontent.com";
 
 document.addEventListener("DOMContentLoaded", () => {
