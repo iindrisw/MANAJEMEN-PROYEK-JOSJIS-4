@@ -108,6 +108,7 @@ def search_bookmarks():
     return success_response({"data": hasil})
 
 
+# ---------- route lama / legacy: /api/... (dipakai frontend saat ini) ----------
 
 legacy_bp.get("/most-liked")(optional_auth(_terpopuler))
 legacy_bp.get("/search-bahan")(optional_auth(_cari_bahan))
