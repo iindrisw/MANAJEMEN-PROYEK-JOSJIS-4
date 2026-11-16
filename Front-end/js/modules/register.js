@@ -1,4 +1,10 @@
 const API_BASE_URL = "http://127.0.0.1:5000/api";
+const EMAIL_EMOJI_PATTERN =
+  /[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}\u200D\uFE0E\uFE0F\u20E3]/gu;
+
+function removeEmailEmoji(value) {
+  return value.replace(EMAIL_EMOJI_PATTERN, "");
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("#registerForm");
@@ -44,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   for (const input of [
     inputName,
-    inputEmail,
     inputPassword,
     inputConfirmation,
   ]) {
@@ -52,6 +57,14 @@ document.addEventListener("DOMContentLoaded", () => {
       clearError(input);
     });
   }
+
+  inputEmail.addEventListener("input", () => {
+    const sanitizedEmail = removeEmailEmoji(inputEmail.value);
+    if (sanitizedEmail !== inputEmail.value) {
+      inputEmail.value = sanitizedEmail;
+    }
+    clearError(inputEmail);
+  });
 
   for (const button of document.querySelectorAll(".toggle-password")) {
     button.addEventListener("click", () => {
@@ -74,7 +87,9 @@ document.addEventListener("DOMContentLoaded", () => {
     submitButton.textContent = "MEMPROSES...";
 
     const nama = inputName.value.trim();
-    const email = inputEmail.value.trim().toLowerCase();
+    const enteredEmail = inputEmail.value.trim();
+    const sanitizedEmail = removeEmailEmoji(enteredEmail);
+    const email = sanitizedEmail.toLowerCase();
     const password = inputPassword.value;
     const confirmation = inputConfirmation.value;
     let isValid = true;
@@ -97,6 +112,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2. Validasi Email (Format lokal)
     if (!email) {
       setError(inputEmail, "Kolom ini wajib diisi");
+      isValid = false;
+    } else if (enteredEmail !== sanitizedEmail) {
+      inputEmail.value = sanitizedEmail;
+      setError(inputEmail, "Format email tidak sesuai (contoh: madinatul@gmail.com)");
       isValid = false;
     } else if (
       email.length > 100 ||

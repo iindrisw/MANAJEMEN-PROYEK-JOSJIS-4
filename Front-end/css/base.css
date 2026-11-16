@@ -18,6 +18,12 @@
 
 * {
   box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -55,6 +61,170 @@ button {
 @media (max-width: 439px) {
   .app-shell {
     min-height: 952px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-shell {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: visible;
+    zoom: 1;
+  }
+
+  .app-shell .search-panel {
+    width: 100%;
+    padding-right: clamp(32px, 5vw, 80px);
+    padding-left: clamp(32px, 5vw, 80px);
+  }
+
+  .app-shell .panel-heading {
+    width: min(100%, 1120px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .app-shell .brand {
+    left: clamp(14px, 2vw, 32px);
+  }
+
+  .app-shell .menu-button {
+    right: clamp(16px, 2vw, 32px);
+  }
+
+  .app-shell .ingredient-search,
+  .app-shell .recipe-search {
+    width: min(100%, 1120px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .app-shell .ingredient-search > .search-field,
+  .app-shell .ingredient-row .search-field {
+    width: min(820px, calc(100% - var(--ingredient-count-width) - 30px));
+  }
+
+  .app-shell .recipe-search-row {
+    grid-template-columns: minmax(0, 820px) 44px;
+  }
+
+  .app-shell .recipe-content {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding-right: clamp(36px, 4vw, 80px);
+    padding-left: clamp(36px, 4vw, 80px);
+  }
+
+  .app-shell .recipe-grid,
+  .app-shell.is-saved-view .saved-screen .recipe-grid {
+    width: 100%;
+    grid-template-columns: repeat(auto-fill, 176px);
+  }
+
+  .app-shell:not(.is-saved-view) #recipe-grid {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .app-shell .recipe-card h2 {
+    width: calc(100% - 8px);
+  }
+
+  .app-shell .recipe-ingredients {
+    width: calc(100% - 20px);
+  }
+
+  .app-shell .detail-recipe-title {
+    left: 50%;
+    width: min(900px, calc(100% - 128px));
+    transform: translateX(-50%);
+  }
+
+  .app-shell .detail-body {
+    width: min(1100px, 100%);
+    margin: 0 auto;
+  }
+
+  .app-shell .detail-footer {
+    width: min(1100px, 100%);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .app-shell .detail-steps-button {
+    width: 100%;
+  }
+
+  .app-shell .recipe-steps-screen,
+  .app-shell .cooking-mode-screen {
+    height: max(956px, 100vh);
+    min-height: 100vh;
+  }
+
+  .app-shell .steps-card-content {
+    left: 50%;
+    width: min(1100px, calc(100% - 64px));
+    height: calc(100% - 120px);
+    transform: translateX(-50%);
+  }
+
+  .app-shell .steps-recipe-title {
+    width: calc(100% - 64px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .app-shell .recipe-steps-list {
+    width: 100%;
+  }
+
+  .app-shell .mode-memasak-button {
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .app-shell .cooking-mode-heading {
+    left: 50%;
+    width: min(900px, calc(100% - 64px));
+    transform: translateX(-50%);
+  }
+
+  .app-shell .cooking-mode-step {
+    left: 50%;
+    width: min(900px, calc(100% - 64px));
+    transform: translateX(-50%);
+  }
+
+  .app-shell .cooking-mode-step-title {
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+
+  .app-shell .cooking-mode-step-description {
+    left: 20px;
+    width: calc(100% - 40px);
+  }
+
+  .app-shell .cooking-mode-controls {
+    left: 50%;
+    width: min(900px, calc(100% - 64px));
+    transform: translateX(-50%);
+  }
+
+  .app-shell .profile-header {
+    right: auto;
+    left: 50%;
+    width: min(1000px, calc(100% - 64px));
+    transform: translateX(-50%);
+  }
+
+  .app-shell .profile-container {
+    width: min(1000px, 100%);
+    align-self: center;
   }
 }
 

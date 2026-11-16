@@ -86,11 +86,36 @@ export function createRecipeCard(
   return card;
 }
 
-export function renderPagination(container, page, totalPages, onPageSelect) {
+export function renderPagination(
+  container,
+  page,
+  totalPages,
+  onPageSelect,
+  maxPageNumber,
+) {
   container.replaceChildren();
   container.hidden = totalPages <= 1;
   container.hidden = false;
   totalPages = Math.max(1, Number(totalPages) || 1);
+
+  if (Number.isInteger(maxPageNumber) && maxPageNumber > 0) {
+    const lastPage = Math.min(totalPages, maxPageNumber);
+    for (let pageNumber = 1; pageNumber <= lastPage; pageNumber += 1) {
+      const button = document.createElement("button");
+      button.className = "page-button";
+      button.type = "button";
+      button.textContent = String(pageNumber);
+      if (pageNumber === page) {
+        button.classList.add("is-current");
+        button.setAttribute("aria-current", "page");
+      }
+      button.addEventListener("click", () => {
+        onPageSelect(pageNumber);
+      });
+      container.append(button);
+    }
+    return;
+  }
 
   const visiblePageCount = 5;
   const firstPage = Math.max(
@@ -98,13 +123,6 @@ export function renderPagination(container, page, totalPages, onPageSelect) {
     Math.min(page - Math.floor(visiblePageCount / 2), totalPages - visiblePageCount + 1),
   );
   const lastPage = Math.min(totalPages, firstPage + visiblePageCount - 1);
-
-  if (firstPage > 1) {
-    const more = document.createElement("span");
-    more.className = "page-more";
-    more.textContent = "...";
-    container.append(more);
-  }
 
   for (let pageNumber = firstPage; pageNumber <= lastPage; pageNumber += 1) {
     const button = document.createElement("button");
@@ -119,12 +137,5 @@ export function renderPagination(container, page, totalPages, onPageSelect) {
       onPageSelect(pageNumber);
     });
     container.append(button);
-  }
-
-  if (lastPage < totalPages) {
-    const more = document.createElement("span");
-    more.className = "page-more";
-    more.textContent = "...";
-    container.append(more);
   }
 }

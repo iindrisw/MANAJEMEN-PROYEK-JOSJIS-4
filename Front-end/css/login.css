@@ -1,10 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@400&display=swap');
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   font-family: 'Montserrat', sans-serif;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -143,6 +149,18 @@ body {
   box-shadow: 0 0 0 3px rgba(208, 87, 85, 0.15);
 }
 
+.login-container .form-group.error .input-wrapper::after {
+  position: absolute;
+  top: 50%;
+  right: -36px;
+  display: block;
+  width: 24px;
+  height: 24px;
+  transform: translateY(-50%);
+  background: url("../assets/figma/register-warning.svg") center / contain no-repeat;
+  content: "";
+}
+
 .toggle-password {
   position: absolute;
   right: 16px;
@@ -273,10 +291,70 @@ body {
   color: #D05755;
 }
 
+.google-auth-error {
+  position: fixed;
+  z-index: 20;
+  bottom: 12vh;
+  left: 50%;
+  display: flex;
+  width: min(420px, calc(100vw - 20px));
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(208, 87, 86, 0.6);
+  border-radius: 10px;
+  background: rgba(208, 87, 86, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  color: #252525;
+}
+
+.google-auth-error[hidden] {
+  display: none;
+}
+
+.google-auth-error-icon {
+  display: block;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+}
+
+.google-auth-error p {
+  min-width: 0;
+  margin: 0;
+  font-family: "Open Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 30px;
+}
+
+@media (min-width: 1024px) {
+  .register-container,
+  .login-container {
+    max-width: 760px;
+    padding: 40px 80px;
+  }
+
+  .auth-back {
+    left: max(20px, calc((100vw - 760px) / 2 + 80px));
+  }
+
+  .google-auth-error {
+    width: min(600px, calc(100vw - 48px));
+  }
+}
+
 .register-redirect-link,
 .login-redirect-link {
   color: #D05755;
   font-weight: 900;
   text-decoration: underline;
   margin-left: 4px;
+}
+
+@media (max-width: 480px) {
+  .login-container .form-group.error .input-wrapper {
+    width: calc(100% - 24px);
+  }
 }

@@ -70,11 +70,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let isValid = true;
 
     if (!identifier) {
-      setError(inputIdentifier, "Nama atau email wajib diisi.");
+      setError(inputIdentifier, "Kolom ini wajib diisi");
       isValid = false;
     }
     if (!password) {
-      setError(inputPassword, "Kata sandi wajib diisi.");
+      setError(inputPassword, "Kolom ini wajib diisi");
       isValid = false;
     }
     if (!isValid) return;
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Respons server tidak valid. Silakan coba lagi.");
       }
       if (!response.ok || result.status !== "success") {
-        throw new Error(result.message || "Nama/email atau kata sandi salah.");
+        throw new Error(result.message || "Email atau kata sandi salah, silakan periksa kembali.");
       }
 
       const token = result.data?.token || result.token;
@@ -175,6 +175,12 @@ async function handleGoogleCredentialResponse(googleResponse) {
     window.location.assign("index.html");
   } catch (error) {
     console.error("Login Google gagal:", error);
-    alert(error.message || "Gagal masuk menggunakan akun Google.");
+    const notification = document.querySelector("#google-auth-error");
+    if (!(notification instanceof HTMLElement)) {
+      console.error("Notifikasi gagal Google tidak ditemukan.");
+      return;
+    }
+
+    notification.hidden = false;
   }
 }
