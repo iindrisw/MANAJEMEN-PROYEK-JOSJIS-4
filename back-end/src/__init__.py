@@ -13,7 +13,7 @@ def create_app():
     validate_settings()
     app = Flask(__name__)
     app.json.ensure_ascii = False  # biar karakter Indonesia/emoji tidak jadi \uXXXX
-    CORS(app, origins=Settings.CORS_ORIGINS)  # Authorization header ikut diizinkan secara default
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     register_error_handlers(app)
     for bp in (auth_bp, recipe_bp, user_bp, legacy_bp):
