@@ -1,7 +1,7 @@
 import { createRecipeCard, renderPagination } from "./recipe-view.js";
 import { readViewState, updateViewState } from "./view-state.js";
 
-const API_BASE_URL = "https://manajemen-proyek-josjis-4-j2jc.vercel.app/api";
+const API_BASE_URL = "https://manajemen-proyek-josjis-4-i2cyt4ojf-indri-racik-rasa.vercel.app/api";
 const ITEMS_PER_PAGE = 6;
 
 export function initHalamanSimpan() {

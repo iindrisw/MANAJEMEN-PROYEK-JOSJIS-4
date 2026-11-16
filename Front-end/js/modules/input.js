@@ -5,7 +5,7 @@ import { readViewState, updateViewState } from "./view-state.js";
 
 const MAX_ADDITIONAL_INGREDIENTS = 5;
 const MAX_TOTAL_INGREDIENTS = 6;
-const API_BASE_URL = "https://manajemen-proyek-josjis-4-j2jc.vercel.app/api";
+const API_BASE_URL = "https://manajemen-proyek-josjis-4-i2cyt4ojf-indri-racik-rasa.vercel.app/api";
 
 function getIngredients(value) {
   return value
