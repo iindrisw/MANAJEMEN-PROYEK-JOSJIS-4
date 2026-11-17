@@ -215,12 +215,16 @@
   font-size: 20px;
   font-weight: 400;
   line-height: 28px;
-  transition: filter 160ms ease, transform 160ms ease;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .btn-action:hover,
 .btn-danger-outline:hover {
-  filter: brightness(0.94);
+  background: var(--white);
+  color: var(--coral);
 }
 
 .btn-action:active,
@@ -343,6 +347,15 @@
   font-size: 14px;
   line-height: 21px;
   letter-spacing: 1px;
+}
+
+.profile-logout-card .profile-dialog-button {
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.profile-logout-card .profile-dialog-button:not(:disabled):hover {
+  background: var(--white);
+  color: var(--coral);
 }
 
 .profile-logout-card .profile-dialog-button-secondary {

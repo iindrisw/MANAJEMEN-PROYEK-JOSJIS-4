@@ -294,6 +294,12 @@ body:has(#recipe-detail:not([hidden])) {
   font-weight: 600;
   line-height: 1.2;
   pointer-events: auto;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.detail-steps-button:hover {
+  background: var(--white);
+  color: var(--coral);
 }
 
 .steps-dialog-heading h2 {
@@ -454,6 +460,12 @@ body:has(#recipe-detail:not([hidden])) {
   letter-spacing: 1px;
   opacity: 1;
   text-decoration: none;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.bookmark-unavailable-login:hover {
+  background: var(--white);
+  color: var(--coral);
 }
 
 .validation-dialog-button,
@@ -664,6 +676,7 @@ body:has(#recipe-detail:not([hidden])) {
   font-size: 20px;
   font-weight: 400;
   line-height: 24px;
+  transition: background-color 160ms ease, color 160ms ease;
 }
 
 .recipe-steps-list {
@@ -720,6 +733,11 @@ body:has(#recipe-detail:not([hidden])) {
   padding: 0;
   border: 0;
   cursor: pointer;
+}
+
+.mode-memasak-button:hover {
+  background: var(--white);
+  color: var(--coral);
 }
 
 .cooking-mode-screen {
@@ -860,6 +878,7 @@ body:has(#recipe-detail:not([hidden])) {
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
+  transition: background-color 160ms ease, color 160ms ease;
 }
 
 .cooking-mode-control:first-child {
@@ -882,6 +901,15 @@ body:has(#recipe-detail:not([hidden])) {
 .cooking-mode-control:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+.cooking-mode-control:not(:disabled):hover {
+  background: var(--white);
+  color: var(--coral);
+}
+
+.cooking-mode-control:not(:disabled):hover img {
+  filter: brightness(0) saturate(100%) invert(43%) sepia(8%) saturate(2827%) hue-rotate(313deg) brightness(90%) contrast(85%);
 }
 
 .cooking-mode-back:focus-visible,
