@@ -249,12 +249,22 @@
   background: var(--coral);
   box-shadow: 0 4px 5px rgb(0 0 0 / 25%);
   cursor: pointer;
+  transition: background-color 160ms ease;
 }
 
 .icon-button img {
   display: block;
   width: 18px;
   height: 18px;
+  transition: filter 160ms ease;
+}
+
+.icon-button:hover {
+  background: var(--white);
+}
+
+.icon-button:hover img {
+  filter: brightness(0) saturate(100%) invert(43%) sepia(8%) saturate(2827%) hue-rotate(313deg) brightness(90%) contrast(85%);
 }
 
 .button-filter {
@@ -279,6 +289,12 @@
     box-shadow 220ms ease,
     color 220ms ease,
     font-size 220ms ease;
+}
+
+.button-filter:hover,
+.button-filter.is-selected:hover {
+  background: var(--white);
+  color: var(--coral);
 }
 
 .button-filter.is-selected {
@@ -504,6 +520,25 @@
 .filter-close:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 2px;
+}
+
+@media (min-width: 1024px) {
+  .app-shell {
+    --filter-panel-right: max(
+      clamp(32px, 5vw, 80px),
+      calc((100vw - 1120px) / 2)
+    );
+  }
+
+  .app-shell .filter-panel {
+    right: var(--filter-panel-right);
+    left: auto;
+  }
+
+  .app-shell .button-filter.is-selected {
+    right: calc(var(--filter-panel-right) + 244px);
+    left: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

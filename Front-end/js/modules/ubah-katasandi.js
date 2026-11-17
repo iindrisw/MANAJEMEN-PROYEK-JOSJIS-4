@@ -249,6 +249,7 @@ export function initUbahKataSandi() {
   btnSuccessOk?.addEventListener("click", () => {
     if (successModal instanceof HTMLDialogElement) successModal.close();
   });
+}
 
   // Pulihkan form ubah kata sandi setelah refresh (?view=profile&panel=password).
   // initProfile sudah memulihkan halaman profilnya lebih dulu (urutan di main.js).

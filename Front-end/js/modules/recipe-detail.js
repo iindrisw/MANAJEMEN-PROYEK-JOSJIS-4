@@ -273,6 +273,7 @@ export function renderRecipeDetail(
   feedback.hidden = true;
   feedback.textContent = "";
   setupDetailScrollbar(detailScreen, detailScrollbar);
+}
 
   // Setelah SEMUA isi detail terisi (judul dsb.), baru pulihkan layar langkah /
   // mode memasak bila halaman dimuat ulang dari URL tersebut.

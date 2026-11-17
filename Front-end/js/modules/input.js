@@ -31,10 +31,124 @@ async function fetchRecipes(endpoint, params = {}) {
   return result;
 }
 
+function setupRecipeListScrollbar(scrollbar) {
+  const scrollArea = document.scrollingElement;
+  if (!scrollArea) {
+    throw new Error("Area gulir daftar resep tidak ditemukan.");
+  }
+
+  const thumbStart = Number.parseFloat(getComputedStyle(scrollbar).top);
+  if (!Number.isFinite(thumbStart)) {
+    throw new Error("Posisi scrollbar daftar resep tidak valid.");
+  }
+
+  let dragStartY = 0;
+  let dragStartScrollTop = 0;
+  let isDragging = false;
+
+  function updateThumb() {
+    const viewportHeight = window.innerHeight;
+    const scrollRange = scrollArea.scrollHeight - viewportHeight;
+    const trackHeight = Math.max(0, viewportHeight - thumbStart);
+
+    if (scrollRange <= 0 || trackHeight <= 0) {
+      scrollbar.hidden = true;
+      return;
+    }
+
+    const thumbHeight = Math.min(
+      trackHeight,
+      Math.max(24, (trackHeight * viewportHeight) / scrollArea.scrollHeight),
+    );
+    const thumbTravel = trackHeight - thumbHeight;
+    const scrollProgress = window.scrollY / scrollRange;
+
+    scrollbar.hidden = false;
+    scrollbar.style.top = `${thumbStart + thumbTravel * scrollProgress}px`;
+    scrollbar.style.height = `${thumbHeight}px`;
+    scrollbar.setAttribute("aria-valuenow", String(Math.round(scrollProgress * 100)));
+  }
+
+  function moveThumb(event) {
+    if (!isDragging) {
+      return;
+    }
+
+    const viewportHeight = window.innerHeight;
+    const scrollRange = scrollArea.scrollHeight - viewportHeight;
+    const trackHeight = Math.max(0, viewportHeight - thumbStart);
+    const thumbTravel = Math.max(0, trackHeight - scrollbar.offsetHeight);
+
+    if (scrollRange <= 0 || thumbTravel <= 0) {
+      return;
+    }
+
+    window.scrollTo(
+      0,
+      dragStartScrollTop +
+        ((event.clientY - dragStartY) / thumbTravel) * scrollRange,
+    );
+  }
+
+  function finishDragging() {
+    isDragging = false;
+  }
+
+  window.addEventListener("scroll", updateThumb, { passive: true });
+  window.addEventListener("resize", updateThumb);
+  scrollbar.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || scrollbar.hidden) {
+      return;
+    }
+
+    event.preventDefault();
+    isDragging = true;
+    dragStartY = event.clientY;
+    dragStartScrollTop = window.scrollY;
+    scrollbar.setPointerCapture(event.pointerId);
+  });
+  scrollbar.addEventListener("pointermove", moveThumb);
+  scrollbar.addEventListener("pointerup", finishDragging);
+  scrollbar.addEventListener("pointercancel", finishDragging);
+  scrollbar.addEventListener("keydown", (event) => {
+    const pageStep = Math.max(24, window.innerHeight * 0.9);
+    const lineStep = 32;
+
+    switch (event.key) {
+      case "ArrowUp":
+        window.scrollBy(0, -lineStep);
+        break;
+      case "ArrowDown":
+        window.scrollBy(0, lineStep);
+        break;
+      case "PageUp":
+        window.scrollBy(0, -pageStep);
+        break;
+      case "PageDown":
+        window.scrollBy(0, pageStep);
+        break;
+      case "Home":
+        window.scrollTo(0, 0);
+        break;
+      case "End":
+        window.scrollTo(0, scrollArea.scrollHeight);
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+  });
+
+  updateThumb();
+  return updateThumb;
+}
+
 export function initInput() {
   const recipeSearchForm = document.querySelector("#recipe-search");
   const ingredientSearchForm = document.querySelector("#ingredient-search");
   const recipeGrid = document.querySelector("#recipe-grid");
+  const recipeListScrollbar = document.querySelector(".recipe-list-scrollbar");
   const searchPanel = document.querySelector(".search-panel");
   const recipeContent = document.querySelector(".recipe-content");
   const detailScreen = document.querySelector("#recipe-detail");
@@ -75,6 +189,7 @@ export function initInput() {
     !(recipeSearchForm instanceof HTMLFormElement) ||
     !(ingredientSearchForm instanceof HTMLFormElement) ||
     !(recipeGrid instanceof HTMLElement) ||
+    !(recipeListScrollbar instanceof HTMLImageElement) ||
     !(searchPanel instanceof HTMLElement) ||
     !(recipeContent instanceof HTMLElement) ||
     !(detailScreen instanceof HTMLElement) ||
@@ -104,6 +219,8 @@ export function initInput() {
     throw new Error("Elemen pencarian atau dialog validasi tidak ditemukan.");
   }
 
+  const updateRecipeListScrollbar = setupRecipeListScrollbar(recipeListScrollbar);
+
   const mainIngredientInput = ingredientSearchForm.elements.namedItem("bahan-utama");
   const additionalIngredientsInput =
     ingredientSearchForm.elements.namedItem("bahan-tambahan");
@@ -118,6 +235,12 @@ export function initInput() {
   }
 
   let currentSearch = null;
+  const desktopRecipeMedia = window.matchMedia("(min-width: 1024px)");
+  let currentPage = 1;
+  let totalApiPages = 1;
+  let apiPagesPerDisplayPage = desktopRecipeMedia.matches
+    ? DESKTOP_API_PAGES_PER_DISPLAY_PAGE
+    : 1;
   let submittedSearchValues = null;
   let latestRequestId = 0;
   let latestDetailRequestId = 0;
@@ -532,17 +655,18 @@ export function initInput() {
   async function loadRecipes(search, page = 1) {
     const requestId = ++latestRequestId;
     currentSearch = search;
+    currentPage = page;
     emptyState.textContent = "Memuat resep...";
     emptyState.hidden = false;
     recipeGrid.replaceChildren();
     recipeGrid.style.opacity = "0";
     pagination.replaceChildren();
     pagination.hidden = true;
+    updateRecipeListScrollbar();
 
     try {
-      let result;
       const selectedFilters = filters.getSelectedFilters();
-      const params = { page: String(page) };
+      const params = {};
       if (search) {
         params.q = search.query;
       }
@@ -550,20 +674,47 @@ export function initInput() {
         params.filters = selectedFilters.join(",");
       }
 
-      if (!search) {
-        result = await fetchRecipes("most-liked", params);
-      } else {
-        result = await fetchRecipes(
-          search.type === "ingredients" ? "search-bahan" : "search-resep",
-          params,
-        );
+      const endpoint = !search
+        ? "most-liked"
+        : search.type === "ingredients"
+          ? "search-bahan"
+          : "search-resep";
+      const firstApiPage = (page - 1) * apiPagesPerDisplayPage + 1;
+      const firstResult = await fetchRecipes(endpoint, {
+        ...params,
+        page: String(firstApiPage),
+      });
+      if (requestId !== latestRequestId) {
+        return;
       }
+
+      const nextTotalApiPages = Math.max(
+        1,
+        Number(firstResult.total_halaman) || 1,
+      );
+      const lastApiPage = Math.min(
+        firstApiPage + apiPagesPerDisplayPage - 1,
+        nextTotalApiPages,
+      );
+      const remainingPages = await Promise.all(
+        Array.from(
+          { length: Math.max(0, lastApiPage - firstApiPage) },
+          (_, index) =>
+            fetchRecipes(endpoint, {
+              ...params,
+              page: String(firstApiPage + index + 1),
+            }),
+        ),
+      );
 
       if (requestId !== latestRequestId) {
         return;
       }
 
-      const recipes = Array.isArray(result.data) ? result.data : [];
+      totalApiPages = nextTotalApiPages;
+      const recipes = [firstResult, ...remainingPages].flatMap(
+        (pageResult) => (Array.isArray(pageResult.data) ? pageResult.data : []),
+      );
       const visibleRecipes = localStorage.getItem("token")
         ? recipes
         : recipes.map(applyAnonymousLikeState);
@@ -621,6 +772,7 @@ export function initInput() {
       emptyState.textContent = "Resep tidak dapat dimuat.";
       emptyState.hidden = false;
       recipeGrid.style.opacity = "";
+      updateRecipeListScrollbar();
       showValidationDialog(
         `Gagal mengambil resep dari server. ${error.message}`,
       );
@@ -803,6 +955,24 @@ export function initInput() {
 
   const filters = initFilters(() => {
     void loadRecipes(currentSearch);
+  });
+
+  desktopRecipeMedia.addEventListener("change", () => {
+    const nextPagesPerDisplayPage = desktopRecipeMedia.matches
+      ? DESKTOP_API_PAGES_PER_DISPLAY_PAGE
+      : 1;
+    if (nextPagesPerDisplayPage === apiPagesPerDisplayPage) {
+      return;
+    }
+
+    apiPagesPerDisplayPage = nextPagesPerDisplayPage;
+    currentPage = Math.min(
+      currentPage,
+      Math.max(1, Math.ceil(totalApiPages / apiPagesPerDisplayPage)),
+    );
+    if (!isSavedViewActive) {
+      void loadRecipes(currentSearch, currentPage);
+    }
   });
 
   updateFilterButtonState();

@@ -218,3 +218,24 @@
   font-weight: 400;
   line-height: 1;
 }
+
+.recipe-list-scrollbar {
+  position: fixed;
+  top: 360px;
+  right: 5px;
+  z-index: 2;
+  display: block;
+  width: 5px;
+  height: 80px;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.recipe-list-scrollbar:active {
+  cursor: grabbing;
+}
+
+.recipe-list-scrollbar[hidden] {
+  display: none;
+}

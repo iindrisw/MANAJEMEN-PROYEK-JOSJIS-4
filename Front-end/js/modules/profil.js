@@ -323,6 +323,7 @@ export function initProfile() {
     window.dispatchEvent(new Event("recipe:navigate-home"));
     window.location.assign(window.location.pathname);
   });
+}
 
   // Pulihkan halaman profil setelah refresh (?view=profile). Tanpa login tidak ada
   // profil untuk ditampilkan; layar detail (?recipe=) diutamakan.

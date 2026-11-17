@@ -175,6 +175,12 @@ async function handleGoogleCredentialResponse(googleResponse) {
     window.location.assign("index.html");
   } catch (error) {
     console.error("Login Google gagal:", error);
-    alert(error.message || "Gagal masuk menggunakan akun Google.");
+    const notification = document.querySelector("#google-auth-error");
+    if (!(notification instanceof HTMLElement)) {
+      console.error("Notifikasi gagal Google tidak ditemukan.");
+      return;
+    }
+
+    notification.hidden = false;
   }
 }
