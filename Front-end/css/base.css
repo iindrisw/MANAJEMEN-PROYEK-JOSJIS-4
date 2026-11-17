@@ -79,12 +79,6 @@ button {
     padding-left: clamp(32px, 5vw, 80px);
   }
 
-  .app-shell .panel-heading {
-    width: min(100%, 1120px);
-    margin-right: auto;
-    margin-left: auto;
-  }
-
   .app-shell .brand {
     left: clamp(14px, 2vw, 32px);
   }
@@ -124,9 +118,12 @@ button {
   }
 
   .app-shell:not(.is-saved-view) #recipe-grid {
-    grid-auto-flow: row;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 20px;
+    grid-auto-flow: column;
+    grid-auto-columns: 176px;
+    grid-template-columns: none;
+    column-gap: 14px;
+    overflow-x: auto;
+    padding-bottom: 8px;
   }
 
   .app-shell .recipe-card h2 {

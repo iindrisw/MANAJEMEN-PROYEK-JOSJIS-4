@@ -99,7 +99,7 @@
 @media (min-width: 1024px) {
   .app-shell.is-saved-view .section-label {
     left: 50%;
-    width: min(1000px, calc(100% - 64px));
+    width: min(900px, calc(100% - 128px));
     max-width: none;
     transform: translateX(-50%);
   }
@@ -112,20 +112,17 @@
   }
 
   .app-shell.is-saved-view .saved-screen {
-    width: 100%;
-    max-width: 1440px;
     min-height: calc(100vh - 306px);
-    margin-right: auto;
-    margin-left: auto;
     padding-right: clamp(36px, 4vw, 80px);
     padding-left: clamp(36px, 4vw, 80px);
   }
 
   .app-shell.is-saved-view .saved-screen .recipe-grid {
-    grid-auto-flow: row;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 20px;
-    overflow: visible;
-    padding: 1px 0 8px;
+    grid-auto-flow: column;
+    grid-auto-columns: 176px;
+    grid-template-columns: none;
+    column-gap: 14px;
+    overflow-x: auto;
+    padding: 1px 0 8px 2px;
   }
 }

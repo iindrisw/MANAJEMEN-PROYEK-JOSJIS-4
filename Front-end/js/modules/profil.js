@@ -1,4 +1,6 @@
-const API_BASE_URL = "http://127.0.0.1:5000/api";
+import { readViewState, updateViewState } from "./view-state.js";
+
+const API_BASE_URL = "https://manajemen-proyek-josjis-4-i2cyt4ojf-indri-racik-rasa.vercel.app/api";
 
 export function initProfile() {
   const appShell = document.querySelector(".app-shell");
@@ -173,6 +175,7 @@ export function initProfile() {
       console.error("Gagal mengambil profil:", error);
       if (error.status === 401 || error.status === 403) {
         clearAuthState();
+        updateViewState({ view: null });
         setProfileView(false);
         openDialog(guestModal);
         return;
@@ -235,11 +238,13 @@ export function initProfile() {
     }
     showNameStatus("");
     setProfileView(true);
+    updateViewState({ view: "profile", recipe: null });
     void fetchUserData();
   }
 
   window.addEventListener("recipe:navigate-profile", handleProfileNavigation);
   window.addEventListener("recipe:navigate-home", () => {
+    updateViewState({ view: null });
     setProfileView(false);
     [guestModal, logoutModal, nameDialog, nameSuccessDialog].forEach(
       (dialog) => {
@@ -318,4 +323,18 @@ export function initProfile() {
     window.dispatchEvent(new Event("recipe:navigate-home"));
     window.location.assign(window.location.pathname);
   });
+}
+
+  // Pulihkan halaman profil setelah refresh (?view=profile). Tanpa login tidak ada
+  // profil untuk ditampilkan; layar detail (?recipe=) diutamakan.
+  const restored = readViewState();
+  if (restored.view === "profile") {
+    if (restored.recipe || !localStorage.getItem("token")) {
+      updateViewState({ view: null });
+    } else {
+      setProfileView(true);
+      window.dispatchEvent(new Event("recipe:profile-view-restored"));
+      void fetchUserData();
+    }
+  }
 }

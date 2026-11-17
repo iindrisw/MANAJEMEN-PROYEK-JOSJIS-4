@@ -76,17 +76,6 @@ export function initHumberger() {
     return menuButtons[0];
   }
 
-  function scrollBackgroundBy(amount) {
-    const activeMenuButton = getActiveMenuButton();
-    const profileScreen = activeMenuButton.closest(".profile-screen");
-    const scrollTarget = profileScreen || document.scrollingElement;
-    if (!scrollTarget) {
-      throw new Error("Area halaman di belakang drawer tidak ditemukan.");
-    }
-
-    scrollTarget.scrollBy(0, amount);
-  }
-
   function setNavigationOpen(isOpen) {
     const currentMenuButton = getActiveMenuButton();
     currentMenuButton.setAttribute("aria-expanded", String(isOpen));
@@ -140,59 +129,6 @@ export function initHumberger() {
     const currentMenuButton = getActiveMenuButton();
     currentMenuButton.focus();
   });
-
-  drawerBackdrop.addEventListener(
-    "wheel",
-    (event) => {
-      if (event.deltaY === 0) {
-        return;
-      }
-
-      event.preventDefault();
-      scrollBackgroundBy(event.deltaY);
-    },
-    { passive: false },
-  );
-
-  let lastBackdropTouchY = null;
-  drawerBackdrop.addEventListener(
-    "touchstart",
-    (event) => {
-      lastBackdropTouchY = event.touches[0]?.clientY ?? null;
-    },
-    { passive: true },
-  );
-  drawerBackdrop.addEventListener(
-    "touchmove",
-    (event) => {
-      const currentTouchY = event.touches[0]?.clientY;
-      if (
-        lastBackdropTouchY === null ||
-        typeof currentTouchY !== "number"
-      ) {
-        return;
-      }
-
-      event.preventDefault();
-      scrollBackgroundBy(lastBackdropTouchY - currentTouchY);
-      lastBackdropTouchY = currentTouchY;
-    },
-    { passive: false },
-  );
-  drawerBackdrop.addEventListener(
-    "touchend",
-    () => {
-      lastBackdropTouchY = null;
-    },
-    { passive: true },
-  );
-  drawerBackdrop.addEventListener(
-    "touchcancel",
-    () => {
-      lastBackdropTouchY = null;
-    },
-    { passive: true },
-  );
 
   // Pasang event listener ke semua logo brand
   brandLinks.forEach((brandLink) => {
@@ -248,6 +184,14 @@ export function initHumberger() {
       setActiveNavigation("profile");
       window.dispatchEvent(new Event("recipe:navigate-profile"));
     }
+  });
+
+  // Halaman simpan / profil dipulihkan setelah refresh -> sorot menunya di drawer.
+  window.addEventListener("recipe:saved-view-restored", () => {
+    setActiveNavigation("bookmark");
+  });
+  window.addEventListener("recipe:profile-view-restored", () => {
+    setActiveNavigation("profile");
   });
 
   window.addEventListener("recipe:login-request", () => {

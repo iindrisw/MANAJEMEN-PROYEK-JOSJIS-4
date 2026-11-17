@@ -46,12 +46,6 @@
   width: 92px;
 }
 
-@media (min-width: 1024px) {
-  .profile-screen .brand {
-    left: clamp(14px, 2vw, 32px);
-  }
-}
-
 .profile-screen .menu-button {
   top: 36px;
 }
@@ -347,15 +341,6 @@
   font-size: 14px;
   line-height: 21px;
   letter-spacing: 1px;
-}
-
-.profile-logout-card .profile-dialog-button {
-  transition: background-color 160ms ease, color 160ms ease;
-}
-
-.profile-logout-card .profile-dialog-button:not(:disabled):hover {
-  background: var(--white);
-  color: var(--coral);
 }
 
 .profile-logout-card .profile-dialog-button-secondary {

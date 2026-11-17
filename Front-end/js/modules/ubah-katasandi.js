@@ -1,3 +1,5 @@
+import { readViewState, updateViewState } from "./view-state.js";
+
 const API_BASE_URL = "http://127.0.0.1:5000/api";
 
 export function initUbahKataSandi() {
@@ -186,13 +188,7 @@ export function initUbahKataSandi() {
     });
   }
 
-  btnChangePassword?.addEventListener("click", () => {
-    if (!localStorage.getItem("token")) {
-      if (guestModal instanceof HTMLDialogElement && !guestModal.open) {
-        guestModal.showModal();
-      }
-      return;
-    }
+  function openPasswordPanel() {
     resetForm();
     if (passwordDialog instanceof HTMLDialogElement) {
       passwordDialog.show();
@@ -200,7 +196,18 @@ export function initUbahKataSandi() {
         profileTitle.textContent = "UBAH KATA SANDI";
       }
     }
+    updateViewState({ panel: "password" });
     passwordCurrentInput.focus();
+  }
+
+  btnChangePassword?.addEventListener("click", () => {
+    if (!localStorage.getItem("token")) {
+      if (guestModal instanceof HTMLDialogElement && !guestModal.open) {
+        guestModal.showModal();
+      }
+      return;
+    }
+    openPasswordPanel();
   });
 
   btnCancelPassword?.addEventListener("click", () => {
@@ -208,6 +215,7 @@ export function initUbahKataSandi() {
   });
 
   passwordDialog?.addEventListener("close", () => {
+    updateViewState({ panel: null });
     resetForm();
     if (profileTitle instanceof HTMLElement) {
       profileTitle.textContent = defaultProfileTitle;
@@ -241,4 +249,15 @@ export function initUbahKataSandi() {
   btnSuccessOk?.addEventListener("click", () => {
     if (successModal instanceof HTMLDialogElement) successModal.close();
   });
+}
+
+  // Pulihkan form ubah kata sandi setelah refresh (?view=profile&panel=password).
+  // initProfile sudah memulihkan halaman profilnya lebih dulu (urutan di main.js).
+  if (readViewState().panel === "password") {
+    if (localStorage.getItem("token")) {
+      openPasswordPanel();
+    } else {
+      updateViewState({ panel: null });
+    }
+  }
 }

@@ -77,6 +77,11 @@
   line-height: 24px;
 }
 
+.profile-password-card .profile-dialog-input:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 2px;
+}
+
 .profile-password-card .profile-password-toggle {
   right: 14px;
   width: 30px;
@@ -124,23 +129,6 @@
   box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
 }
 
-#profile-password-dialog .profile-close-button {
-  transition: filter 160ms ease;
-}
-
-.profile-password-card .profile-dialog-button {
-  transition: background-color 160ms ease, color 160ms ease;
-}
-
-#profile-password-dialog .profile-close-button:hover {
-  filter: brightness(0.94);
-}
-
-.profile-password-card .profile-dialog-button:not(:disabled):hover {
-  background: var(--white);
-  color: var(--coral);
-}
-
 #profile-password-dialog[open] ~ #view-profile .search-panel {
   height: 306px;
 }
@@ -166,22 +154,5 @@
   .profile-password-card {
     padding-right: 16px;
     padding-left: 16px;
-  }
-}
-
-@media (min-width: 1024px) {
-  #profile-password-dialog {
-    width: min(820px, calc(100% - 64px));
-    max-width: none;
-  }
-
-  .profile-password-card {
-    align-items: center;
-  }
-
-  .profile-password-card .password-input-group,
-  .profile-password-card .profile-form-error,
-  .profile-password-card .profile-dialog-actions {
-    width: min(600px, 100%);
   }
 }

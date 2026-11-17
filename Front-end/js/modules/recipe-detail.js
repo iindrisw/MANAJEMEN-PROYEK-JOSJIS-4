@@ -163,6 +163,7 @@ function fitTitleFontSize(element, maxSize, minSize) {
 export function renderRecipeDetail(
   recipe,
   availableIngredientNames = [],
+  restoreState = null,
 ) {
   const recipeTitle = document.querySelector("#detail-recipe-title");
   const missingSection = document.querySelector("#detail-missing-section");
@@ -200,7 +201,7 @@ export function renderRecipeDetail(
     throw new Error("Elemen tampilan detail resep tidak ditemukan.");
   }
 
-  setupLangkahMemasak(recipe, detailScreen);
+  const stepsScreens = setupLangkahMemasak(recipe, detailScreen);
 
   const ingredients = Array.isArray(recipe.bahan) ? recipe.bahan : [];
   const normalizedAvailableNames = availableIngredientNames
@@ -272,4 +273,11 @@ export function renderRecipeDetail(
   feedback.hidden = true;
   feedback.textContent = "";
   setupDetailScrollbar(detailScreen, detailScrollbar);
+}
+
+  // Setelah SEMUA isi detail terisi (judul dsb.), baru pulihkan layar langkah /
+  // mode memasak bila halaman dimuat ulang dari URL tersebut.
+  if (restoreState) {
+    stepsScreens.restore(restoreState);
+  }
 }

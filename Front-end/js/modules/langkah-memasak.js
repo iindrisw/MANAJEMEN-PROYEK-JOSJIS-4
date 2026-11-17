@@ -1,4 +1,5 @@
 import { releaseWakeLock, requestWakeLock } from "./wakelock.js";
+import { updateViewState } from "./view-state.js";
 
 export function setupLangkahMemasak(recipe, detailScreen) {
   const stepsScreen = document.querySelector("#recipe-steps-screen");
@@ -100,6 +101,7 @@ export function setupLangkahMemasak(recipe, detailScreen) {
     detailScreen.hidden = true;
     stepsContent.scrollTop = 0;
     window.scrollTo(0, 0);
+    updateViewState({ screen: "steps" });
   };
 
   stepsBackButton.onclick = () => {
@@ -108,6 +110,7 @@ export function setupLangkahMemasak(recipe, detailScreen) {
     modeScreen.hidden = true;
     detailScreen.hidden = false;
     window.scrollTo(0, 0);
+    updateViewState({ screen: null });
   };
 
   function renderCookingStep() {
@@ -123,22 +126,26 @@ export function setupLangkahMemasak(recipe, detailScreen) {
     nextStepLabel.textContent = isLastStep ? "SELESAI" : "SELANJUTNYA";
     nextStepIcon.hidden = isLastStep;
     nextStepButton.disabled = steps.length === 0;
+    updateViewState({ screen: "cooking", step: currentStepIndex + 1 });
   }
 
   function returnToSteps() {
     void releaseWakeLock();
     modeScreen.hidden = true;
     stepsScreen.hidden = false;
+    updateViewState({ screen: "steps" });
   }
 
-  modeButton.onclick = () => {
-    currentStepIndex = 0;
+  function openCookingMode(startIndex) {
+    currentStepIndex = startIndex;
     renderCookingStep();
     stepsScreen.hidden = true;
     modeScreen.hidden = false;
     void requestWakeLock();
     window.scrollTo(0, 0);
-  };
+  }
+
+  modeButton.onclick = () => openCookingMode(0);
 
   modeBackButton.onclick = returnToSteps;
   previousStepButton.onclick = () => {
@@ -159,4 +166,20 @@ export function setupLangkahMemasak(recipe, detailScreen) {
   if (!stepsScreen.hidden) {
     renderScrollableSteps();
   }
+
+  // Dipakai SEKALI saat halaman dimuat ulang dari URL (?screen=steps / cooking&step=N).
+  // Render ulang biasa (mis. setelah like) tidak memanggil ini.
+  function restore(state) {
+    if (state?.screen !== "steps" && state?.screen !== "cooking") {
+      return;
+    }
+    detailStepsButton.onclick(); // buka daftar langkah dulu (tujuan tombol kembali)
+    if (state.screen === "cooking") {
+      const lastIndex = Math.max(0, steps.length - 1);
+      const wanted = Number.isInteger(state.step) ? state.step - 1 : 0;
+      openCookingMode(Math.min(Math.max(wanted, 0), lastIndex));
+    }
+  }
+
+  return { restore };
 }

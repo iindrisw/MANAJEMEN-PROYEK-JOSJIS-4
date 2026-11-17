@@ -6,8 +6,12 @@ import { initProfile } from "./modules/profil.js";
 import { initUbahKataSandi } from "./modules/ubah-katasandi.js";
 
 initHumberger();
-initInput();
+const input = initInput();
 initVoice();
 initHalamanSimpan();
 initProfile();
 initUbahKataSandi();
+
+// PALING AKHIR: pulihkan layar detail / langkah / mode memasak dari URL, supaya
+// halaman simpan atau profil yang dipulihkan lebih dulu tidak menimpanya.
+input.restoreFromUrl();
