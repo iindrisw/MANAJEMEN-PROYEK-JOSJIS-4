@@ -99,7 +99,7 @@
 @media (min-width: 1024px) {
   .app-shell.is-saved-view .section-label {
     left: 50%;
-    width: min(900px, calc(100% - 128px));
+    width: min(1000px, calc(100% - 64px));
     max-width: none;
     transform: translateX(-50%);
   }

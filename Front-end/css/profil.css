@@ -46,6 +46,12 @@
   width: 92px;
 }
 
+@media (min-width: 1024px) {
+  .profile-screen .brand {
+    left: clamp(14px, 2vw, 32px);
+  }
+}
+
 .profile-screen .menu-button {
   top: 36px;
 }
