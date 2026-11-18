@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Pulihkan kata sandi akun Racik Rasa.">
+  <title>Racik Rasa - Lupa Kata Sandi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/lupa-katasandi.css">
+</head>
+<body>
+  <main class="forgot-page">
+    <a class="forgot-back" href="login.html" aria-label="Kembali ke halaman masuk" title="Kembali ke halaman masuk">
+      <img src="assets/figma/detail-back.png" alt="">
+    </a>
+
+    <img class="forgot-logo" src="assets/logo-racik-rasa.png" alt="Racik Rasa">
+    <h1 class="forgot-title">LUPA KATA SANDI</h1>
+
+    <section class="reset-card" aria-label="Formulir pemulihan kata sandi">
+      <form id="forgotPasswordForm" class="reset-form" novalidate>
+        <div class="reset-field">
+          <label for="resetEmail">EMAIL</label>
+          <div class="input-wrapper">
+            <input
+              id="resetEmail"
+              name="email"
+              type="email"
+              autocomplete="email"
+              maxlength="100"
+              aria-describedby="resetEmailError"
+              required
+            >
+          </div>
+          <span class="field-error" id="resetEmailError"></span>
+        </div>
+
+        <div class="reset-field">
+          <label for="resetName">NAMA LENGKAP</label>
+          <div class="input-wrapper">
+            <input
+              id="resetName"
+              name="nama"
+              type="text"
+              autocomplete="name"
+              aria-describedby="resetNameError"
+              required
+            >
+          </div>
+          <span class="field-error" id="resetNameError"></span>
+        </div>
+
+        <div class="reset-field">
+          <label for="resetPassword">KATA SANDI BARU</label>
+          <div class="input-wrapper password-input">
+            <input
+              id="resetPassword"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              aria-describedby="resetPasswordError"
+              required
+            >
+            <button
+              class="password-toggle"
+              type="button"
+              data-password-target="resetPassword"
+              aria-label="Tampilkan kata sandi"
+              aria-pressed="false"
+            >
+              <img src="assets/figma/profile-eye.svg" alt="">
+            </button>
+          </div>
+          <span class="field-error" id="resetPasswordError"></span>
+        </div>
+
+        <div class="reset-field">
+          <label for="confirmPassword">KONFIRMASI KATA SANDI</label>
+          <div class="input-wrapper password-input">
+            <input
+              id="confirmPassword"
+              name="konfirmasi-password"
+              type="password"
+              autocomplete="new-password"
+              aria-describedby="confirmPasswordError"
+              required
+            >
+            <button
+              class="password-toggle"
+              type="button"
+              data-password-target="confirmPassword"
+              aria-label="Tampilkan kata sandi"
+              aria-pressed="false"
+            >
+              <img src="assets/figma/profile-eye.svg" alt="">
+            </button>
+          </div>
+          <span class="field-error" id="confirmPasswordError"></span>
+        </div>
+
+        <button class="reset-submit" type="submit">SIMPAN KATA SANDI BARU</button>
+        <p class="reset-status" id="resetStatus" role="status" aria-live="polite" hidden></p>
+      </form>
+    </section>
+  </main>
+
+  <script type="module" src="js/modules/lupa-katasandi.js"></script>
+</body>
+</html>

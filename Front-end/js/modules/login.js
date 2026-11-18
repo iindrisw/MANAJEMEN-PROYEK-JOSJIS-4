@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputIdentifier = document.querySelector("#loginNama");
   const inputPassword = document.querySelector("#loginSandi");
   const submitButton = document.querySelector("#btnMasuk");
-  const forgotLink = document.querySelector("#forgotPasswordLink");
   const googleBtnContainer = document.querySelector("#btnGoogleLogin");
 
   // Type guard checking untuk mencegah error jika elemen DOM tidak ditemukan
@@ -54,12 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
       icon.classList.toggle("fa-eye-slash", showPassword);
     });
   }
-
-  // Handler Lupa Kata Sandi
-  forgotLink?.addEventListener("click", (event) => {
-    event.preventDefault();
-    window.alert("Fitur lupa kata sandi belum tersedia.");
-  });
 
   // Login Form Manual (Nama/Email + Password)
   form.addEventListener("submit", async (event) => {

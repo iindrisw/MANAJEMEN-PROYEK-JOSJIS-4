@@ -201,8 +201,10 @@
   transform: translateY(1px);
 }
 
+.page-button:hover,
 .page-button.is-current {
-  background: var(--coral);
+  background: var(--white);
+  color: var(--coral);
 }
 
 .page-more {
