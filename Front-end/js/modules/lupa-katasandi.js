@@ -1,3 +1,6 @@
+const API_BASE_URL = "https://racikrasa.sanes.my.id/api";
+const LOGIN_PAGE_URL = "login.html";
+
 const EMAIL_EMOJI_PATTERN =
   /[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}\u200D\uFE0E\uFE0F\u20E3]/gu;
 
@@ -12,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const passwordInput = document.querySelector("#resetPassword");
   const confirmInput = document.querySelector("#confirmPassword");
   const status = document.querySelector("#resetStatus");
+  const submitButton = form?.querySelector('button[type="submit"]');
 
   if (
     !(form instanceof HTMLFormElement) ||
@@ -46,6 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
       error.textContent = "";
       error.classList.remove("is-long");
     }
+  }
+
+  function clearAllErrors() {
+    fields.forEach(clearError);
     updateValidationExpansion();
   }
 
@@ -60,22 +68,64 @@ document.addEventListener("DOMContentLoaded", () => {
   function clearStatus() {
     status.textContent = "";
     status.hidden = true;
+    status.classList.remove("is-success", "is-error");
+  }
+
+  function showStatus(message, type = "error") {
+    status.textContent = message;
+    status.hidden = false;
+    status.classList.remove("is-success", "is-error");
+    status.classList.add(type === "success" ? "is-success" : "is-error");
+  }
+
+  function applyBackendError(result) {
+    const message =
+      result?.message ||
+      "Data akun tidak ditemukan, silakan periksa kembali nama dan email Anda";
+    const code = result?.code;
+
+    switch (code) {
+      case "NAMA_TERLALU_PANJANG":
+        setError(nameInput, message);
+        break;
+      case "EMAIL_TIDAK_VALID":
+        setError(emailInput, message);
+        break;
+      case "PASSWORD_MENGANDUNG_SPASI":
+        setError(passwordInput, message);
+        break;
+      case "PASSWORD_TIDAK_MEMENUHI_KRITERIA":
+        setError(passwordInput, message);
+        break;
+      case "KONFIRMASI_PASSWORD_TIDAK_COCOK":
+        setError(confirmInput, message);
+        break;
+      default:
+        showStatus(message, "error");
+        return;
+    }
+
+    updateValidationExpansion();
   }
 
   fields.forEach((input) => {
     input.addEventListener("input", () => {
       clearError(input);
+      updateValidationExpansion();
       clearStatus();
     });
   });
 
   document.querySelectorAll("[data-password-target]").forEach((toggle) => {
     toggle.addEventListener("click", () => {
-      const input = document.getElementById(toggle.dataset.passwordTarget);
+      if (!(toggle instanceof HTMLElement)) return;
+      const targetId = toggle.dataset.passwordTarget;
+      const input = targetId ? document.getElementById(targetId) : null;
       if (!(input instanceof HTMLInputElement)) return;
 
       const isVisible = input.type === "text";
       input.type = isVisible ? "password" : "text";
+      toggle.classList.toggle("is-visible", !isVisible);
       toggle.setAttribute("aria-pressed", String(!isVisible));
       toggle.setAttribute(
         "aria-label",
@@ -84,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     fields.forEach(clearError);
     clearStatus();
@@ -152,8 +202,58 @@ document.addEventListener("DOMContentLoaded", () => {
     updateValidationExpansion();
     if (!isValid) return;
 
-    status.textContent =
-      "Layanan pemulihan kata sandi belum tersedia. Silakan coba lagi nanti.";
-    status.hidden = false;
+    const originalButtonText = submitButton?.textContent;
+    if (submitButton instanceof HTMLButtonElement) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Menyimpan...";
+    }
+    form.setAttribute("aria-busy", "true");
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          nama: name,
+          password_baru: password,
+          konfirmasi_password: confirmation,
+        }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok || result.status === "error") {
+        applyBackendError(result);
+        return;
+      }
+
+      clearAllErrors();
+      showStatus(
+        result.message ||
+          "Kata sandi berhasil diperbarui, silakan masuk dengan kata sandi baru",
+        "success",
+      );
+
+      window.setTimeout(() => {
+        window.location.href = LOGIN_PAGE_URL;
+      }, 1200);
+    } catch (error) {
+      console.error("Gagal memulihkan kata sandi:", error);
+      showStatus(
+        "Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
+        "error",
+      );
+    } finally {
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.disabled = false;
+        if (originalButtonText) {
+          submitButton.textContent = originalButtonText;
+        }
+      }
+      form.removeAttribute("aria-busy");
+    }
   });
 });

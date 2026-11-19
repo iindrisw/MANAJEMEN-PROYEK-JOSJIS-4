@@ -12,8 +12,8 @@ http:
       {
         "email": "indricekbruno@gmail.com",
         "nama": "indricekbruno",
-        "password_baru": "indriBaru1",
-        "konfirmasi_password": "indriBaru1"
+        "password_baru": "indriBaru2",
+        "konfirmasi_password": "indriBaru2"
       }
   auth: inherit
 
