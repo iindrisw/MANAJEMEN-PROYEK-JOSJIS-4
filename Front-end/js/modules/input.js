@@ -5,7 +5,8 @@ import { readViewState, updateViewState } from "./view-state.js";
 
 const MAX_ADDITIONAL_INGREDIENTS = 5;
 const MAX_TOTAL_INGREDIENTS = 6;
-const API_BASE_URL = "https://manajemen-proyek-josjis-4.vercel.app/api";
+const DESKTOP_API_PAGES_PER_DISPLAY_PAGE = 2;
+const API_BASE_URL = "http://127.0.0.1:5000/api";
 
 function getIngredients(value) {
   return value
@@ -521,13 +522,12 @@ export function initInput() {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
-      // Selalu kirim request ke backend seperti codingan Ayes
       const response = await fetch(`${API_BASE_URL}/recipes/${recipeId}/like`, {
         method: isLiked ? "POST" : "DELETE",
-        headers: headers,
+        headers,
       });
       const result = await response.json();
-      
+
       if (!response.ok || result.status === "error") {
         throw new Error(result.message || "Aksi resep gagal.");
       }
@@ -755,10 +755,15 @@ export function initInput() {
       } else {
         emptyState.hidden = true;
       }
+
+      const totalDisplayPages = Math.max(
+        1,
+        Math.ceil(totalApiPages / apiPagesPerDisplayPage),
+      );
       renderPagination(
         pagination,
         page,
-        result.total_halaman || 1,
+        totalDisplayPages,
         (selectedPage) => {
           void loadRecipes(currentSearch, selectedPage);
         },
@@ -980,9 +985,9 @@ export function initInput() {
 
   return {
     /**
-     * Pulihkan layar detail / langkah / mode memasak dari URL setelah refresh.
-     * Dipanggil main.js PALING AKHIR: halaman simpan atau profil yang dipulihkan
-     * lebih dulu tidak boleh menimpa layar detail yang ada di atasnya.
+- Pulihkan layar detail / langkah / mode memasak dari URL setelah refresh.
+- Dipanggil main.js PALING AKHIR: halaman simpan atau profil yang dipulihkan
+- lebih dulu tidak boleh menimpa layar detail yang ada di atasnya.
      */
     restoreFromUrl() {
       const state = readViewState();

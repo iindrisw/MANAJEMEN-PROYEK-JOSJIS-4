@@ -1,0 +1,24 @@
+info:
+  name: Lupa_kata_sandi
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://127.0.0.1:5000/api/auth/forgot-password
+  body:
+    type: json
+    data: |-
+      {
+        "email": "indricekbruno@gmail.com",
+        "nama": "indricekbruno",
+        "password_baru": "indriBaru1",
+        "konfirmasi_password": "indriBaru1"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

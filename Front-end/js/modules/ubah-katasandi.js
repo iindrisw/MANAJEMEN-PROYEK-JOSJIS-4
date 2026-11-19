@@ -128,14 +128,26 @@ export function initUbahKataSandi() {
       return;
     }
 
+    if (
+      !(passwordCurrentInput instanceof HTMLInputElement) ||
+      !(passwordNextInput instanceof HTMLInputElement) ||
+      !(passwordConfirmInput instanceof HTMLInputElement)
+    ) {
+      return;
+    }
+
     const currentPass = passwordCurrentInput.value;
     const newPass = passwordNextInput.value;
     const confirmPass = passwordConfirmInput.value;
     if (!validatePasswordInputs(currentPass, newPass, confirmPass)) return;
 
-    btnConfirmPassword.disabled = true;
-    btnConfirmPassword.textContent = "Menyimpan...";
-    passwordForm.setAttribute("aria-busy", "true");
+    if (btnConfirmPassword instanceof HTMLButtonElement) {
+      btnConfirmPassword.disabled = true;
+      btnConfirmPassword.textContent = "Menyimpan...";
+    }
+    if (passwordForm instanceof HTMLFormElement) {
+      passwordForm.setAttribute("aria-busy", "true");
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
@@ -170,17 +182,25 @@ export function initUbahKataSandi() {
       console.error("Gagal mengubah kata sandi:", error);
       showFormError(error.message || "Terjadi kesalahan saat memperbarui kata sandi.");
     } finally {
-      btnConfirmPassword.disabled = false;
-      btnConfirmPassword.textContent = "Simpan Kata Sandi";
-      passwordForm.removeAttribute("aria-busy");
+      if (btnConfirmPassword instanceof HTMLButtonElement) {
+        btnConfirmPassword.disabled = false;
+        btnConfirmPassword.textContent = "Simpan Kata Sandi";
+      }
+      if (passwordForm instanceof HTMLFormElement) {
+        passwordForm.removeAttribute("aria-busy");
+      }
     }
   }
 
   function resetForm() {
-    passwordForm.reset();
+    if (passwordForm instanceof HTMLFormElement) {
+      passwordForm.reset();
+    }
     clearAllErrors();
     document.querySelectorAll("[data-password-target]").forEach((toggle) => {
-      const input = document.getElementById(toggle.dataset.passwordTarget);
+      if (!(toggle instanceof HTMLElement)) return;
+      const targetId = toggle.dataset.passwordTarget;
+      const input = targetId ? document.getElementById(targetId) : null;
       if (input instanceof HTMLInputElement) input.type = "password";
       toggle.classList.remove("is-visible");
       toggle.setAttribute("aria-pressed", "false");
@@ -197,7 +217,9 @@ export function initUbahKataSandi() {
       }
     }
     updateViewState({ panel: "password" });
-    passwordCurrentInput.focus();
+    if (passwordCurrentInput instanceof HTMLInputElement) {
+      passwordCurrentInput.focus();
+    }
   }
 
   btnChangePassword?.addEventListener("click", () => {
@@ -232,7 +254,9 @@ export function initUbahKataSandi() {
 
   document.querySelectorAll("[data-password-target]").forEach((toggle) => {
     toggle.addEventListener("click", () => {
-      const input = document.getElementById(toggle.dataset.passwordTarget);
+      if (!(toggle instanceof HTMLElement)) return;
+      const targetId = toggle.dataset.passwordTarget;
+      const input = targetId ? document.getElementById(targetId) : null;
       if (!(input instanceof HTMLInputElement)) return;
 
       const isVisible = input.type === "text";
@@ -249,7 +273,6 @@ export function initUbahKataSandi() {
   btnSuccessOk?.addEventListener("click", () => {
     if (successModal instanceof HTMLDialogElement) successModal.close();
   });
-}
 
   // Pulihkan form ubah kata sandi setelah refresh (?view=profile&panel=password).
   // initProfile sudah memulihkan halaman profilnya lebih dulu (urutan di main.js).
