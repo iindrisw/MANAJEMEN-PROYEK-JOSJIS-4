@@ -1,6 +1,5 @@
 import { readViewState, updateViewState } from "./view-state.js";
-
-const API_BASE_URL = "https://manajemen-proyek-josjis-4-i2cyt4ojf-indri-racik-rasa.vercel.app/api";
+import { API_BASE_URL } from "./api.js";
 
 export function initProfile() {
   const appShell = document.querySelector(".app-shell");
@@ -323,7 +322,6 @@ export function initProfile() {
     window.dispatchEvent(new Event("recipe:navigate-home"));
     window.location.assign(window.location.pathname);
   });
-}
 
   // Pulihkan halaman profil setelah refresh (?view=profile). Tanpa login tidak ada
   // profil untuk ditampilkan; layar detail (?recipe=) diutamakan.

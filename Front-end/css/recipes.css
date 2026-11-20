@@ -31,18 +31,25 @@
   position: absolute;
   top: 5px;
   left: 4px;
-  display: -webkit-box;
+  display: grid;
   width: 166px;
   height: 32px;
   min-height: 32px;
   margin: 0;
   overflow: hidden;
-  font-family: var(--font-heading);
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 15px;
-  overflow-wrap: anywhere;
+  place-items: center;
   text-align: center;
+}
+
+.recipe-card h2 span {
+  display: -webkit-box;
+  width: 100%;
+  max-height: 32px;
+  overflow: hidden;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -70,7 +77,7 @@
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  max-height: 58px;
+  max-height: 65px;
   margin: 0;
   overflow: hidden;
   padding: 0;
@@ -78,7 +85,7 @@
   counter-reset: recipe-ingredient;
   font-family: var(--font-body);
   font-size: 10px;
-  line-height: 12px;
+  line-height: 13px;
   text-transform: uppercase;
 }
 
@@ -90,10 +97,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0;
+  text-transform: capitalize;
 }
 
 .recipe-meta li::before {
-  content: counter(recipe-ingredient) ".";
+  content: counter(recipe-ingredient) ". ";
 }
 
 .recipe-likes {
@@ -110,7 +118,7 @@
   padding: 0 0 0 3px;
   border-radius: 20px;
   font-family: var(--font-heading);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 500;
   line-height: 1;
 }
@@ -149,24 +157,13 @@
   white-space: nowrap;
 }
 
-.recipe-availability {
-  position: absolute;
-  top: 52px;
-  right: 10px;
-  display: grid;
-  width: 84px;
-  height: 20px;
-  place-items: center;
-  padding: 0;
-  border-radius: 10px;
-  background: var(--coral);
-  box-shadow: 0 4px 10px rgb(0 0 0 / 20%);
-  color: var(--white);
-  font-family: var(--font-body);
-  font-size: 8px;
+.recipe-grid.is-most-liked .like-count {
+  font-size: 9px;
   font-weight: 400;
-  line-height: 10px;
-  white-space: nowrap;
+}
+
+.recipe-availability {
+  display: none;
 }
 
 .pagination {
@@ -240,4 +237,33 @@
 
 .recipe-list-scrollbar[hidden] {
   display: none;
+}
+
+@media (min-width: 1024px) {
+  .recipe-card {
+    height: clamp(130px, 8vw, 150px);
+    border-radius: 16px;
+  }
+
+  .recipe-card::before {
+    top: 31px;
+    bottom: 6px;
+  }
+
+  .recipe-card h2 {
+    top: 3px;
+  }
+
+  .recipe-ingredients {
+    top: 58px;
+  }
+
+  .recipe-meta ol {
+    max-height: 68px;
+    line-height: 12px;
+  }
+
+  .recipe-likes {
+    top: 35px;
+  }
 }

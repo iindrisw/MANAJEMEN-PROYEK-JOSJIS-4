@@ -6,6 +6,9 @@ from src.utils.errors import AppError
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 MIN_PASSWORD = 8
+PASSWORD_ALNUM_RE = re.compile(r"^[A-Za-z0-9]{8,64}$")
+HAS_LETTER_RE = re.compile(r"[A-Za-z]")
+HAS_DIGIT_RE = re.compile(r"\d")
 
 SYNONYM_MAP = {
     "telor": "telur",
@@ -82,11 +85,11 @@ def _cek_jumlah_tambahan(segmen_mentah):
 def validasi_pencarian_bahan(q, utama, tambahan):
     """Aturan input pencarian kombinasi.
 
-    - Bahan utama WAJIB tepat 1 dan TIDAK BOLEH mengandung koma (koma = mau menambah bahan).
-    - Bahan tambahan maksimal Settings.MAX_BAHAN_TAMBAHAN (5); koma ke-6 langsung ditolak.
+- Bahan utama WAJIB tepat 1 dan TIDAK BOLEH mengandung koma (koma = mau menambah bahan).
+- Bahan tambahan maksimal Settings.MAX_BAHAN_TAMBAHAN (5); koma ke-6 langsung ditolak.
     Dua cara kirim:
-      * `utama=ayam&tambahan=kacang,bawang`  (disarankan; aturan koma di kolom utama berlaku penuh)
-      * `q=ayam,kacang,bawang`  (format lama: item pertama = bahan utama)
+- `utama=ayam&tambahan=kacang,bawang`  (disarankan; aturan koma di kolom utama berlaku penuh)
+- `q=ayam,kacang,bawang`  (format lama: item pertama = bahan utama)
     Mengembalikan (bahan_utama, [bahan_tambahan]) yang sudah dinormalisasi & tanpa duplikat.
     """
     if utama is not None and utama.strip():
@@ -158,3 +161,60 @@ def validasi_google(data):
     if not token:
         raise AppError("id_token Google wajib dikirim.", 400)
     return token
+
+
+def validasi_lupa_password(data):
+    """Validasi input lupa kata sandi sesuai skenario 27c."""
+    data = data or {}
+    raw_email = data.get("email")
+    raw_nama = data.get("nama") if "nama" in data else data.get("nama_lengkap")
+    password_baru = data.get("password_baru")
+    konfirmasi_password = data.get("konfirmasi_password")
+
+    if (
+        not isinstance(raw_email, str) or not raw_email.strip()
+        or not isinstance(raw_nama, str) or not raw_nama.strip()
+        or not isinstance(password_baru, str) or not password_baru
+        or not isinstance(konfirmasi_password, str) or not konfirmasi_password
+    ):
+        raise AppError("Kolom ini wajib diisi", 400, code="KOLOM_WAJIB_DIISI")
+
+    nama = raw_nama.strip()
+    email = raw_email.strip().lower()
+
+    if len(nama) > 64:
+        raise AppError("Nama Lengkap maksimal 64 karakter", 400, code="NAMA_TERLALU_PANJANG")
+
+    if not EMAIL_RE.match(email) or len(email) > 100:
+        raise AppError(
+            "Format email tidak sesuai (contoh: madinatul@gmail.com)",
+            400,
+            code="EMAIL_TIDAK_VALID",
+        )
+
+    if " " in password_baru or " " in konfirmasi_password:
+        raise AppError(
+            "Kata sandi tidak boleh mengandung spasi",
+            400,
+            code="PASSWORD_MENGANDUNG_SPASI",
+        )
+
+    if (
+        not PASSWORD_ALNUM_RE.match(password_baru)
+        or not HAS_LETTER_RE.search(password_baru)
+        or not HAS_DIGIT_RE.search(password_baru)
+    ):
+        raise AppError(
+            "Kata sandi harus terdiri dari 8 hingga 64 karakter dan hanya mengandung kombinasi huruf dan angka",
+            400,
+            code="PASSWORD_TIDAK_MEMENUHI_KRITERIA",
+        )
+
+    if password_baru != konfirmasi_password:
+        raise AppError(
+            "Konfirmasi kata sandi tidak cocok, silakan periksa kembali",
+            400,
+            code="KONFIRMASI_PASSWORD_TIDAK_COCOK",
+        )
+
+    return email, nama, password_baru

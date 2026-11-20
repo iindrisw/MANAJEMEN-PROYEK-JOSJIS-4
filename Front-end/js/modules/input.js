@@ -2,10 +2,11 @@ import { createRecipeCard, renderPagination } from "./recipe-view.js";
 import { renderRecipeDetail } from "./recipe-detail.js";
 import { initFilters } from "./filters.js";
 import { readViewState, updateViewState } from "./view-state.js";
+import { API_BASE_URL } from "./api.js";
 
 const MAX_ADDITIONAL_INGREDIENTS = 5;
 const MAX_TOTAL_INGREDIENTS = 6;
-const API_BASE_URL = "https://manajemen-proyek-josjis-4.vercel.app/api";
+const DESKTOP_API_PAGES_PER_DISPLAY_PAGE = 4;
 
 function getIngredients(value) {
   return value
@@ -656,6 +657,7 @@ export function initInput() {
     const requestId = ++latestRequestId;
     currentSearch = search;
     currentPage = page;
+    recipeGrid.classList.toggle("is-most-liked", !search);
     emptyState.textContent = "Memuat resep...";
     emptyState.hidden = false;
     recipeGrid.replaceChildren();
@@ -758,7 +760,7 @@ export function initInput() {
       renderPagination(
         pagination,
         page,
-        result.total_halaman || 1,
+        Math.ceil(totalApiPages / apiPagesPerDisplayPage),
         (selectedPage) => {
           void loadRecipes(currentSearch, selectedPage);
         },

@@ -2,7 +2,12 @@
 from flask import Blueprint, g, request
 
 from src.middlewares.auth_middleware import login_required
-from src.schemas.validation import validasi_google, validasi_login, validasi_register
+from src.schemas.validation import (
+    validasi_google,
+    validasi_login,
+    validasi_lupa_password,
+    validasi_register,
+)
 from src.services import auth_service
 from src.utils.helpers import success_response
 
@@ -26,6 +31,13 @@ def login_google():
     """FE kirim { "id_token": "<credential dari Google Identity Services>" }."""
     token = validasi_google(request.get_json(silent=True))
     return success_response(auth_service.login_google(token))
+
+
+@auth_bp.post("/forgot-password")
+def forgot_password():
+    """FE kirim { email, nama, password_baru, konfirmasi_password }."""
+    email, nama, password_baru = validasi_lupa_password(request.get_json(silent=True))
+    return success_response(auth_service.lupa_password(email, nama, password_baru))
 
 
 @auth_bp.get("/me")
