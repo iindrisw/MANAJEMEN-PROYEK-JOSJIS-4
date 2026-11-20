@@ -22,7 +22,9 @@ export function createRecipeCard(
 
   // 1. Judul Resep
   const title = document.createElement("h2");
-  title.textContent = name;
+  const titleText = document.createElement("span");
+  titleText.textContent = name;
+  title.append(titleText);
 
   // 2. Container Meta (Bahan, Like, Badge Ketersediaan)
   const meta = document.createElement("div");
@@ -32,9 +34,7 @@ export function createRecipeCard(
   const ingredientSection = document.createElement("div");
   ingredientSection.className = "recipe-ingredients";
   const ingredientList = document.createElement("ol");
-  const mainIngredients = ingredients
-    .filter((ingredient) => ingredient.is_bumbu_dasar !== true)
-    .slice(0, 5);
+  const mainIngredients = ingredients.slice(0, 5);
 
   for (const ingredient of mainIngredients) {
     const item = document.createElement("li");
@@ -66,31 +66,39 @@ export function createRecipeCard(
   // Masukkan bahan dan likes ke meta secara berurutan sekali saja
   meta.append(ingredientSection, likes);
 
-  // Badge ketersediaan bahan (jika ada hasil pencarian kombinasi)
-  if (
-    Array.isArray(recipe.bahan_cocok) &&
-    Number.isInteger(searchedIngredientCount) &&
-    searchedIngredientCount > 0 &&
-    Number.isInteger(maxIngredientCount) &&
-    maxIngredientCount > 0
-  ) {
-    const matchedIngredients = recipe.bahan_cocok.length;
-
-    const availabilityBadge = document.createElement("span");
-    availabilityBadge.className = "recipe-availability";
-    availabilityBadge.textContent = `${matchedIngredients}/${maxIngredientCount} Bahan Tersedia`;
-    meta.append(availabilityBadge);
-  }
-
   card.append(title, meta);
   return card;
 }
 
-export function renderPagination(container, page, totalPages, onPageSelect) {
+export function renderPagination(
+  container,
+  page,
+  totalPages,
+  onPageSelect,
+  maxPageNumber,
+) {
   container.replaceChildren();
-  container.hidden = totalPages <= 1;
-  container.hidden = false;
   totalPages = Math.max(1, Number(totalPages) || 1);
+  container.hidden = totalPages <= 1;
+
+  if (Number.isInteger(maxPageNumber) && maxPageNumber > 0) {
+    const lastPage = Math.min(totalPages, maxPageNumber);
+    for (let pageNumber = 1; pageNumber <= lastPage; pageNumber += 1) {
+      const button = document.createElement("button");
+      button.className = "page-button";
+      button.type = "button";
+      button.textContent = String(pageNumber);
+      if (pageNumber === page) {
+        button.classList.add("is-current");
+        button.setAttribute("aria-current", "page");
+      }
+      button.addEventListener("click", () => {
+        onPageSelect(pageNumber);
+      });
+      container.append(button);
+    }
+    return;
+  }
 
   const visiblePageCount = 5;
   const firstPage = Math.max(
@@ -98,13 +106,6 @@ export function renderPagination(container, page, totalPages, onPageSelect) {
     Math.min(page - Math.floor(visiblePageCount / 2), totalPages - visiblePageCount + 1),
   );
   const lastPage = Math.min(totalPages, firstPage + visiblePageCount - 1);
-
-  if (firstPage > 1) {
-    const more = document.createElement("span");
-    more.className = "page-more";
-    more.textContent = "...";
-    container.append(more);
-  }
 
   for (let pageNumber = firstPage; pageNumber <= lastPage; pageNumber += 1) {
     const button = document.createElement("button");
@@ -119,12 +120,5 @@ export function renderPagination(container, page, totalPages, onPageSelect) {
       onPageSelect(pageNumber);
     });
     container.append(button);
-  }
-
-  if (lastPage < totalPages) {
-    const more = document.createElement("span");
-    more.className = "page-more";
-    more.textContent = "...";
-    container.append(more);
   }
 }

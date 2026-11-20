@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://127.0.0.1:5000/api";
+import { API_BASE_URL } from "./api.js";
 const GOOGLE_CLIENT_ID = "105928934373-ai6hsqd7o7h985it0v6ngja0f62qs1aa.apps.googleusercontent.com";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputIdentifier = document.querySelector("#loginNama");
   const inputPassword = document.querySelector("#loginSandi");
   const submitButton = document.querySelector("#btnMasuk");
-  const forgotLink = document.querySelector("#forgotPasswordLink");
   const googleBtnContainer = document.querySelector("#btnGoogleLogin");
 
   // Type guard checking untuk mencegah error jika elemen DOM tidak ditemukan
@@ -55,12 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Handler Lupa Kata Sandi
-  forgotLink?.addEventListener("click", (event) => {
-    event.preventDefault();
-    window.alert("Fitur lupa kata sandi belum tersedia.");
-  });
-
   // Login Form Manual (Nama/Email + Password)
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -70,11 +63,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let isValid = true;
 
     if (!identifier) {
-      setError(inputIdentifier, "Nama atau email wajib diisi.");
+      setError(inputIdentifier, "Kolom ini wajib diisi");
       isValid = false;
     }
     if (!password) {
-      setError(inputPassword, "Kata sandi wajib diisi.");
+      setError(inputPassword, "Kolom ini wajib diisi");
       isValid = false;
     }
     if (!isValid) return;
@@ -94,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Respons server tidak valid. Silakan coba lagi.");
       }
       if (!response.ok || result.status !== "success") {
-        throw new Error(result.message || "Nama/email atau kata sandi salah.");
+        throw new Error(result.message || "Email atau kata sandi salah, silakan periksa kembali.");
       }
 
       const token = result.data?.token || result.token;
@@ -175,6 +168,12 @@ async function handleGoogleCredentialResponse(googleResponse) {
     window.location.assign("index.html");
   } catch (error) {
     console.error("Login Google gagal:", error);
-    alert(error.message || "Gagal masuk menggunakan akun Google.");
+    const notification = document.querySelector("#google-auth-error");
+    if (!(notification instanceof HTMLElement)) {
+      console.error("Notifikasi gagal Google tidak ditemukan.");
+      return;
+    }
+
+    notification.hidden = false;
   }
 }

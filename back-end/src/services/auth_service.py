@@ -1,6 +1,4 @@
 """Register, login nama/email+password, login Google, kelola profil, dan kata sandi."""
-import secrets
-
 from sqlalchemy import text
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -105,6 +103,42 @@ def login_google(id_token_str):
                 """), {"n": nama, "e": email, "g": google_id, "a": avatar})
             row = _cari_by_email(conn, email)
     return _hasil_login(row)
+
+
+def lupa_password(email, nama, password_baru):
+    """Verifikasi kecocokan email dan nama lalu perbarui hash kata sandi pengguna."""
+    with get_engine().begin() as conn:
+        candidates = conn.execute(
+            text(f"""
+                SELECT {_KOLOM} FROM {T_USER}
+                WHERE LOWER(email) = :e AND LOWER(TRIM(nama)) = LOWER(TRIM(:n))
+            """),
+            {"e": email, "n": nama},
+        ).mappings().all()
+
+        if len(candidates) != 1:
+            raise AppError(
+                "Data akun tidak ditemukan, silakan periksa kembali nama dan email Anda",
+                404,
+                code="AKUN_TIDAK_DITEMUKAN",
+            )
+
+        user = candidates[0]
+        if not user["password"]:
+            raise AppError(
+                "Akun ini terdaftar lewat Google. Silakan masuk dengan Google.",
+                400,
+                code="AKUN_GOOGLE",
+            )
+
+        conn.execute(
+            text(f"UPDATE {T_USER} SET password = :p WHERE id_user = :i"),
+            {"p": generate_password_hash(password_baru), "i": user["id_user"]},
+        )
+
+    return {
+        "message": "Kata sandi berhasil diperbarui, silakan masuk dengan kata sandi baru"
+    }
 
 
 def ambil_user(id_user):

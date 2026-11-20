@@ -9,7 +9,8 @@ from src.services import interaction_service, recipe_service
 from src.utils.helpers import success_response
 
 recipe_bp = Blueprint("recipes", __name__, url_prefix="/api/recipes")
-legacy_bp = Blueprint("legacy", __name__, url_prefix="/api")  # path lama yang dipakai FE
+legacy_bp = Blueprint("legacy", __name__, url_prefix="/api")
+  # path lama yang dipakai FE
 
 
 # ---------- handler bersama (dipakai route baru & route lama) ----------
@@ -107,6 +108,8 @@ def search_bookmarks():
     
     return success_response({"data": hasil})
 
+
+# ---------- route lama / legacy: /api/... (dipakai frontend saat ini) ----------
 
 
 legacy_bp.get("/most-liked")(optional_auth(_terpopuler))

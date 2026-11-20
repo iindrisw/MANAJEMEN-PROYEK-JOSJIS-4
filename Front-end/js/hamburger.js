@@ -1,7 +1,8 @@
 export function initHumberger() {
-  const menuButtons = document.querySelectorAll("#menu-button");
+  const menuButtons = document.querySelectorAll(".menu-button");
   const navigation = document.querySelector("#bottom-nav");
   const drawerBackdrop = document.querySelector("#drawer-backdrop");
+  const signupLink = navigation?.querySelector(".drawer-signup");
   const brandLinks = document.querySelectorAll("[data-home-link]");
   const bookmarkUnavailableDialog = document.querySelector(
     "#bookmark-unavailable-dialog",
@@ -11,11 +12,59 @@ export function initHumberger() {
     menuButtons.length === 0 ||
     !(navigation instanceof HTMLElement) ||
     !(drawerBackdrop instanceof HTMLButtonElement) ||
+    !(signupLink instanceof HTMLAnchorElement) ||
     brandLinks.length === 0 ||
     !(bookmarkUnavailableDialog instanceof HTMLDialogElement)
   ) {
     throw new Error("Elemen navigasi tidak ditemukan.");
   }
+
+  function getStoredUserName() {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      return "";
+    }
+
+    try {
+      const user = JSON.parse(storedUser);
+      if (!user || typeof user !== "object" || Array.isArray(user)) {
+        return "";
+      }
+
+      for (const name of [user.nama, user.nama_lengkap, user.name]) {
+        if (typeof name === "string" && name.trim()) {
+          return name.trim();
+        }
+      }
+    } catch (error) {
+      console.error("Data pengguna tersimpan tidak valid:", error);
+    }
+
+    return "";
+  }
+
+  function updateSignupLink() {
+    if (!localStorage.getItem("token")) {
+      signupLink.href = "register.html";
+      signupLink.textContent = "Daftar atau Masuk";
+      signupLink.dataset.navAction = "signup";
+      return;
+    }
+
+    const name = getStoredUserName();
+    signupLink.href = "#";
+    signupLink.textContent = name ? `Halo ${name}` : "Halo";
+    signupLink.dataset.navAction = "profile";
+  }
+
+  updateSignupLink();
+  window.addEventListener("storage", (event) => {
+    if (event.key === "token" || event.key === "user" || event.key === null) {
+      updateSignupLink();
+    }
+  });
+  window.addEventListener("pageshow", updateSignupLink);
+  window.addEventListener("recipe:profile-updated", updateSignupLink);
 
   function getActiveMenuButton() {
     // Cari tombol menu yang sedang terlihat/tidak tersembunyi di layar aktif
@@ -99,20 +148,50 @@ export function initHumberger() {
       return;
     }
 
+    const action = link.dataset.navAction;
+    const isGuest = !localStorage.getItem("token");
+    if (action === "signup" && isGuest) {
+      event.preventDefault();
+      setNavigationOpen(false);
+      window.location.assign(link.href);
+      return;
+    }
+
     event.preventDefault();
+
+    if (isGuest && (action === "bookmark" || action === "profile")) {
+      setActiveNavigation(action === "bookmark" ? "bookmark" : "home");
+      window.dispatchEvent(
+        new Event(
+          action === "bookmark"
+            ? "recipe:navigate-saved"
+            : "recipe:navigate-profile",
+        ),
+      );
+      return;
+    }
+
     setNavigationOpen(false);
     const currentMenuButton = getActiveMenuButton();
     currentMenuButton.focus();
 
-    if (link.dataset.navAction === "home") {
+    if (action === "home") {
       window.location.assign(window.location.pathname);
-    } else if (link.dataset.navAction === "bookmark") {
+    } else if (action === "bookmark") {
       setActiveNavigation("bookmark");
       window.dispatchEvent(new Event("recipe:navigate-saved"));
-    } else if (link.dataset.navAction === "profile") {
+    } else if (action === "profile") {
       setActiveNavigation("profile");
       window.dispatchEvent(new Event("recipe:navigate-profile"));
     }
+  });
+
+  // Halaman simpan / profil dipulihkan setelah refresh -> sorot menunya di drawer.
+  window.addEventListener("recipe:saved-view-restored", () => {
+    setActiveNavigation("bookmark");
+  });
+  window.addEventListener("recipe:profile-view-restored", () => {
+    setActiveNavigation("profile");
   });
 
   window.addEventListener("recipe:login-request", () => {
@@ -121,16 +200,12 @@ export function initHumberger() {
   });
 
   window.addEventListener("recipe:login-success", () => {
+    updateSignupLink();
     setActiveNavigation("home");
     window.dispatchEvent(new Event("recipe:navigate-home"));
   });
 
   window.addEventListener("recipe:saved-auth-required", () => {
-    const savedScreen = document.querySelector("#view-saved");
-    if (!(savedScreen instanceof HTMLElement) || savedScreen.hidden) {
-      setActiveNavigation("home");
-    }
-
     window.dispatchEvent(new Event("recipe:auth-required"));
   });
 

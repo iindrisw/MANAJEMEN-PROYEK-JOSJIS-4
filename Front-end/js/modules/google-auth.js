@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://127.0.0.1:5000/api";
+import { API_BASE_URL } from "./api.js";
 const GOOGLE_CLIENT_ID = "ISI_CLIENT_ID_KAMU.apps.googleusercontent.com";
 const PESAN_GAGAL = "Gagal terhubung dengan Google, silakan coba beberapa saat lagi";
 

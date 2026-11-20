@@ -1,10 +1,12 @@
 import { createRecipeCard, renderPagination } from "./recipe-view.js";
 import { renderRecipeDetail } from "./recipe-detail.js";
 import { initFilters } from "./filters.js";
+import { readViewState, updateViewState } from "./view-state.js";
+import { API_BASE_URL } from "./api.js";
 
 const MAX_ADDITIONAL_INGREDIENTS = 5;
 const MAX_TOTAL_INGREDIENTS = 6;
-const API_BASE_URL = "http://127.0.0.1:5000/api";
+const DESKTOP_API_PAGES_PER_DISPLAY_PAGE = 4;
 
 function getIngredients(value) {
   return value
@@ -30,10 +32,124 @@ async function fetchRecipes(endpoint, params = {}) {
   return result;
 }
 
+function setupRecipeListScrollbar(scrollbar) {
+  const scrollArea = document.scrollingElement;
+  if (!scrollArea) {
+    throw new Error("Area gulir daftar resep tidak ditemukan.");
+  }
+
+  const thumbStart = Number.parseFloat(getComputedStyle(scrollbar).top);
+  if (!Number.isFinite(thumbStart)) {
+    throw new Error("Posisi scrollbar daftar resep tidak valid.");
+  }
+
+  let dragStartY = 0;
+  let dragStartScrollTop = 0;
+  let isDragging = false;
+
+  function updateThumb() {
+    const viewportHeight = window.innerHeight;
+    const scrollRange = scrollArea.scrollHeight - viewportHeight;
+    const trackHeight = Math.max(0, viewportHeight - thumbStart);
+
+    if (scrollRange <= 0 || trackHeight <= 0) {
+      scrollbar.hidden = true;
+      return;
+    }
+
+    const thumbHeight = Math.min(
+      trackHeight,
+      Math.max(24, (trackHeight * viewportHeight) / scrollArea.scrollHeight),
+    );
+    const thumbTravel = trackHeight - thumbHeight;
+    const scrollProgress = window.scrollY / scrollRange;
+
+    scrollbar.hidden = false;
+    scrollbar.style.top = `${thumbStart + thumbTravel * scrollProgress}px`;
+    scrollbar.style.height = `${thumbHeight}px`;
+    scrollbar.setAttribute("aria-valuenow", String(Math.round(scrollProgress * 100)));
+  }
+
+  function moveThumb(event) {
+    if (!isDragging) {
+      return;
+    }
+
+    const viewportHeight = window.innerHeight;
+    const scrollRange = scrollArea.scrollHeight - viewportHeight;
+    const trackHeight = Math.max(0, viewportHeight - thumbStart);
+    const thumbTravel = Math.max(0, trackHeight - scrollbar.offsetHeight);
+
+    if (scrollRange <= 0 || thumbTravel <= 0) {
+      return;
+    }
+
+    window.scrollTo(
+      0,
+      dragStartScrollTop +
+        ((event.clientY - dragStartY) / thumbTravel) * scrollRange,
+    );
+  }
+
+  function finishDragging() {
+    isDragging = false;
+  }
+
+  window.addEventListener("scroll", updateThumb, { passive: true });
+  window.addEventListener("resize", updateThumb);
+  scrollbar.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || scrollbar.hidden) {
+      return;
+    }
+
+    event.preventDefault();
+    isDragging = true;
+    dragStartY = event.clientY;
+    dragStartScrollTop = window.scrollY;
+    scrollbar.setPointerCapture(event.pointerId);
+  });
+  scrollbar.addEventListener("pointermove", moveThumb);
+  scrollbar.addEventListener("pointerup", finishDragging);
+  scrollbar.addEventListener("pointercancel", finishDragging);
+  scrollbar.addEventListener("keydown", (event) => {
+    const pageStep = Math.max(24, window.innerHeight * 0.9);
+    const lineStep = 32;
+
+    switch (event.key) {
+      case "ArrowUp":
+        window.scrollBy(0, -lineStep);
+        break;
+      case "ArrowDown":
+        window.scrollBy(0, lineStep);
+        break;
+      case "PageUp":
+        window.scrollBy(0, -pageStep);
+        break;
+      case "PageDown":
+        window.scrollBy(0, pageStep);
+        break;
+      case "Home":
+        window.scrollTo(0, 0);
+        break;
+      case "End":
+        window.scrollTo(0, scrollArea.scrollHeight);
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+  });
+
+  updateThumb();
+  return updateThumb;
+}
+
 export function initInput() {
   const recipeSearchForm = document.querySelector("#recipe-search");
   const ingredientSearchForm = document.querySelector("#ingredient-search");
   const recipeGrid = document.querySelector("#recipe-grid");
+  const recipeListScrollbar = document.querySelector(".recipe-list-scrollbar");
   const searchPanel = document.querySelector(".search-panel");
   const recipeContent = document.querySelector(".recipe-content");
   const detailScreen = document.querySelector("#recipe-detail");
@@ -74,6 +190,7 @@ export function initInput() {
     !(recipeSearchForm instanceof HTMLFormElement) ||
     !(ingredientSearchForm instanceof HTMLFormElement) ||
     !(recipeGrid instanceof HTMLElement) ||
+    !(recipeListScrollbar instanceof HTMLImageElement) ||
     !(searchPanel instanceof HTMLElement) ||
     !(recipeContent instanceof HTMLElement) ||
     !(detailScreen instanceof HTMLElement) ||
@@ -103,6 +220,8 @@ export function initInput() {
     throw new Error("Elemen pencarian atau dialog validasi tidak ditemukan.");
   }
 
+  const updateRecipeListScrollbar = setupRecipeListScrollbar(recipeListScrollbar);
+
   const mainIngredientInput = ingredientSearchForm.elements.namedItem("bahan-utama");
   const additionalIngredientsInput =
     ingredientSearchForm.elements.namedItem("bahan-tambahan");
@@ -117,6 +236,12 @@ export function initInput() {
   }
 
   let currentSearch = null;
+  const desktopRecipeMedia = window.matchMedia("(min-width: 1024px)");
+  let currentPage = 1;
+  let totalApiPages = 1;
+  let apiPagesPerDisplayPage = desktopRecipeMedia.matches
+    ? DESKTOP_API_PAGES_PER_DISPLAY_PAGE
+    : 1;
   let submittedSearchValues = null;
   let latestRequestId = 0;
   let latestDetailRequestId = 0;
@@ -229,7 +354,17 @@ export function initInput() {
     detailFeedback.hidden = !message;
   }
 
+  function isConnectionAvailable() {
+    if (navigator.onLine) {
+      return true;
+    }
+
+    setDetailFeedback("Tidak ada koneksi internet. Coba lagi saat terhubung.");
+    return false;
+  }
+
   function closeRecipeDetail() {
+    updateViewState({ recipe: null }); // screen & step ikut terhapus
     const shouldRefreshMostLiked = currentSearch === null && !isSavedViewActive;
     latestDetailRequestId += 1;
     detailScreen.hidden = true;
@@ -254,6 +389,7 @@ export function initInput() {
   }
 
   window.addEventListener("recipe:navigate-home", () => {
+    updateViewState({ view: null, recipe: null });
     isSavedViewActive = false;
     const stepsScreen = document.querySelector("#recipe-steps-screen");
     const cookingModeScreen = document.querySelector("#cooking-mode-screen");
@@ -269,6 +405,12 @@ export function initInput() {
   });
 
   window.addEventListener("recipe:navigate-saved", () => {
+    // Tamu hanya mendapat dialog login dan tampilan tidak berpindah, jadi jangan
+    // ditandai "sedang di halaman simpan" (sebelumnya membuat daftar resep
+    // beranda tersembunyi setelah detail ditutup).
+    if (!localStorage.getItem("token")) {
+      return;
+    }
     isSavedViewActive = true;
     currentSearch = null;
     const stepsScreen = document.querySelector("#recipe-steps-screen");
@@ -294,18 +436,23 @@ export function initInput() {
     void openRecipeDetail(card);
   });
 
-  async function openRecipeDetail(card) {
+  async function openRecipeDetail(card, { restore = null } = {}) {
     const recipeId = card.dataset.recipeId;
     if (!recipeId || !/^\d+$/.test(recipeId)) {
       setDetailFeedback("ID resep tidak valid.");
       return;
     }
 
+    // Simpan di URL supaya refresh tetap di layar ini. Saat dipulihkan dari URL,
+    // jangan hapus screen/step (itu yang akan dipulihkan setelah detail termuat).
+    updateViewState(restore ? { recipe: recipeId } : { recipe: recipeId, screen: null });
+
     const requestId = ++latestDetailRequestId;
     previousScrollPosition = window.scrollY;
     searchPanel.hidden = true;
     recipeContent.hidden = true;
     detailScreen.hidden = false;
+    detailScreen.scrollTop = 0;
     detailTitle.textContent = "Memuat resep...";
     activeRecipe = null;
     activeAvailableIngredients = [];
@@ -342,7 +489,7 @@ export function initInput() {
 
       activeRecipe = recipe;
       activeAvailableIngredients = availableIngredients;
-      renderRecipeDetail(recipe, activeAvailableIngredients);
+      renderRecipeDetail(recipe, activeAvailableIngredients, restore);
     } catch (error) {
       if (requestId !== latestDetailRequestId) {
         return;
@@ -357,6 +504,9 @@ export function initInput() {
     if (!activeRecipe || isLikeSubmitting) {
       return;
     }
+    if (!isConnectionAvailable()) {
+      return;
+    }
 
     isLikeSubmitting = true;
     const previousRecipe = activeRecipe;
@@ -365,23 +515,6 @@ export function initInput() {
     const isLiked = !wasLiked;
     const recipeId = String(previousRecipe.id_resep);
     const guestLikeKey = `anonymous-recipe-like-${recipeId}`;
-
-    // Update state lokal lebih dulu (Optimistic UI)
-    activeRecipe = {
-      ...previousRecipe,
-      sudah_like: isLiked,
-      jumlah_like: Math.max(
-        0,
-        (Number(previousRecipe.jumlah_like) || 0) + (isLiked ? 1 : -1),
-      ),
-    };
-
-    if (!token) {
-      localStorage.setItem(guestLikeKey, String(isLiked));
-    }
-    
-    renderRecipeDetail(activeRecipe, activeAvailableIngredients);
-    updateRecipeCardLikeCount(activeRecipe);
 
     try {
       const headers = {};
@@ -401,20 +534,16 @@ export function initInput() {
       }
 
       activeRecipe = {
-        ...activeRecipe,
+        ...previousRecipe,
         sudah_like: result.sudah_like === true,
         jumlah_like: Number(result.jumlah_like) || 0,
       };
-      renderRecipeDetail(activeRecipe, activeAvailableIngredients);
-      updateRecipeCardLikeCount(activeRecipe);
-    } catch (error) {
-      // Kembalikan state jika fetch gagal
-      activeRecipe = previousRecipe;
       if (!token) {
-        localStorage.setItem(guestLikeKey, String(previousRecipe.sudah_like));
+        localStorage.setItem(guestLikeKey, String(activeRecipe.sudah_like));
       }
       renderRecipeDetail(activeRecipe, activeAvailableIngredients);
       updateRecipeCardLikeCount(activeRecipe);
+    } catch (error) {
       setDetailFeedback(error.message);
     } finally {
       isLikeSubmitting = false;
@@ -430,6 +559,9 @@ export function initInput() {
     const token = localStorage.getItem("token");
     if (!token) {
       window.dispatchEvent(new Event("recipe:saved-auth-required"));
+      return;
+    }
+    if (!isConnectionAvailable()) {
       return;
     }
 
@@ -524,17 +656,19 @@ export function initInput() {
   async function loadRecipes(search, page = 1) {
     const requestId = ++latestRequestId;
     currentSearch = search;
+    currentPage = page;
+    recipeGrid.classList.toggle("is-most-liked", !search);
     emptyState.textContent = "Memuat resep...";
     emptyState.hidden = false;
     recipeGrid.replaceChildren();
     recipeGrid.style.opacity = "0";
     pagination.replaceChildren();
     pagination.hidden = true;
+    updateRecipeListScrollbar();
 
     try {
-      let result;
       const selectedFilters = filters.getSelectedFilters();
-      const params = { page: String(page) };
+      const params = {};
       if (search) {
         params.q = search.query;
       }
@@ -542,20 +676,47 @@ export function initInput() {
         params.filters = selectedFilters.join(",");
       }
 
-      if (!search) {
-        result = await fetchRecipes("most-liked", params);
-      } else {
-        result = await fetchRecipes(
-          search.type === "ingredients" ? "search-bahan" : "search-resep",
-          params,
-        );
+      const endpoint = !search
+        ? "most-liked"
+        : search.type === "ingredients"
+          ? "search-bahan"
+          : "search-resep";
+      const firstApiPage = (page - 1) * apiPagesPerDisplayPage + 1;
+      const firstResult = await fetchRecipes(endpoint, {
+        ...params,
+        page: String(firstApiPage),
+      });
+      if (requestId !== latestRequestId) {
+        return;
       }
+
+      const nextTotalApiPages = Math.max(
+        1,
+        Number(firstResult.total_halaman) || 1,
+      );
+      const lastApiPage = Math.min(
+        firstApiPage + apiPagesPerDisplayPage - 1,
+        nextTotalApiPages,
+      );
+      const remainingPages = await Promise.all(
+        Array.from(
+          { length: Math.max(0, lastApiPage - firstApiPage) },
+          (_, index) =>
+            fetchRecipes(endpoint, {
+              ...params,
+              page: String(firstApiPage + index + 1),
+            }),
+        ),
+      );
 
       if (requestId !== latestRequestId) {
         return;
       }
 
-      const recipes = Array.isArray(result.data) ? result.data : [];
+      totalApiPages = nextTotalApiPages;
+      const recipes = [firstResult, ...remainingPages].flatMap(
+        (pageResult) => (Array.isArray(pageResult.data) ? pageResult.data : []),
+      );
       const visibleRecipes = localStorage.getItem("token")
         ? recipes
         : recipes.map(applyAnonymousLikeState);
@@ -596,9 +757,15 @@ export function initInput() {
       } else {
         emptyState.hidden = true;
       }
-      renderPagination(pagination, page, result.total_halaman || 1, (selectedPage) => {
-        void loadRecipes(currentSearch, selectedPage);
-      });
+      renderPagination(
+        pagination,
+        page,
+        Math.ceil(totalApiPages / apiPagesPerDisplayPage),
+        (selectedPage) => {
+          void loadRecipes(currentSearch, selectedPage);
+        },
+        search ? undefined : 5,
+      );
     } catch (error) {
       if (requestId !== latestRequestId) {
         return;
@@ -607,6 +774,7 @@ export function initInput() {
       emptyState.textContent = "Resep tidak dapat dimuat.";
       emptyState.hidden = false;
       recipeGrid.style.opacity = "";
+      updateRecipeListScrollbar();
       showValidationDialog(
         `Gagal mengambil resep dari server. ${error.message}`,
       );
@@ -758,6 +926,9 @@ export function initInput() {
   detailLikeButton.addEventListener("click", () => {
     void handleLikeAction();
   });
+  stepsLikeButton.addEventListener("click", () => {
+    void handleLikeAction();
+  });
   detailBookmarkButton.addEventListener("click", () => {
     void handleBookmarkAction();
   });
@@ -788,13 +959,54 @@ export function initInput() {
     void loadRecipes(currentSearch);
   });
 
+  desktopRecipeMedia.addEventListener("change", () => {
+    const nextPagesPerDisplayPage = desktopRecipeMedia.matches
+      ? DESKTOP_API_PAGES_PER_DISPLAY_PAGE
+      : 1;
+    if (nextPagesPerDisplayPage === apiPagesPerDisplayPage) {
+      return;
+    }
+
+    apiPagesPerDisplayPage = nextPagesPerDisplayPage;
+    currentPage = Math.min(
+      currentPage,
+      Math.max(1, Math.ceil(totalApiPages / apiPagesPerDisplayPage)),
+    );
+    if (!isSavedViewActive) {
+      void loadRecipes(currentSearch, currentPage);
+    }
+  });
+
   updateFilterButtonState();
   void loadRecipes(null);
-  const recipeIdFromLogin = new URLSearchParams(window.location.search).get("recipe");
-  if (recipeIdFromLogin && /^\d+$/.test(recipeIdFromLogin)) {
-    history.replaceState(null, "", window.location.pathname);
-    const recipeCard = document.createElement("article");
-    recipeCard.dataset.recipeId = recipeIdFromLogin;
-    void openRecipeDetail(recipeCard);
-  }
+
+  return {
+    /**
+     * Pulihkan layar detail / langkah / mode memasak dari URL setelah refresh.
+     * Dipanggil main.js PALING AKHIR: halaman simpan atau profil yang dipulihkan
+     * lebih dulu tidak boleh menimpa layar detail yang ada di atasnya.
+     */
+    restoreFromUrl() {
+      const state = readViewState();
+      if (!state.recipe) {
+        return;
+      }
+
+      if (state.view === "saved" && localStorage.getItem("token")) {
+        // Detail dibuka dari halaman simpan: sembunyikan daftar simpan di bawahnya
+        // dan ingat asalnya, agar menutup detail kembali ke halaman simpan.
+        isSavedViewActive = true;
+        const savedScreen = document.querySelector("#view-saved");
+        if (savedScreen instanceof HTMLElement) {
+          savedScreen.hidden = true;
+        }
+      }
+
+      const recipeCard = document.createElement("article");
+      recipeCard.dataset.recipeId = state.recipe;
+      void openRecipeDetail(recipeCard, {
+        restore: { screen: state.screen, step: state.step },
+      });
+    },
+  };
 }
