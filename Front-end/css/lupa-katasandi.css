@@ -238,7 +238,7 @@ a {
   width: 24px;
   height: 24px;
   transform: translateY(-50%);
-  background: url("../assets/figma/register-warning.svg") center / contain no-repeat;
+  background: url("../assets/figma/icon-warning.svg") center / contain no-repeat;
   content: "";
   pointer-events: none;
 }

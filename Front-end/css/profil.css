@@ -397,6 +397,21 @@
   pointer-events: none;
 }
 
+.profile-name-input-warning {
+  position: absolute;
+  top: 50%;
+  right: -36px;
+  display: none;
+  width: 24px;
+  height: 24px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+#profile-name-next.is-invalid ~ .profile-name-input-warning {
+  display: block;
+}
+
 .profile-name-edit-card.has-error .profile-name-save {
   margin-top: 6px;
 }
