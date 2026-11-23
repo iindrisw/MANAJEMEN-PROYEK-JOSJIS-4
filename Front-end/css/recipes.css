@@ -261,20 +261,24 @@
 
 @media (max-width: 767px) {
   .recipe-card.has-availability {
-    grid-column: 1 / -1;
+    grid-column: auto;
   }
 
   .recipe-card.has-availability .recipe-likes {
     top: 54px;
+    left: 10px;
+    min-width: 44px;
+    padding: 0 4px 0 3px;
   }
 
   .recipe-card.has-availability .recipe-availability {
     top: 54px;
+    right: 10px;
     left: auto;
-    max-width: calc(100% - 78px);
+    max-width: calc(100% - 68px);
     min-height: 20px;
-    padding: 0 6px;
-    font-size: clamp(8px, 2.4vw, 9px);
+    padding: 0 5px;
+    font-size: clamp(7px, 2.1vw, 8.5px);
     line-height: 20px;
     overflow: hidden;
     text-overflow: ellipsis;
