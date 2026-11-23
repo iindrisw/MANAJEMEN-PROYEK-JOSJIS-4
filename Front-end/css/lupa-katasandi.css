@@ -149,6 +149,21 @@ a {
   opacity: 1;
 }
 
+.password-input input[type="password"]::-ms-reveal,
+.password-input input[type="password"]::-ms-clear {
+  display: none !important;
+}
+
+.password-input input[type="password"]::-webkit-reveal {
+  display: none !important;
+}
+
+.password-input input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .password-input {
   width: 100%;
 }

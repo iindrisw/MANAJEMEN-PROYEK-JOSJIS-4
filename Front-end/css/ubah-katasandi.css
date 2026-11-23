@@ -164,14 +164,15 @@
 
 @media (max-width: 439px) {
   #profile-password-dialog {
+    --password-dialog-top: clamp(24px, calc(100vh - 480px), 322px);
     position: fixed;
-    top: 50%;
-    max-height: calc(100vh - 24px);
-    max-height: calc(100dvh - 24px);
+    top: var(--password-dialog-top);
+    max-height: calc(100vh - var(--password-dialog-top) - 16px);
+    max-height: calc(100dvh - var(--password-dialog-top) - 16px);
     margin: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     overscroll-behavior: contain;
   }
 

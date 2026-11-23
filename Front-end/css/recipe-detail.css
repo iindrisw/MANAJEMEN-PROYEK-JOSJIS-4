@@ -521,6 +521,10 @@ body:has(#recipe-detail:not([hidden])) {
   display: none;
 }
 
+body:has(#recipe-detail:not([hidden])) .recipe-list-scrollbar {
+  display: none !important;
+}
+
 @media (max-width: 439px) {
   .recipe-detail {
     height: 100vh;
