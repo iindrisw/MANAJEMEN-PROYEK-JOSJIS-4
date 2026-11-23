@@ -43,7 +43,11 @@ def login(identifier, password):
                 text(f"SELECT {_KOLOM} FROM {T_USER} WHERE LOWER(nama) = :n"),
                 {"n": identifier},
             ).mappings().all()
-    salah = AppError("Nama/email atau kata sandi salah.", 401, code="KREDENSIAL_SALAH")
+    salah = AppError(
+        "Email atau kata sandi salah, silakan periksa kembali.",
+        401,
+        code="KREDENSIAL_SALAH",
+    )
     if row and not row["password"]:
         raise AppError(
             "Akun ini terdaftar lewat Google. Silakan masuk dengan Google.", 400,

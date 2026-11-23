@@ -19,6 +19,8 @@ export function initHalamanSimpan() {
   const recipeGrid = document.querySelector("#saved-recipe-grid");
   const emptyState = document.querySelector("#saved-empty-state");
   const paginationContainer = document.querySelector("#saved-pagination");
+  const noResultsDialog = document.querySelector("#validation-dialog");
+  const noResultsMessage = document.querySelector("#validation-message");
 
   if (
     !(appShell instanceof HTMLElement) ||
@@ -30,7 +32,9 @@ export function initHalamanSimpan() {
     !(searchInput instanceof HTMLInputElement) ||
     !(recipeGrid instanceof HTMLElement) ||
     !(emptyState instanceof HTMLElement) ||
-    !(paginationContainer instanceof HTMLElement)
+    !(paginationContainer instanceof HTMLElement) ||
+    !(noResultsDialog instanceof HTMLDialogElement) ||
+    !(noResultsMessage instanceof HTMLElement)
   ) {
     throw new Error("Elemen halaman resep tersimpan tidak ditemukan.");
   }
@@ -57,6 +61,14 @@ export function initHalamanSimpan() {
     }
 
     sectionLabel.textContent = isOpen ? "SIMPAN RESEP" : homeTitle;
+  }
+
+  function getFilteredRecipes() {
+    return savedRecipes.filter((recipe) =>
+      String(recipe.nama_resep || "")
+        .toLocaleLowerCase("id")
+        .includes(currentSearchQuery),
+    );
   }
 
   async function fetchBookmarkPage(page, token) {
@@ -147,20 +159,14 @@ export function initHalamanSimpan() {
   }
 
   function renderCurrentPage(animate = false) {
-    const filteredRecipes = savedRecipes.filter((recipe) =>
-      String(recipe.nama_resep || "")
-        .toLocaleLowerCase("id")
-        .includes(currentSearchQuery),
-    );
+    const filteredRecipes = getFilteredRecipes();
     const totalPages = Math.ceil(filteredRecipes.length / ITEMS_PER_PAGE);
     const render = () => {
       recipeGrid.replaceChildren();
 
       if (filteredRecipes.length === 0) {
-        emptyState.textContent = currentSearchQuery
-          ? "Resep tidak ditemukan."
-          : "Belum ada resep yang disimpan.";
-        emptyState.hidden = false;
+        emptyState.textContent = "Belum ada resep yang disimpan.";
+        emptyState.hidden = Boolean(currentSearchQuery);
         paginationContainer.replaceChildren();
         paginationContainer.hidden = true;
         return;
@@ -231,6 +237,14 @@ export function initHalamanSimpan() {
   });
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
+    if (!currentSearchQuery || getFilteredRecipes().length > 0) {
+      return;
+    }
+
+    noResultsMessage.textContent = "Resep tidak ditemukan.";
+    if (!noResultsDialog.open) {
+      noResultsDialog.showModal();
+    }
   });
 
   window.addEventListener("recipe:navigate-saved", () => {
