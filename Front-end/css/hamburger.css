@@ -120,6 +120,10 @@
   color: var(--white);
 }
 
+.drawer-link.is-active img {
+  filter: brightness(0) invert(1);
+}
+
 .drawer-link img {
   display: block;
   width: 30px;
