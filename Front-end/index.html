@@ -616,89 +616,90 @@
             >
               <span aria-hidden="true">X</span>
             </button>
-            <h2 id="profile-password-title">Ubah Kata Sandi</h2>
-            <div class="password-input-group">
-              <label class="profile-dialog-label" for="profile-password-current">Kata Sandi Lama</label>
-              <div class="password-input-wrapper">
-                <input
-                  class="profile-dialog-input"
-                  id="profile-password-current"
-                  type="password"
-                  autocomplete="new-password"
-                  aria-describedby="profile-password-current-error"
-                />
-                <img class="profile-input-warning" src="assets/figma/icon-warning.svg" alt="" />
+            <div class="profile-password-content">
+              <h2 id="profile-password-title">Ubah Kata Sandi</h2>
+              <div class="password-input-group">
+                <label class="profile-dialog-label" for="profile-password-current">Kata Sandi Lama</label>
+                <div class="password-input-wrapper">
+                  <input
+                    class="profile-dialog-input"
+                    id="profile-password-current"
+                    type="password"
+                    autocomplete="new-password"
+                    aria-describedby="profile-password-current-error"
+                  />
+                  <img class="profile-input-warning" src="assets/figma/icon-warning.svg" alt="" />
+                  <button
+                    class="profile-password-toggle"
+                    type="button"
+                    data-password-target="profile-password-current"
+                    aria-label="Tampilkan kata sandi"
+                    aria-pressed="false"
+                  >
+                    <img class="password-eye-hidden" src="assets/figma/icon-eye-disable.svg" alt="" />
+                    <img class="password-eye-active" src="assets/figma/icon-eye.svg" alt="" />
+                  </button>
+                </div>
+                <small class="profile-field-error" id="profile-password-current-error" hidden></small>
+              </div>
+              <div class="password-input-group">
+                <label class="profile-dialog-label" for="profile-password-next">Kata Sandi Baru</label>
+                <div class="password-input-wrapper">
+                  <input
+                    class="profile-dialog-input"
+                    id="profile-password-next"
+                    type="password"
+                    autocomplete="new-password"
+                    aria-describedby="profile-password-next-error"
+                  />
+                  <img class="profile-input-warning" src="assets/figma/icon-warning.svg" alt="" />
+                  <button
+                    class="profile-password-toggle"
+                    type="button"
+                    data-password-target="profile-password-next"
+                    aria-label="Tampilkan kata sandi"
+                    aria-pressed="false"
+                  >
+                    <img class="password-eye-hidden" src="assets/figma/icon-eye-disable.svg" alt="" />
+                    <img class="password-eye-active" src="assets/figma/icon-eye.svg" alt="" />
+                  </button>
+                </div>
+                <small class="profile-field-error" id="profile-password-next-error" hidden></small>
+              </div>
+              <div class="password-input-group">
+                <label class="profile-dialog-label" for="profile-password-confirm">Konfirmasi Kata Sandi</label>
+                <div class="password-input-wrapper">
+                  <input
+                    class="profile-dialog-input"
+                    id="profile-password-confirm"
+                    type="password"
+                    autocomplete="new-password"
+                    aria-describedby="profile-password-confirm-error"
+                  />
+                  <img class="profile-input-warning" src="assets/figma/icon-warning.svg" alt="" />
+                  <button
+                    class="profile-password-toggle"
+                    type="button"
+                    data-password-target="profile-password-confirm"
+                    aria-label="Tampilkan kata sandi"
+                    aria-pressed="false"
+                  >
+                    <img class="password-eye-hidden" src="assets/figma/icon-eye-disable.svg" alt="" />
+                    <img class="password-eye-active" src="assets/figma/icon-eye.svg" alt="" />
+                  </button>
+                </div>
+                <small class="profile-field-error" id="profile-password-confirm-error" hidden></small>
+              </div>
+              <p class="profile-form-error" id="profile-password-form-error" role="alert" hidden></p>
+              <div class="profile-dialog-actions">
                 <button
-                  class="profile-password-toggle"
-                  type="button"
-                  data-password-target="profile-password-current"
-                  aria-label="Tampilkan kata sandi"
-                  aria-pressed="false"
+                  class="profile-dialog-button"
+                  id="btn-confirm-password"
+                  type="submit"
                 >
-                  <img class="password-eye-hidden" src="assets/figma/icon-eye-disable.svg" alt="" />
-                  <img class="password-eye-active" src="assets/figma/icon-eye.svg" alt="" />
+                  Simpan
                 </button>
               </div>
-              <small class="profile-field-error" id="profile-password-current-error" hidden></small>
-            </div>
-            <div class="password-input-group">
-              <label class="profile-dialog-label" for="profile-password-next">Kata Sandi Baru</label>
-              <div class="password-input-wrapper">
-                <input
-                  class="profile-dialog-input"
-                  id="profile-password-next"
-                  type="password"
-                  autocomplete="new-password"
-                  aria-describedby="profile-password-next-error"
-                />
-                <img class="profile-input-warning" src="assets/figma/icon-warning.svg" alt="" />
-                <button
-                  class="profile-password-toggle"
-                  type="button"
-                  data-password-target="profile-password-next"
-                  aria-label="Tampilkan kata sandi"
-                  aria-pressed="false"
-                >
-                  <img class="password-eye-hidden" src="assets/figma/icon-eye-disable.svg" alt="" />
-                  <img class="password-eye-active" src="assets/figma/icon-eye.svg" alt="" />
-                </button>
-              </div>
-              <small class="profile-field-error" id="profile-password-next-error" hidden></small>
-            </div>
-            <div class="password-input-group">
-              <label class="profile-dialog-label" for="profile-password-confirm">Konfirmasi Kata Sandi</label>
-              <div class="password-input-wrapper">
-                <input
-                  class="profile-dialog-input"
-                  id="profile-password-confirm"
-                  type="password"
-                  autocomplete="new-password"
-                  aria-describedby="profile-password-confirm-error"
-                />
-                <img class="profile-input-warning" src="assets/figma/icon-warning.svg" alt="" />
-                <button
-                  class="profile-password-toggle"
-                  type="button"
-                  data-password-target="profile-password-confirm"
-                  aria-label="Tampilkan kata sandi"
-                  aria-pressed="false"
-                >
-                  <img class="password-eye-hidden" src="assets/figma/icon-eye-disable.svg" alt="" />
-                  <img class="password-eye-active" src="assets/figma/icon-eye.svg" alt="" />
-                </button>
-              </div>
-              <small class="profile-field-error" id="profile-password-confirm-error" hidden></small>
-            </div>
-            <p class="profile-form-error" id="profile-password-form-error" role="alert" hidden></p>
-            <div class="profile-dialog-actions">
-
-              <button
-                class="profile-dialog-button"
-                id="btn-confirm-password"
-                type="submit"
-              >
-                Simpan
-              </button>
             </div>
           </form>
         </dialog>

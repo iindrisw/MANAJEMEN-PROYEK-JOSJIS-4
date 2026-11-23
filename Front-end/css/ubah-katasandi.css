@@ -31,6 +31,12 @@
   box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
 }
 
+.profile-password-content {
+  display: flex;
+  flex-direction: column;
+  gap: 38px;
+}
+
 .profile-password-card h2 {
   position: absolute;
   width: 1px;
@@ -164,21 +170,39 @@
 
 @media (max-width: 439px) {
   #profile-password-dialog {
-    --password-dialog-top: clamp(24px, calc(100vh - 480px), 322px);
     position: fixed;
-    top: var(--password-dialog-top);
-    max-height: calc(100vh - var(--password-dialog-top) - 16px);
-    max-height: calc(100dvh - var(--password-dialog-top) - 16px);
+    top: max(16px, env(safe-area-inset-top, 0px));
+    right: auto;
+    bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    width: min(390px, calc(100vw - 32px));
+    height: auto;
+    max-height: none;
     margin: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: visible;
     transform: translateX(-50%);
-    overscroll-behavior: contain;
   }
 
   .profile-password-card {
+    height: 100%;
+    min-height: 0;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .profile-password-content {
+    height: 100%;
     min-height: 0;
     gap: clamp(16px, 3vh, 28px);
     padding: 52px 16px 24px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .profile-password-card .password-input-group,
+  .profile-password-card .profile-form-error,
+  .profile-password-card .profile-dialog-actions {
+    flex: 0 0 auto;
   }
 }
