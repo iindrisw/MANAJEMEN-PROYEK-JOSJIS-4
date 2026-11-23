@@ -1,3 +1,22 @@
+@keyframes app-view-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.recipe-content:not([hidden]),
+.saved-screen:not([hidden]),
+.profile-screen:not([hidden]),
+.recipe-detail:not([hidden]),
+#recipe-steps-screen:not([hidden]),
+#cooking-mode-screen:not([hidden]) {
+  animation: app-view-fade-in 500ms ease both;
+}
+
 .recipe-content {
   padding: 60px 36px 12px;
 }
@@ -118,11 +137,12 @@
   }
 
   .app-shell.is-saved-view .saved-screen .recipe-grid {
-    grid-auto-flow: column;
-    grid-auto-columns: 176px;
-    grid-template-columns: none;
+    width: min(100%, 1100px);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     column-gap: 14px;
-    overflow-x: auto;
-    padding: 1px 0 8px 2px;
+    row-gap: 24px;
+    padding: 1px 0 5px 2px;
+    margin-right: auto;
+    margin-left: auto;
   }
 }

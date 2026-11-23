@@ -8,7 +8,6 @@ from src.utils.helpers import success_response
 
 user_bp = Blueprint("users", __name__, url_prefix="/api/users/me")
 
-
 @user_bp.get("/likes")
 @login_required
 def my_likes():

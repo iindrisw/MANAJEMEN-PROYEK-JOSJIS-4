@@ -1,6 +1,5 @@
 import { readViewState, updateViewState } from "./view-state.js";
-
-const API_BASE_URL = "https://racikrasa.sanes.my.id/api";
+import { API_BASE_URL } from "./api.js";
 
 export function initProfile() {
   const appShell = document.querySelector(".app-shell");

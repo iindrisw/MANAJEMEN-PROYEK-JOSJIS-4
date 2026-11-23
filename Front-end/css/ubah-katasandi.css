@@ -77,11 +77,6 @@
   line-height: 24px;
 }
 
-.profile-password-card .profile-dialog-input:focus-visible {
-  outline: 2px solid var(--coral);
-  outline-offset: 2px;
-}
-
 .profile-password-card .profile-password-toggle {
   right: 14px;
   width: 30px;

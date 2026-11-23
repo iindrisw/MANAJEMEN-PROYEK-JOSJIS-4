@@ -113,17 +113,11 @@ button {
 
   .app-shell .recipe-grid,
   .app-shell.is-saved-view .saved-screen .recipe-grid {
-    width: 100%;
-    grid-template-columns: repeat(auto-fill, 176px);
-  }
-
-  .app-shell:not(.is-saved-view) #recipe-grid {
-    grid-auto-flow: column;
-    grid-auto-columns: 176px;
-    grid-template-columns: none;
+    width: min(100%, 1100px);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     column-gap: 14px;
-    overflow-x: auto;
-    padding-bottom: 8px;
+    margin-right: auto;
+    margin-left: auto;
   }
 
   .app-shell .recipe-card h2 {

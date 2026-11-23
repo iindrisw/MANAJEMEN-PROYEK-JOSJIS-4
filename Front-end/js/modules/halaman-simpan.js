@@ -1,7 +1,7 @@
 import { createRecipeCard, renderPagination } from "./recipe-view.js";
 import { readViewState, updateViewState } from "./view-state.js";
+import { API_BASE_URL } from "./api.js";
 
-const API_BASE_URL = "http://127.0.0.1:5000/api";
 const ITEMS_PER_PAGE = 6;
 
 export function initHalamanSimpan() {
@@ -198,6 +198,8 @@ export function initHalamanSimpan() {
           renderCurrentPage(true);
           window.scrollTo({ top: 0, behavior: "smooth" });
         },
+        undefined,
+        true,
       );
     };
 
