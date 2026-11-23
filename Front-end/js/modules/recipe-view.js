@@ -76,10 +76,11 @@ export function renderPagination(
   totalPages,
   onPageSelect,
   maxPageNumber,
+  showSinglePage = false,
 ) {
   container.replaceChildren();
   totalPages = Math.max(1, Number(totalPages) || 1);
-  container.hidden = totalPages <= 1;
+  container.hidden = totalPages <= 1 && !showSinglePage;
 
   if (Number.isInteger(maxPageNumber) && maxPageNumber > 0) {
     const lastPage = Math.min(totalPages, maxPageNumber);

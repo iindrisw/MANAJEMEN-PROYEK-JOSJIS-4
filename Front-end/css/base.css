@@ -50,21 +50,21 @@ button {
 
 .app-shell {
   position: relative;
-  width: 440px;
-  min-height: 956px;
+  width: 100%;
+  min-height: 100vh;
   margin: 0 auto;
   overflow: hidden;
   background: var(--white);
-  zoom: min(1, calc(100vw / 440px));
+  zoom: 1;
 }
 
 @media (max-width: 439px) {
   .app-shell {
-    min-height: 952px;
+    min-height: 100vh;
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .app-shell {
     width: 100%;
     min-height: 100vh;
@@ -115,7 +115,7 @@ button {
   .app-shell.is-saved-view .saved-screen .recipe-grid {
     width: min(100%, 1100px);
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    column-gap: 14px;
+    column-gap: clamp(14px, 1.5vw, 24px);
     margin-right: auto;
     margin-left: auto;
   }
@@ -129,8 +129,9 @@ button {
   }
 
   .app-shell .detail-recipe-title {
+    right: auto;
     left: 50%;
-    width: min(900px, calc(100% - 128px));
+    width: min(900px, calc(100% - clamp(48px, 8vw, 128px)));
     transform: translateX(-50%);
   }
 
@@ -157,13 +158,13 @@ button {
 
   .app-shell .steps-card-content {
     left: 50%;
-    width: min(1100px, calc(100% - 64px));
+    width: min(1100px, calc(100% - clamp(32px, 5vw, 64px)));
     height: calc(100% - 120px);
     transform: translateX(-50%);
   }
 
   .app-shell .steps-recipe-title {
-    width: calc(100% - 64px);
+    width: calc(100% - clamp(32px, 5vw, 64px));
     margin-right: auto;
     margin-left: auto;
   }
@@ -173,19 +174,18 @@ button {
   }
 
   .app-shell .mode-memasak-button {
-    margin-right: auto;
-    margin-left: auto;
+    margin: 20px clamp(16px, 4vw, 32px) 0 auto;
   }
 
   .app-shell .cooking-mode-heading {
     left: 50%;
-    width: min(900px, calc(100% - 64px));
+    width: min(900px, calc(100% - clamp(32px, 5vw, 64px)));
     transform: translateX(-50%);
   }
 
   .app-shell .cooking-mode-step {
     left: 50%;
-    width: min(900px, calc(100% - 64px));
+    width: min(900px, calc(100% - clamp(32px, 5vw, 64px)));
     transform: translateX(-50%);
   }
 
@@ -202,20 +202,26 @@ button {
 
   .app-shell .cooking-mode-controls {
     left: 50%;
-    width: min(900px, calc(100% - 64px));
+    width: min(900px, calc(100% - clamp(32px, 5vw, 64px)));
     transform: translateX(-50%);
   }
 
   .app-shell .profile-header {
     right: auto;
     left: 50%;
-    width: min(1000px, calc(100% - 64px));
+    width: min(1000px, calc(100% - clamp(32px, 5vw, 64px)));
     transform: translateX(-50%);
   }
 
   .app-shell .profile-container {
     width: min(1000px, 100%);
     align-self: center;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .app-shell .recipe-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

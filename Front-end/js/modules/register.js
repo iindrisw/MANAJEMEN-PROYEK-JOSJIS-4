@@ -1,10 +1,11 @@
 import { API_BASE_URL } from "./api.js";
-const EMAIL_EMOJI_PATTERN =
-  /[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}\u200D\uFE0E\uFE0F\u20E3]/gu;
-
-function removeEmailEmoji(value) {
-  return value.replace(EMAIL_EMOJI_PATTERN, "");
-}
+import {
+  blockUnsupportedCharacters,
+  containsUnsupportedCharacter,
+  containsUnsupportedEmailCharacter,
+  EMAIL_ERROR_MESSAGE,
+  PASSWORD_ERROR_MESSAGE,
+} from "./input.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("#registerForm");
@@ -31,10 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     group?.classList.add("error");
     if (errorMessage) {
       errorMessage.textContent = message;
-      errorMessage.classList.toggle(
-        "is-long",
-        message.includes("tidak boleh mengandung spasi"),
-      );
+      errorMessage.classList.toggle("is-long", message.length > 64);
     }
   }
 
@@ -48,23 +46,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  blockUnsupportedCharacters(inputEmail, {
+    message: EMAIL_ERROR_MESSAGE,
+    setError: (message) => setError(inputEmail, message),
+    clearError: () => clearError(inputEmail),
+    isEmailIdentifier: true,
+  });
+  blockUnsupportedCharacters(inputPassword, {
+    message: PASSWORD_ERROR_MESSAGE,
+    setError: (message) => setError(inputPassword, message),
+    clearError: () => clearError(inputPassword),
+  });
+  blockUnsupportedCharacters(inputConfirmation, {
+    message: PASSWORD_ERROR_MESSAGE,
+    setError: (message) => setError(inputConfirmation, message),
+    clearError: () => clearError(inputConfirmation),
+  });
+
   for (const input of [
     inputName,
-    inputPassword,
-    inputConfirmation,
   ]) {
     input.addEventListener("input", () => {
       clearError(input);
     });
   }
-
-  inputEmail.addEventListener("input", () => {
-    const sanitizedEmail = removeEmailEmoji(inputEmail.value);
-    if (sanitizedEmail !== inputEmail.value) {
-      inputEmail.value = sanitizedEmail;
-    }
-    clearError(inputEmail);
-  });
 
   for (const button of document.querySelectorAll(".toggle-password")) {
     button.addEventListener("click", () => {
@@ -88,8 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const nama = inputName.value.trim();
     const enteredEmail = inputEmail.value.trim();
-    const sanitizedEmail = removeEmailEmoji(enteredEmail);
-    const email = sanitizedEmail.toLowerCase();
+    const email = enteredEmail.toLowerCase();
     const password = inputPassword.value;
     const confirmation = inputConfirmation.value;
     let isValid = true;
@@ -113,15 +117,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!email) {
       setError(inputEmail, "Kolom ini wajib diisi");
       isValid = false;
-    } else if (enteredEmail !== sanitizedEmail) {
-      inputEmail.value = sanitizedEmail;
-      setError(inputEmail, "Format email tidak sesuai (contoh: madinatul@gmail.com)");
+    } else if (containsUnsupportedEmailCharacter(enteredEmail)) {
+      setError(inputEmail, EMAIL_ERROR_MESSAGE);
       isValid = false;
     } else if (
       email.length > 100 ||
       !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
     ) {
-      setError(inputEmail, "Format email tidak sesuai (contoh: madinatul@gmail.com)");
+      setError(inputEmail, EMAIL_ERROR_MESSAGE);
       isValid = false;
     }
 
@@ -130,17 +133,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!password) {
       setError(inputPassword, "Kolom ini wajib diisi");
       isValid = false;
+    } else if (containsUnsupportedCharacter(password)) {
+      setError(inputPassword, PASSWORD_ERROR_MESSAGE);
+      isValid = false;
     } else if (/\s/.test(password)) {
-      setError(inputPassword, "Kata sandi tidak boleh mengandung spasi");
+      setError(inputPassword, PASSWORD_ERROR_MESSAGE);
       isValid = false;
     } else if (!passwordRegex.test(password)) {
-      setError(inputPassword, "Kata sandi harus terdiri dari 8 hingga 64 karakter dan hanya mengandung kombinasi huruf dan angka");
+      setError(inputPassword, PASSWORD_ERROR_MESSAGE);
       isValid = false;
     }
 
     // 4. Validasi Konfirmasi Kata Sandi
     if (!confirmation) {
       setError(inputConfirmation, "Kolom ini wajib diisi");
+      isValid = false;
+    } else if (containsUnsupportedCharacter(confirmation)) {
+      setError(inputConfirmation, PASSWORD_ERROR_MESSAGE);
       isValid = false;
     } else if (password !== confirmation) {
       setError(inputConfirmation, "Kata sandi tidak sama, silakan periksa kembali");

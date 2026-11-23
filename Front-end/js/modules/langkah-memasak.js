@@ -42,8 +42,29 @@ export function setupLangkahMemasak(recipe, detailScreen) {
     throw new Error("Elemen halaman langkah memasak tidak ditemukan.");
   }
 
-  const steps = Array.isArray(recipe.langkah) ? recipe.langkah : [];
+  const recipeSteps = Array.isArray(recipe.langkah) ? recipe.langkah : [];
   let currentStepIndex = 0;
+
+  function getStepDescriptions(step) {
+    const description =
+      typeof step === "string"
+        ? step
+        : typeof step?.teks === "string"
+          ? step.teks
+          : "";
+    const normalizedDescription = description
+      .replace(/\\r\\n|\\n/g, "\n")
+      .replace(/\r\n?/g, "\n")
+      .replace(/^\s*Langkah\s*(?:\n|$)/i, "")
+      .trim();
+
+    return normalizedDescription
+      .split(/(?:^|\n)\s*\d+[.)]\s*/)
+      .map((instruction) => instruction.trim())
+      .filter(Boolean);
+  }
+
+  const steps = recipeSteps.flatMap(getStepDescriptions);
 
   function fitRecipeTitle() {
     for (let fontSize = 36; fontSize >= 18; fontSize -= 1) {
@@ -55,13 +76,6 @@ export function setupLangkahMemasak(recipe, detailScreen) {
         return;
       }
     }
-  }
-
-  function getStepDescription(step) {
-    if (typeof step === "string") {
-      return step;
-    }
-    return typeof step?.teks === "string" ? step.teks : "";
   }
 
   function renderScrollableSteps() {
@@ -84,7 +98,7 @@ export function setupLangkahMemasak(recipe, detailScreen) {
 
         const description = document.createElement("p");
         description.className = "step-item-description";
-        description.textContent = getStepDescription(step);
+        description.textContent = step;
 
         item.append(title, description);
         return item;
@@ -119,7 +133,7 @@ export function setupLangkahMemasak(recipe, detailScreen) {
       ? `Langkah ${currentStepIndex + 1}:`
       : "Langkah belum tersedia";
     modeStepDescription.textContent = step
-      ? getStepDescription(step)
+      ? step
       : "Langkah memasak belum tersedia untuk resep ini.";
     previousStepButton.disabled = currentStepIndex === 0;
     const isLastStep = currentStepIndex >= steps.length - 1;

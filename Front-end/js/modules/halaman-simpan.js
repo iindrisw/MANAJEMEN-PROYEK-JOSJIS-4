@@ -198,6 +198,8 @@ export function initHalamanSimpan() {
           renderCurrentPage(true);
           window.scrollTo({ top: 0, behavior: "smooth" });
         },
+        undefined,
+        true,
       );
     };
 

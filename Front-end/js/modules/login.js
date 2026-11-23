@@ -1,4 +1,11 @@
 import { API_BASE_URL } from "./api.js";
+import {
+  blockUnsupportedCharacters,
+  containsUnsupportedCharacter,
+  containsUnsupportedEmailCharacter,
+  EMAIL_ERROR_MESSAGE,
+  PASSWORD_ERROR_MESSAGE,
+} from "./input.js";
 const GOOGLE_CLIENT_ID = "105928934373-ai6hsqd7o7h985it0v6ngja0f62qs1aa.apps.googleusercontent.com";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -33,12 +40,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if (errorMessage) errorMessage.textContent = "";
   }
 
-  // Bersihkan error saat pengguna mulai mengetik ulang
-  for (const input of [inputIdentifier, inputPassword]) {
-    input.addEventListener("input", () => {
-      clearError(input);
-    });
-  }
+  blockUnsupportedCharacters(inputIdentifier, {
+    message: EMAIL_ERROR_MESSAGE,
+    setError: (message) => setError(inputIdentifier, message),
+    clearError: () => clearError(inputIdentifier),
+    isEmailIdentifier: true,
+    requireEmailMarker: true,
+  });
+  blockUnsupportedCharacters(inputPassword, {
+    message: PASSWORD_ERROR_MESSAGE,
+    setError: (message) => setError(inputPassword, message),
+    clearError: () => clearError(inputPassword),
+  });
 
   // Toggle Password Visibility (Ikon Mata)
   for (const button of document.querySelectorAll(".toggle-password")) {
@@ -65,9 +78,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!identifier) {
       setError(inputIdentifier, "Kolom ini wajib diisi");
       isValid = false;
+    } else if (identifier.includes("@") && containsUnsupportedEmailCharacter(identifier)) {
+      setError(inputIdentifier, EMAIL_ERROR_MESSAGE);
+      isValid = false;
     }
     if (!password) {
       setError(inputPassword, "Kolom ini wajib diisi");
+      isValid = false;
+    } else if (containsUnsupportedCharacter(password)) {
+      setError(inputPassword, PASSWORD_ERROR_MESSAGE);
       isValid = false;
     }
     if (!isValid) return;

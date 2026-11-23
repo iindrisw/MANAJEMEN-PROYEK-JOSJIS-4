@@ -1,11 +1,11 @@
 import { API_BASE_URL } from "./api.js";
-
-const EMAIL_EMOJI_PATTERN =
-  /[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}\u200D\uFE0E\uFE0F\u20E3]/gu;
-
-function removeEmailEmoji(value) {
-  return value.replace(EMAIL_EMOJI_PATTERN, "");
-}
+import {
+  blockUnsupportedCharacters,
+  containsUnsupportedCharacter,
+  containsUnsupportedEmailCharacter,
+  EMAIL_ERROR_MESSAGE,
+  PASSWORD_ERROR_MESSAGE,
+} from "./input.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("#forgotPasswordForm");
@@ -14,11 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const passwordInput = document.querySelector("#resetPassword");
   const confirmInput = document.querySelector("#confirmPassword");
   const status = document.querySelector("#resetStatus");
-<<<<<<< HEAD
   const submitButton = form?.querySelector('button[type="submit"]');
-=======
-  const submitButton = form?.querySelector(".reset-submit");
->>>>>>> 38d96cb03caeea46eb56b6b6dde85513a339d3c6
 
   if (
     !(form instanceof HTMLFormElement) ||
@@ -54,6 +50,23 @@ document.addEventListener("DOMContentLoaded", () => {
       error.classList.remove("is-long");
     }
   }
+
+  blockUnsupportedCharacters(emailInput, {
+    message: EMAIL_ERROR_MESSAGE,
+    setError: (message) => setError(emailInput, message),
+    clearError: () => clearError(emailInput),
+    isEmailIdentifier: true,
+  });
+  blockUnsupportedCharacters(passwordInput, {
+    message: PASSWORD_ERROR_MESSAGE,
+    setError: (message) => setError(passwordInput, message),
+    clearError: () => clearError(passwordInput),
+  });
+  blockUnsupportedCharacters(confirmInput, {
+    message: PASSWORD_ERROR_MESSAGE,
+    setError: (message) => setError(confirmInput, message),
+    clearError: () => clearError(confirmInput),
+  });
 
   function clearAllErrors() {
     fields.forEach(clearError);
@@ -92,13 +105,13 @@ document.addEventListener("DOMContentLoaded", () => {
         setError(nameInput, message);
         break;
       case "EMAIL_TIDAK_VALID":
-        setError(emailInput, message);
+        setError(emailInput, EMAIL_ERROR_MESSAGE);
         break;
       case "PASSWORD_MENGANDUNG_SPASI":
-        setError(passwordInput, message);
+        setError(passwordInput, PASSWORD_ERROR_MESSAGE);
         break;
       case "PASSWORD_TIDAK_MEMENUHI_KRITERIA":
-        setError(passwordInput, message);
+        setError(passwordInput, PASSWORD_ERROR_MESSAGE);
         break;
       case "KONFIRMASI_PASSWORD_TIDAK_COCOK":
         setError(confirmInput, message);
@@ -113,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   fields.forEach((input) => {
     input.addEventListener("input", () => {
-      clearError(input);
       updateValidationExpansion();
       clearStatus();
     });
@@ -143,8 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
     clearStatus();
 
     const enteredEmail = emailInput.value.trim();
-    const sanitizedEmail = removeEmailEmoji(enteredEmail);
-    const email = sanitizedEmail.toLowerCase();
+    const email = enteredEmail.toLowerCase();
     const name = nameInput.value.trim();
     const password = passwordInput.value;
     const confirmation = confirmInput.value;
@@ -154,14 +165,13 @@ document.addEventListener("DOMContentLoaded", () => {
       setError(emailInput, "Kolom ini wajib diisi");
       isValid = false;
     } else if (
-      enteredEmail !== sanitizedEmail ||
+      containsUnsupportedEmailCharacter(enteredEmail) ||
       email.length > 100 ||
       !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
     ) {
-      emailInput.value = sanitizedEmail;
       setError(
         emailInput,
-        "Format email tidak sesuai (contoh: madinatul@gmail.com)",
+        EMAIL_ERROR_MESSAGE,
       );
       isValid = false;
     }
@@ -177,13 +187,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!password) {
       setError(passwordInput, "Kolom ini wajib diisi");
       isValid = false;
+    } else if (containsUnsupportedCharacter(password)) {
+      setError(passwordInput, PASSWORD_ERROR_MESSAGE);
+      isValid = false;
     } else if (/\s/.test(password)) {
-      setError(passwordInput, "Kata sandi tidak boleh mengandung spasi");
+      setError(passwordInput, PASSWORD_ERROR_MESSAGE);
       isValid = false;
     } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,64}$/.test(password)) {
       setError(
         passwordInput,
-        "Kata sandi harus terdiri dari 8 hingga 64 karakter dan hanya mengandung kombinasi huruf dan angka",
+        PASSWORD_ERROR_MESSAGE,
       );
       isValid = false;
     }
@@ -191,8 +204,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!confirmation) {
       setError(confirmInput, "Kolom ini wajib diisi");
       isValid = false;
+    } else if (containsUnsupportedCharacter(confirmation)) {
+      setError(confirmInput, PASSWORD_ERROR_MESSAGE);
+      isValid = false;
     } else if (/\s/.test(confirmation)) {
-      setError(confirmInput, "Kata sandi tidak boleh mengandung spasi");
+      setError(confirmInput, PASSWORD_ERROR_MESSAGE);
       isValid = false;
     } else if (password !== confirmation) {
       setError(
@@ -228,9 +244,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const message =
           result?.message || "Gagal memperbarui kata sandi. Silakan coba lagi.";
         const code = result?.code;
+        const displayMessage =
+          code === "EMAIL_TIDAK_VALID"
+            ? EMAIL_ERROR_MESSAGE
+            : code === "PASSWORD_MENGANDUNG_SPASI" ||
+                code === "PASSWORD_TIDAK_MEMENUHI_KRITERIA"
+              ? PASSWORD_ERROR_MESSAGE
+              : message;
 
         if (code === "EMAIL_TIDAK_VALID") {
-          setError(emailInput, message);
+          setError(emailInput, EMAIL_ERROR_MESSAGE);
         } else if (code === "KOLOM_WAJIB_DIISI") {
           if (!emailInput.value.trim()) setError(emailInput, message);
           if (!nameInput.value.trim()) setError(nameInput, message);
@@ -242,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
           code === "PASSWORD_MENGANDUNG_SPASI" ||
           code === "PASSWORD_TIDAK_MEMENUHI_KRITERIA"
         ) {
-          setError(passwordInput, message);
+          setError(passwordInput, PASSWORD_ERROR_MESSAGE);
         } else if (code === "KONFIRMASI_PASSWORD_TIDAK_COCOK") {
           setError(confirmInput, message);
         } else if (code === "AKUN_TIDAK_DITEMUKAN") {
@@ -250,7 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
           setError(nameInput, message);
         }
 
-        status.textContent = message;
+        status.textContent = displayMessage;
         status.hidden = false;
         return;
       }

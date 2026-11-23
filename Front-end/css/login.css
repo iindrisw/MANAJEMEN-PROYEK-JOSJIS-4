@@ -37,7 +37,7 @@ body {
 }
 
 .auth-back {
-  position: fixed;
+  position: absolute;
   z-index: 100;
   top: 20px;
   left: max(20px, calc((100vw - 440px) / 2 + 32px));
@@ -46,6 +46,9 @@ body {
   height: 40px;
   place-items: center;
   cursor: pointer;
+  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .auth-back img {
@@ -173,6 +176,55 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.toggle-password i {
+  display: block;
+  width: 26px;
+  height: 26px;
+  background: url("../assets/figma/icon-eye-disable.svg") center / contain no-repeat;
+  font-size: 0;
+}
+
+.toggle-password i.fa-eye-slash {
+  background-image: url("../assets/figma/icon-eye.svg");
+}
+
+.google-auth-error {
+  position: fixed;
+  z-index: 20;
+  bottom: clamp(16px, 12vh, 114px);
+  left: 50%;
+  display: flex;
+  width: min(420px, calc(100vw - 20px));
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(208, 87, 86, 0.6);
+  border-radius: 10px;
+  background: rgba(208, 87, 86, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  color: #252525;
+}
+
+.google-auth-error[hidden] {
+  display: none;
+}
+
+.google-auth-error-icon {
+  display: block;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+}
+
+.google-auth-error p {
+  flex: 1 1 auto;
+  margin: 0;
+  font-family: "Open Sans", sans-serif;
+  font-size: 12px;
+  line-height: 30px;
 }
 
 .forgot-password-wrapper {
