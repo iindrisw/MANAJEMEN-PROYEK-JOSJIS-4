@@ -49,6 +49,7 @@ export function initVoice() {
     let isListening = false;
 
     function updateButtonState() {
+      button.classList.toggle("is-listening", isListening);
       button.setAttribute("aria-pressed", String(isListening));
       button.setAttribute(
         "aria-label",
@@ -123,9 +124,11 @@ export function initVoice() {
         recognition.start();
       } catch {
         isStarting = false;
+        isListening = false;
         if (activeRecognition === recognition) {
           activeRecognition = null;
         }
+        updateButtonState();
         showVoiceError("Input suara tidak dapat dimulai. Silakan coba lagi.");
       }
     });
