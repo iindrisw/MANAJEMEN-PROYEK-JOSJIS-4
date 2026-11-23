@@ -66,6 +66,7 @@ export function createRecipeCard(
   meta.append(ingredientSection, likes);
 
   if (Number.isInteger(searchedIngredientCount) && searchedIngredientCount > 0) {
+    card.classList.add("has-availability");
     const matchedIngredients = Array.isArray(recipe.bahan_cocok)
       ? recipe.bahan_cocok
       : [];

@@ -87,6 +87,21 @@ body {
   padding-right: 48px;
 }
 
+.form-group input[type="password"]::-ms-reveal,
+.form-group input[type="password"]::-ms-clear {
+  display: none !important;
+}
+
+.form-group input[type="password"]::-webkit-reveal {
+  display: none !important;
+}
+
+.form-group input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .login-title,
 .register-title {
   text-align: center;

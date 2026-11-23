@@ -156,6 +156,21 @@ body {
   padding-right: 45px; 
 }
 
+.form-group input[type="password"]::-ms-reveal,
+.form-group input[type="password"]::-ms-clear {
+  display: none !important;
+}
+
+.form-group input[type="password"]::-webkit-reveal {
+  display: none !important;
+}
+
+.form-group input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .form-group input::placeholder {
   color: rgba(208, 87, 85, 0.4);
 }
