@@ -1,19 +1,3 @@
-/**
- * Satu-satunya tempat yang membaca/menulis "sedang di layar mana" di URL, supaya
- * refresh (F5) tetap membuka layar yang sama. Tidak ada modul lain yang boleh
- * menyentuh parameter ini langsung.
- *
- *   (kosong)                         Beranda
- *   ?view=saved                      halaman Simpan
- *   ?view=profile                    halaman Profil
- *   ?view=profile&panel=password     form Ubah Kata Sandi (di dalam Profil)
- *   ?recipe=12                       detail resep (di atas Beranda)
- *   ?view=saved&recipe=12            detail resep yang dibuka dari halaman Simpan
- *   ?recipe=12&screen=steps          daftar langkah memasak
- *   ?recipe=12&screen=cooking&step=3 mode memasak, langkah ke-3
- *
- * Tombol Beranda me-reload ke alamat polos, jadi semua parameter hilang sendiri.
- */
 const VIEWS = new Set(["saved", "profile"]);
 const SCREENS = new Set(["steps", "cooking"]);
 const PANELS = new Set(["password"]);

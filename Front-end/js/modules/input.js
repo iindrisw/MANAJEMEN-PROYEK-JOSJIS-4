@@ -891,7 +891,7 @@ export function initInput() {
         return;
       }
 
-      emptyState.textContent = "Resep tidak dapat dimuat.";
+      emptyState.textContent = "Data Resep tidak tersedia";
       emptyState.hidden = false;
       recipeGrid.style.opacity = "";
       updateRecipeListScrollbar();
