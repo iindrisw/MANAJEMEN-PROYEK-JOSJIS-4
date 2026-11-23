@@ -3,6 +3,7 @@ export function initHumberger() {
   const navigation = document.querySelector("#bottom-nav");
   const drawerBackdrop = document.querySelector("#drawer-backdrop");
   const signupLink = navigation?.querySelector(".drawer-signup");
+  const drawerLinks = navigation?.querySelectorAll(".drawer-link") ?? [];
   const brandLinks = document.querySelectorAll("[data-home-link]");
   const bookmarkUnavailableDialog = document.querySelector(
     "#bookmark-unavailable-dialog",
@@ -57,17 +58,69 @@ export function initHumberger() {
     signupLink.dataset.navAction = "profile";
   }
 
+  function detectCurrentNavAction() {
+    const appShell = document.querySelector(".app-shell");
+    const profileScreen = document.querySelector("#view-profile");
+    const savedScreen = document.querySelector("#view-saved");
+
+    if (
+      appShell?.classList.contains("is-profile-view") ||
+      (profileScreen instanceof HTMLElement && !profileScreen.hidden)
+    ) {
+      return "profile";
+    }
+
+    if (
+      appShell?.classList.contains("is-saved-view") ||
+      (savedScreen instanceof HTMLElement && !savedScreen.hidden)
+    ) {
+      return "bookmark";
+    }
+
+    return "home";
+  }
+
+  function updateActiveDrawerLink(forcedAction) {
+    const activeAction = forcedAction || detectCurrentNavAction();
+
+    for (const link of drawerLinks) {
+      if (!(link instanceof HTMLAnchorElement)) {
+        continue;
+      }
+      const isCurrent = link.dataset.navAction === activeAction;
+      link.classList.toggle("is-active", isCurrent);
+      if (isCurrent) {
+        link.setAttribute("aria-current", "page");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    }
+  }
+
   updateSignupLink();
+  updateActiveDrawerLink("home");
+
   window.addEventListener("storage", (event) => {
     if (event.key === "token" || event.key === "user" || event.key === null) {
       updateSignupLink();
     }
   });
-  window.addEventListener("pageshow", updateSignupLink);
+  window.addEventListener("pageshow", () => {
+    updateSignupLink();
+    updateActiveDrawerLink();
+  });
   window.addEventListener("recipe:profile-updated", updateSignupLink);
+  window.addEventListener("recipe:navigate-home", () => {
+    updateActiveDrawerLink("home");
+  });
+  window.addEventListener("recipe:navigate-saved", () => {
+    updateActiveDrawerLink("bookmark");
+  });
+  window.addEventListener("recipe:navigate-profile", () => {
+    updateActiveDrawerLink("profile");
+  });
 
   function getActiveMenuButton() {
-    // Cari tombol menu yang sedang terlihat/tidak tersembunyi di layar aktif
     for (const btn of menuButtons) {
       if (btn.offsetParent !== null) {
         return btn;
@@ -89,6 +142,7 @@ export function initHumberger() {
     drawerBackdrop.inert = !isOpen;
 
     if (isOpen) {
+      updateActiveDrawerLink();
       navigation.hidden = false;
       drawerBackdrop.hidden = false;
       requestAnimationFrame(() => {
@@ -104,7 +158,6 @@ export function initHumberger() {
     drawerBackdrop.classList.remove("is-open");
   }
 
-  // Pasang event listener ke semua tombol hamburger di setiap halaman
   menuButtons.forEach((menuButton) => {
     menuButton.addEventListener("click", () => {
       const isExpanded = menuButton.getAttribute("aria-expanded") === "true";
@@ -118,7 +171,6 @@ export function initHumberger() {
     currentMenuButton.focus();
   });
 
-  // Pasang event listener ke semua logo brand
   brandLinks.forEach((brandLink) => {
     brandLink.addEventListener("click", (event) => {
       event.preventDefault();
@@ -158,6 +210,10 @@ export function initHumberger() {
       return;
     }
 
+    if (action === "home" || action === "bookmark" || action === "profile") {
+      updateActiveDrawerLink(action);
+    }
+
     setNavigationOpen(false);
     const currentMenuButton = getActiveMenuButton();
     currentMenuButton.focus();
@@ -177,6 +233,7 @@ export function initHumberger() {
 
   window.addEventListener("recipe:login-success", () => {
     updateSignupLink();
+    updateActiveDrawerLink("home");
     window.dispatchEvent(new Event("recipe:navigate-home"));
   });
 
