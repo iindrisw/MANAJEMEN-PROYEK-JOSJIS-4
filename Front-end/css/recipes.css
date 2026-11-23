@@ -1,7 +1,5 @@
 .recipe-card {
   position: relative;
-  display: flex;
-  flex-direction: column;
   width: 100%;
   min-height: 154px;
   height: auto;
@@ -31,11 +29,15 @@
 }
 
 .recipe-card h2 {
-  position: relative;
+  position: absolute;
+  top: 5px;
+  left: 4px;
   display: grid;
   width: calc(100% - 8px);
+  height: 32px;
   min-height: 32px;
-  margin: 5px 4px 0;
+  margin: 0;
+  overflow: hidden;
   place-items: center;
   text-align: center;
 }
@@ -43,6 +45,7 @@
 .recipe-card h2 span {
   display: -webkit-box;
   width: 100%;
+  max-height: 32px;
   overflow: hidden;
   font-family: var(--font-heading);
   font-size: 12px;
@@ -57,16 +60,15 @@
 }
 
 .recipe-meta {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  padding: 10px 10px 4px;
+  position: static;
 }
 
 .recipe-ingredients {
   position: relative;
-  width: 100%;
-  margin-top: 28px;
+  top: 79px;
+  left: 10px;
+  width: calc(100% - 20px);
+  padding-bottom: 86px;
 }
 
 .recipe-meta h3 {
@@ -83,7 +85,7 @@
   counter-reset: recipe-ingredient;
   font-family: var(--font-body);
   font-size: 10px;
-  line-height: 14px;
+  line-height: 13px;
 }
 
 .recipe-meta li {
@@ -102,8 +104,8 @@
 
 .recipe-likes {
   position: absolute;
-  top: 2px;
-  left: 2px;
+  top: 54px;
+  left: 12px;
   display: inline-flex;
   isolation: isolate;
   flex: 0 0 auto;
@@ -162,8 +164,8 @@
 
 .recipe-availability {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 54px;
+  right: 12px;
   display: inline-flex;
   min-height: 20px;
   align-items: center;
@@ -261,15 +263,15 @@
   }
 
   .recipe-card.has-availability .recipe-likes {
-    top: 2px;
-    left: 0;
+    top: 54px;
+    left: 10px;
     min-width: 44px;
     padding: 0 4px 0 3px;
   }
 
   .recipe-card.has-availability .recipe-availability {
-    top: 2px;
-    right: 0;
+    top: 54px;
+    right: 10px;
     left: auto;
     max-width: calc(100% - 68px);
     min-height: 20px;
@@ -294,22 +296,23 @@
   }
 
   .recipe-card h2 {
-    margin-top: 3px;
+    top: 3px;
   }
 
   .recipe-ingredients {
-    margin-top: 24px;
+    top: 58px;
+    padding-bottom: 64px;
   }
 
   .recipe-meta ol {
-    line-height: 13px;
+    line-height: 12px;
   }
 
   .recipe-likes {
-    top: 0;
+    top: 35px;
   }
 
   .recipe-availability {
-    top: 0;
+    top: 35px;
   }
 }

@@ -3,27 +3,37 @@ function formatPreviewIngredient(ingredient) {
     return String(ingredient || "Bahan");
   }
 
-  const amount =
+  const rawName = String(
+    ingredient.nama_bahan ?? ingredient.nama ?? "",
+  ).trim();
+  const amount = String(
     ingredient.jumlah ??
-    ingredient.takaran ??
-    ingredient.kuantitas ??
-    ingredient.qty ??
-    "";
-  const unit = ingredient.satuan ?? "";
-  const name = ingredient.nama_bahan ?? ingredient.nama ?? "Bahan";
-  const note = ingredient.catatan ?? ingredient.keterangan ?? "";
+      ingredient.takaran ??
+      ingredient.kuantitas ??
+      ingredient.qty ??
+      "",
+  ).trim();
+  const unit = String(ingredient.satuan ?? "").trim();
+  const note = String(
+    ingredient.catatan ?? ingredient.keterangan ?? "",
+  ).trim();
 
-  const quantityPart = [amount, unit]
-    .map((part) => String(part ?? "").trim())
-    .filter(Boolean)
-    .join(" ");
+  if (rawName) {
+    const lowerName = rawName.toLocaleLowerCase("id");
+    const prefix = [amount, unit].filter(Boolean).join(" ");
+    const withAmount =
+      prefix && !lowerName.startsWith(prefix.toLocaleLowerCase("id"))
+        ? `${prefix} ${rawName}`
+        : rawName;
 
-  const mainText = [quantityPart, String(name ?? "").trim()]
-    .filter(Boolean)
-    .join(" ");
+    if (note && !withAmount.toLocaleLowerCase("id").includes(note.toLocaleLowerCase("id"))) {
+      return `${withAmount} (${note})`;
+    }
+    return withAmount;
+  }
 
-  const noteText = String(note ?? "").trim();
-  return noteText ? `${mainText} (${noteText})` : mainText || "Bahan";
+  const fallback = [amount, unit].filter(Boolean).join(" ");
+  return note ? `${fallback} (${note})` : fallback || "Bahan";
 }
 
 export function createRecipeCard(
