@@ -133,6 +133,18 @@
   outline-offset: 1px;
 }
 
+.microphone-button.is-listening,
+.microphone-button[aria-pressed="true"] {
+  background: rgb(37 99 235 / 14%);
+  border-radius: 50%;
+}
+
+.microphone-button.is-listening img,
+.microphone-button[aria-pressed="true"] img {
+  filter: brightness(0) saturate(100%) invert(32%) sepia(93%) saturate(2274%)
+    hue-rotate(213deg) brightness(98%) contrast(94%);
+}
+
 .ingredient-row {
   display: flex;
   width: 100%;
