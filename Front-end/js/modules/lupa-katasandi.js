@@ -1,5 +1,4 @@
-const API_BASE_URL = "https://racikrasa.sanes.my.id/api";
-const LOGIN_PAGE_URL = "login.html";
+import { API_BASE_URL } from "./api.js";
 
 const EMAIL_EMOJI_PATTERN =
   /[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}\u200D\uFE0E\uFE0F\u20E3]/gu;
@@ -15,7 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const passwordInput = document.querySelector("#resetPassword");
   const confirmInput = document.querySelector("#confirmPassword");
   const status = document.querySelector("#resetStatus");
+<<<<<<< HEAD
   const submitButton = form?.querySelector('button[type="submit"]');
+=======
+  const submitButton = form?.querySelector(".reset-submit");
+>>>>>>> 38d96cb03caeea46eb56b6b6dde85513a339d3c6
 
   if (
     !(form instanceof HTMLFormElement) ||
@@ -202,19 +205,16 @@ document.addEventListener("DOMContentLoaded", () => {
     updateValidationExpansion();
     if (!isValid) return;
 
-    const originalButtonText = submitButton?.textContent;
-    if (submitButton instanceof HTMLButtonElement) {
-      submitButton.disabled = true;
-      submitButton.textContent = "Menyimpan...";
-    }
+    if (!(submitButton instanceof HTMLButtonElement)) return;
+
+    submitButton.disabled = true;
+    submitButton.textContent = "MEMPROSES...";
     form.setAttribute("aria-busy", "true");
 
     try {
       const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
           nama: name,
@@ -222,37 +222,55 @@ document.addEventListener("DOMContentLoaded", () => {
           konfirmasi_password: confirmation,
         }),
       });
+      const result = await response.json().catch(() => null);
 
-      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result || result.status !== "success") {
+        const message =
+          result?.message || "Gagal memperbarui kata sandi. Silakan coba lagi.";
+        const code = result?.code;
 
-      if (!response.ok || result.status === "error") {
-        applyBackendError(result);
+        if (code === "EMAIL_TIDAK_VALID") {
+          setError(emailInput, message);
+        } else if (code === "KOLOM_WAJIB_DIISI") {
+          if (!emailInput.value.trim()) setError(emailInput, message);
+          if (!nameInput.value.trim()) setError(nameInput, message);
+          if (!passwordInput.value) setError(passwordInput, message);
+          if (!confirmInput.value) setError(confirmInput, message);
+        } else if (code === "NAMA_TERLALU_PANJANG") {
+          setError(nameInput, message);
+        } else if (
+          code === "PASSWORD_MENGANDUNG_SPASI" ||
+          code === "PASSWORD_TIDAK_MEMENUHI_KRITERIA"
+        ) {
+          setError(passwordInput, message);
+        } else if (code === "KONFIRMASI_PASSWORD_TIDAK_COCOK") {
+          setError(confirmInput, message);
+        } else if (code === "AKUN_TIDAK_DITEMUKAN") {
+          setError(emailInput, message);
+          setError(nameInput, message);
+        }
+
+        status.textContent = message;
+        status.hidden = false;
         return;
       }
 
-      clearAllErrors();
-      showStatus(
+      status.textContent =
         result.message ||
-          "Kata sandi berhasil diperbarui, silakan masuk dengan kata sandi baru",
-        "success",
-      );
+        "Kata sandi berhasil diperbarui. Silakan masuk dengan kata sandi baru.";
+      status.hidden = false;
 
       window.setTimeout(() => {
-        window.location.href = LOGIN_PAGE_URL;
+        window.location.assign("login.html");
       }, 1200);
     } catch (error) {
-      console.error("Gagal memulihkan kata sandi:", error);
-      showStatus(
-        "Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
-        "error",
-      );
+      console.error("Gagal menghubungi server:", error);
+      status.textContent =
+        "Tidak dapat terhubung ke server. Periksa koneksi dan coba lagi.";
+      status.hidden = false;
     } finally {
-      if (submitButton instanceof HTMLButtonElement) {
-        submitButton.disabled = false;
-        if (originalButtonText) {
-          submitButton.textContent = originalButtonText;
-        }
-      }
+      submitButton.disabled = false;
+      submitButton.textContent = "SIMPAN KATA SANDI BARU";
       form.removeAttribute("aria-busy");
     }
   });

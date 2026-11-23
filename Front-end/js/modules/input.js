@@ -2,11 +2,11 @@ import { createRecipeCard, renderPagination } from "./recipe-view.js";
 import { renderRecipeDetail } from "./recipe-detail.js";
 import { initFilters } from "./filters.js";
 import { readViewState, updateViewState } from "./view-state.js";
+import { API_BASE_URL } from "./api.js";
 
 const MAX_ADDITIONAL_INGREDIENTS = 5;
 const MAX_TOTAL_INGREDIENTS = 6;
-const DESKTOP_API_PAGES_PER_DISPLAY_PAGE = 2;
-const API_BASE_URL = "http://127.0.0.1:5000/api";
+const DESKTOP_API_PAGES_PER_DISPLAY_PAGE = 4;
 
 function getIngredients(value) {
   return value
@@ -22,9 +22,15 @@ async function fetchRecipes(endpoint, params = {}) {
   }
 
   const token = localStorage.getItem("token");
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
+
+  if (response.status === 401 && token) {
+    localStorage.removeItem("token");
+    response = await fetch(url);
+  }
+
   const result = await response.json();
   if (!response.ok || result.status === "error") {
     throw new Error(result.message || "Permintaan resep gagal.");
@@ -364,7 +370,7 @@ export function initInput() {
   }
 
   function closeRecipeDetail() {
-    updateViewState({ recipe: null }); // screen & step ikut terhapus
+    updateViewState({ recipe: null });
     const shouldRefreshMostLiked = currentSearch === null && !isSavedViewActive;
     latestDetailRequestId += 1;
     detailScreen.hidden = true;
@@ -405,9 +411,6 @@ export function initInput() {
   });
 
   window.addEventListener("recipe:navigate-saved", () => {
-    // Tamu hanya mendapat dialog login dan tampilan tidak berpindah, jadi jangan
-    // ditandai "sedang di halaman simpan" (sebelumnya membuat daftar resep
-    // beranda tersembunyi setelah detail ditutup).
     if (!localStorage.getItem("token")) {
       return;
     }
@@ -443,8 +446,6 @@ export function initInput() {
       return;
     }
 
-    // Simpan di URL supaya refresh tetap di layar ini. Saat dipulihkan dari URL,
-    // jangan hapus screen/step (itu yang akan dipulihkan setelah detail termuat).
     updateViewState(restore ? { recipe: recipeId } : { recipe: recipeId, screen: null });
 
     const requestId = ++latestDetailRequestId;
@@ -656,6 +657,7 @@ export function initInput() {
     const requestId = ++latestRequestId;
     currentSearch = search;
     currentPage = page;
+    recipeGrid.classList.toggle("is-most-liked", !search);
     emptyState.textContent = "Memuat resep...";
     emptyState.hidden = false;
     recipeGrid.replaceChildren();
@@ -756,14 +758,10 @@ export function initInput() {
         emptyState.hidden = true;
       }
 
-      const totalDisplayPages = Math.max(
-        1,
-        Math.ceil(totalApiPages / apiPagesPerDisplayPage),
-      );
       renderPagination(
         pagination,
         page,
-        totalDisplayPages,
+        Math.ceil(totalApiPages / apiPagesPerDisplayPage),
         (selectedPage) => {
           void loadRecipes(currentSearch, selectedPage);
         },
@@ -996,8 +994,6 @@ export function initInput() {
       }
 
       if (state.view === "saved" && localStorage.getItem("token")) {
-        // Detail dibuka dari halaman simpan: sembunyikan daftar simpan di bawahnya
-        // dan ingat asalnya, agar menutup detail kembali ke halaman simpan.
         isSavedViewActive = true;
         const savedScreen = document.querySelector("#view-saved");
         if (savedScreen instanceof HTMLElement) {

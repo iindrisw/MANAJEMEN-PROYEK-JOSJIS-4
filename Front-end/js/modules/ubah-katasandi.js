@@ -1,6 +1,5 @@
 import { readViewState, updateViewState } from "./view-state.js";
-
-const API_BASE_URL = "http://127.0.0.1:5000/api";
+import { API_BASE_URL } from "./api.js";
 
 export function initUbahKataSandi() {
   const passwordDialog = document.querySelector("#profile-password-dialog");

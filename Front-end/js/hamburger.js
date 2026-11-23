@@ -1,5 +1,5 @@
 export function initHumberger() {
-  const menuButtons = document.querySelectorAll("#menu-button");
+  const menuButtons = document.querySelectorAll(".menu-button");
   const navigation = document.querySelector("#bottom-nav");
   const drawerBackdrop = document.querySelector("#drawer-backdrop");
   const signupLink = navigation?.querySelector(".drawer-signup");
