@@ -21,6 +21,12 @@
   padding: clamp(44px, 10vw, 60px) clamp(16px, 7vw, 36px) 12px;
 }
 
+@media (max-width: 767px) {
+  .recipe-content {
+    padding-top: 56px;
+  }
+}
+
 .recipe-grid {
   display: grid;
   width: 100%;
