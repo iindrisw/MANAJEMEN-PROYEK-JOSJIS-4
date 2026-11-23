@@ -39,6 +39,10 @@ body {
   overflow-y: auto;
 }
 
+.register-container {
+  overflow-y: visible;
+}
+
 .auth-back-nav {
   position: sticky;
   top: 0;
@@ -53,6 +57,10 @@ body {
 }
 
 .auth-back {
+  position: absolute;
+  z-index: 100;
+  top: 20px;
+  left: max(20px, calc((100vw - 440px) / 2 + 32px));
   display: grid;
   width: 40px;
   height: 40px;
@@ -221,6 +229,18 @@ body {
 /* JANGAN geser posisi ikon mata saat error, biarkan tetap di tempatnya */
 .register-container .form-group.error .toggle-password {
   right: 16px; 
+}
+
+.toggle-password i {
+  display: block;
+  width: 26px;
+  height: 26px;
+  background: url("../assets/figma/icon-eye-disable.svg") center / contain no-repeat;
+  font-size: 0;
+}
+
+.toggle-password i.fa-eye-slash {
+  background-image: url("../assets/figma/icon-eye.svg");
 }
 
 /* Posisi ikon tanda seru (warning) di luar sebelah kanan kotak input */
@@ -446,14 +466,16 @@ body {
     padding: 40px 80px 80px;
   }
 
-  .register-container > .auth-back {
-    position: fixed;
-    top: 20px;
+  .auth-back {
     left: max(20px, calc((100vw - 760px) / 2 + 80px));
   }
 
   .register-container > .brand-logo-wrapper {
     margin-top: 40px;
+  }
+
+  .register-container > .auth-back {
+    left: max(20px, calc((100vw - 760px) / 2 + 80px));
   }
 }
 

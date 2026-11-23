@@ -173,24 +173,21 @@ a {
 }
 
 .password-toggle img {
-  display: block;
+  display: none;
   width: 26px;
   height: auto;
 }
 
-.password-toggle::after {
-  position: absolute;
-  top: 16px;
-  left: 4px;
-  width: 26px;
-  border-top: 2px solid var(--forgot-coral);
-  content: "";
-  opacity: 0;
-  transform: rotate(-42deg);
+.password-toggle img.password-eye-hidden {
+  display: block;
 }
 
-.password-toggle.is-visible::after {
-  opacity: 1;
+.password-toggle.is-visible img.password-eye-hidden {
+  display: none;
+}
+
+.password-toggle.is-visible img.password-eye-active {
+  display: block;
 }
 
 .field-error {

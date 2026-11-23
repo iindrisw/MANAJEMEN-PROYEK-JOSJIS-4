@@ -3,7 +3,7 @@
   z-index: 20;
   top: 322px;
   left: 50%;
-  width: 376px;
+  width: calc(100% - 64px);
   max-width: calc(100vw - 32px);
   max-height: none;
   margin: 0;
@@ -43,7 +43,7 @@
 
 .profile-password-card .password-input-group {
   display: flex;
-  width: 308px;
+  width: 100%;
   max-width: 100%;
   flex-direction: column;
   gap: 2px;
@@ -59,7 +59,7 @@
 }
 
 .profile-password-card .password-input-wrapper {
-  width: 100%;
+  width: calc(100% - 36px);
   align-items: center;
 }
 
@@ -83,24 +83,24 @@
   height: 30px;
 }
 
-.profile-password-card .profile-password-toggle::after {
-  position: absolute;
-  top: 14px;
-  left: 3px;
-  width: 24px;
-  border-top: 2px solid var(--coral);
-  content: "";
-  opacity: 0;
-  transform: rotate(-42deg);
-}
-
-.profile-password-card .profile-password-toggle.is-visible::after {
-  opacity: 1;
-}
-
 .profile-password-card .profile-password-toggle img {
   width: 26px;
   height: auto;
+}
+
+.profile-password-card .profile-input-warning {
+  position: absolute;
+  top: 50%;
+  right: -36px;
+  display: none;
+  width: 24px;
+  height: 24px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.profile-password-card .profile-dialog-input.is-invalid + .profile-input-warning {
+  display: block;
 }
 
 .profile-password-card .profile-field-error {
@@ -145,7 +145,17 @@
   letter-spacing: 0;
 }
 
+@media (min-width: 768px) {
+  #profile-password-dialog {
+    width: min(1000px, calc(100% - clamp(32px, 5vw, 64px)));
+  }
+}
+
 @media (max-width: 380px) {
+  #profile-password-dialog {
+    width: calc(100% - 48px);
+  }
+
   .profile-password-card {
     padding-right: 16px;
     padding-left: 16px;

@@ -4,6 +4,122 @@ import { initFilters } from "./filters.js";
 import { readViewState, updateViewState } from "./view-state.js";
 import { API_BASE_URL } from "./api.js";
 
+const UNSUPPORTED_CHARACTER_PATTERN = /[^\x00-\x7F]/;
+const EMOJI_PATTERN =
+  /[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}\u200D\uFE0E\uFE0F\u20E3]/gu;
+
+export const EMAIL_ERROR_MESSAGE =
+  "Format email tidak sesuai (contoh: madinatul@gmail.com)";
+export const PASSWORD_ERROR_MESSAGE =
+  "Kata sandi harus terdiri dari 8 hingga 64 karakter dan harus mengandung kombinasi huruf dan angka";
+
+export function containsUnsupportedCharacter(value) {
+  return UNSUPPORTED_CHARACTER_PATTERN.test(value);
+}
+
+export function containsUnsupportedEmailCharacter(value) {
+  return (
+    containsUnsupportedCharacter(value) ||
+    /(?:^|[.@])xn--[a-z0-9-]+/i.test(value)
+  );
+}
+
+export function sanitizeEmailUnsupportedCharacters(value) {
+  return sanitizeUnsupportedCharacters(value);
+}
+
+export function sanitizeUnsupportedCharacters(value) {
+  return value
+    .replace(EMOJI_PATTERN, "")
+    .replace(/[^\x00-\x7F]/g, "");
+}
+
+export function blockUnsupportedCharacters(
+  input,
+  {
+    message,
+    setError,
+    clearError,
+    isEmailIdentifier = false,
+    requireEmailMarker = false,
+  },
+) {
+  const insertCleanedText = (text) => {
+    const cleanedText = sanitizeUnsupportedCharacters(text);
+    if (input.type === "email") {
+      input.value = `${input.value}${cleanedText}`;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      return;
+    }
+
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? start;
+    input.setRangeText(cleanedText, start, end, "end");
+  };
+
+  const rejectBeforeInput = (event) => {
+    if (!event.inputType?.startsWith("insert")) return;
+    if (!event.data) return;
+    const hasUnsupportedData = isEmailIdentifier
+      ? containsUnsupportedEmailCharacter(event.data)
+      : containsUnsupportedCharacter(event.data);
+    if (!hasUnsupportedData) return;
+
+    const candidate = `${input.value}${event.data}`;
+    if (requireEmailMarker && !candidate.includes("@")) return;
+
+    const cleanedText = sanitizeUnsupportedCharacters(event.data);
+    event.preventDefault();
+    if (!cleanedText) {
+      return;
+    }
+    insertCleanedText(cleanedText);
+  };
+
+  const rejectPaste = (event) => {
+    const pastedText = event.clipboardData?.getData("text") || "";
+    const hasUnsupportedText = isEmailIdentifier
+      ? containsUnsupportedEmailCharacter(pastedText)
+      : containsUnsupportedCharacter(pastedText);
+    if (!hasUnsupportedText) return;
+
+    const candidate = `${input.value}${pastedText}`;
+    if (requireEmailMarker && !candidate.includes("@")) return;
+
+    event.preventDefault();
+    if (!sanitizeUnsupportedCharacters(pastedText)) {
+      return;
+    }
+    insertCleanedText(pastedText);
+  };
+
+  input.addEventListener("beforeinput", rejectBeforeInput);
+  input.addEventListener("paste", rejectPaste);
+  input.addEventListener("input", () => {
+    if (requireEmailMarker && !input.value.includes("@")) {
+      clearError();
+      return;
+    }
+
+    const cleanedValue = isEmailIdentifier
+      ? sanitizeEmailUnsupportedCharacters(input.value)
+      : sanitizeUnsupportedCharacters(input.value);
+    if (cleanedValue !== input.value) {
+      input.value = cleanedValue;
+    }
+    clearError();
+  });
+  input.addEventListener("change", () => {
+    const cleanedValue = isEmailIdentifier
+      ? sanitizeEmailUnsupportedCharacters(input.value)
+      : sanitizeUnsupportedCharacters(input.value);
+    if (cleanedValue !== input.value) {
+      input.value = cleanedValue;
+    }
+    clearError();
+  });
+}
+
 const MAX_ADDITIONAL_INGREDIENTS = 5;
 const MAX_TOTAL_INGREDIENTS = 6;
 const DESKTOP_API_PAGES_PER_DISPLAY_PAGE = 4;
@@ -698,7 +814,7 @@ export function initInput() {
         firstApiPage + apiPagesPerDisplayPage - 1,
         nextTotalApiPages,
       );
-      const remainingPages = await Promise.all(
+      const remainingPageResults = await Promise.allSettled(
         Array.from(
           { length: Math.max(0, lastApiPage - firstApiPage) },
           (_, index) =>
@@ -708,6 +824,9 @@ export function initInput() {
             }),
         ),
       );
+      const remainingPages = remainingPageResults
+        .filter((pageResult) => pageResult.status === "fulfilled")
+        .map((pageResult) => pageResult.value);
 
       if (requestId !== latestRequestId) {
         return;
@@ -776,9 +895,6 @@ export function initInput() {
       emptyState.hidden = false;
       recipeGrid.style.opacity = "";
       updateRecipeListScrollbar();
-      showValidationDialog(
-        `Gagal mengambil resep dari server. ${error.message}`,
-      );
     }
   }
 

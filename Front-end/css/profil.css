@@ -552,17 +552,19 @@
 }
 
 .profile-password-toggle img {
+  display: none;
+}
+
+.profile-password-toggle img.password-eye-hidden {
   display: block;
 }
 
-.profile-password-toggle.is-visible::after {
-  position: absolute;
-  top: 17px;
-  left: 5px;
-  width: 26px;
-  border-top: 2px solid var(--coral);
-  content: "";
-  transform: rotate(-42deg);
+.profile-password-toggle.is-visible img.password-eye-hidden {
+  display: none;
+}
+
+.profile-password-toggle.is-visible img.password-eye-active {
+  display: block;
 }
 
 .profile-form-error {

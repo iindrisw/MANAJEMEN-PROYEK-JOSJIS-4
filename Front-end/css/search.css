@@ -2,7 +2,7 @@
   position: relative;
   z-index: 1;
   --ingredient-count-width: 44px;
-  width: 440px;
+  width: 100%;
   height: 354px;
   padding: 0 32px;
   border-radius: 0 0 20px 20px;
@@ -76,7 +76,7 @@
 .ingredient-search > .search-field,
 .ingredient-row .search-field {
   align-self: flex-start;
-  width: min(302px, calc(100% - var(--ingredient-count-width) - 30px));
+  width: min(820px, calc(100% - var(--ingredient-count-width) - 30px));
   box-shadow: 0 4px 5px rgb(0 0 0 / 25%);
 }
 
@@ -249,7 +249,8 @@
   display: grid;
   width: 100%;
   height: 32px;
-  grid-template-columns: minmax(0, 302px) 44px;
+  grid-template-columns: minmax(0, calc(100% - 74px)) 44px;
+  column-gap: 30px;
   justify-content: space-between;
   align-items: center;
 }
@@ -260,6 +261,7 @@
 }
 
 .icon-button {
+  position: relative;
   display: grid;
   width: 44px;
   height: 32px;
@@ -277,6 +279,7 @@
   display: block;
   width: 18px;
   height: 18px;
+  filter: brightness(0) invert(1);
   transition: filter 160ms ease;
 }
 
@@ -285,7 +288,7 @@
 }
 
 .icon-button:hover img {
-  filter: brightness(0) saturate(100%) invert(43%) sepia(8%) saturate(2827%) hue-rotate(313deg) brightness(90%) contrast(85%);
+  filter: none;
 }
 
 .button-filter {
@@ -543,7 +546,7 @@
   outline-offset: 2px;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .app-shell {
     --filter-panel-right: max(
       clamp(32px, 5vw, 80px),

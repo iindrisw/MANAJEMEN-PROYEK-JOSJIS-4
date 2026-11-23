@@ -1,5 +1,10 @@
 import { readViewState, updateViewState } from "./view-state.js";
 import { API_BASE_URL } from "./api.js";
+import {
+  blockUnsupportedCharacters,
+  containsUnsupportedCharacter,
+  PASSWORD_ERROR_MESSAGE,
+} from "./input.js";
 
 export function initUbahKataSandi() {
   const passwordDialog = document.querySelector("#profile-password-dialog");
@@ -56,6 +61,16 @@ export function initUbahKataSandi() {
     clearFormError();
   }
 
+  fields.forEach((input) => {
+    if (input instanceof HTMLInputElement) {
+      blockUnsupportedCharacters(input, {
+        message: PASSWORD_ERROR_MESSAGE,
+        setError: (message) => setFieldError(input, message),
+        clearError: () => clearFieldError(input),
+      });
+    }
+  });
+
   function validatePasswordInputs(currentPass, newPass, confirmPass) {
     clearAllErrors();
     let isValid = true;
@@ -63,6 +78,9 @@ export function initUbahKataSandi() {
     fields.forEach((input) => {
       if (input instanceof HTMLInputElement && input.value.length === 0) {
         setFieldError(input, "Kolom ini wajib diisi");
+        isValid = false;
+      } else if (input instanceof HTMLInputElement && containsUnsupportedCharacter(input.value)) {
+        setFieldError(input, PASSWORD_ERROR_MESSAGE);
         isValid = false;
       }
     });
@@ -75,7 +93,7 @@ export function initUbahKataSandi() {
     ];
     values.forEach(([input, value]) => {
       if (/\s/.test(value)) {
-        setFieldError(input, "Kata sandi tidak boleh mengandung spasi");
+        setFieldError(input, PASSWORD_ERROR_MESSAGE);
         isValid = false;
       }
     });
@@ -86,7 +104,7 @@ export function initUbahKataSandi() {
     if (newPass.length < 8 || newPass.length > 64 || !hasLettersAndNumbers) {
       setFieldError(
         passwordNextInput,
-        "Kata sandi harus terdiri dari 8 hingga 64 karakter dan hanya mengandung kombinasi huruf dan angka",
+        PASSWORD_ERROR_MESSAGE,
       );
       isValid = false;
     }
@@ -245,11 +263,6 @@ export function initUbahKataSandi() {
   passwordForm?.addEventListener("submit", (event) => {
     void handlePasswordSubmit(event);
   });
-
-  fields.forEach((input) => input?.addEventListener("input", () => {
-    clearFieldError(input);
-    clearFormError();
-  }));
 
   document.querySelectorAll("[data-password-target]").forEach((toggle) => {
     toggle.addEventListener("click", () => {
