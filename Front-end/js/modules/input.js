@@ -867,7 +867,7 @@ export function initInput() {
         recipeGrid.style.opacity = "";
       });
       if (visibleRecipes.length === 0) {
-        emptyState.textContent = "Resep tidak ditemukan.";
+        emptyState.textContent = "Data Resep Tidak Tersedia";
         emptyState.hidden = false;
         if (search?.type === "ingredients" && page === 1) {
           showValidationDialog(
