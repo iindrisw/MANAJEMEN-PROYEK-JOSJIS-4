@@ -1,4 +1,8 @@
-import { API_BASE_URL } from "./api.js";
+import {
+  API_BASE_URL,
+  isNetworkConnectionError,
+  NETWORK_CONNECTION_ERROR_MESSAGE,
+} from "./api.js";
 const GOOGLE_CLIENT_ID = "ISI_CLIENT_ID_KAMU.apps.googleusercontent.com";
 const PESAN_GAGAL = "Gagal terhubung dengan Google, silakan coba beberapa saat lagi";
 
@@ -20,7 +24,9 @@ export function initGoogleAuth() {
   wrapper.after(message);
 
   const showError = () => {
-    message.textContent = PESAN_GAGAL;
+    message.textContent = !navigator.onLine
+      ? NETWORK_CONNECTION_ERROR_MESSAGE
+      : PESAN_GAGAL;
     message.hidden = false;
   };
   const clearError = () => { message.hidden = true; };
@@ -42,7 +48,10 @@ export function initGoogleAuth() {
       window.location.href = "index.html";
     } catch (error) {
       console.error("Login Google gagal:", error);
-      showError();
+      message.textContent = isNetworkConnectionError(error)
+        ? NETWORK_CONNECTION_ERROR_MESSAGE
+        : PESAN_GAGAL;
+      message.hidden = false;
     }
   }
 

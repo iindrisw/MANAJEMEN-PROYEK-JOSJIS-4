@@ -161,3 +161,23 @@
     padding-left: 16px;
   }
 }
+
+@media (max-width: 439px) {
+  #profile-password-dialog {
+    position: fixed;
+    top: 50%;
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transform: translate(-50%, -50%);
+    overscroll-behavior: contain;
+  }
+
+  .profile-password-card {
+    min-height: 0;
+    gap: clamp(16px, 3vh, 28px);
+    padding: 52px 16px 24px;
+  }
+}

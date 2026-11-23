@@ -523,8 +523,10 @@ body:has(#recipe-detail:not([hidden])) {
 
 @media (max-width: 439px) {
   .recipe-detail {
-    height: 952px;
-    min-height: 952px;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
 
   .detail-recipe-title {
@@ -548,12 +550,26 @@ body:has(#recipe-detail:not([hidden])) {
   }
 
   .detail-footer {
+    position: sticky;
+    z-index: 4;
+    bottom: 0;
+    height: auto;
+    flex-basis: auto;
+    min-height: 42px;
+    margin-top: auto;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background: var(--white);
     padding-right: 22px;
     padding-left: 22px;
   }
 
   .detail-steps-button {
-    font-size: clamp(16px, 5vw, 22px);
+    width: 100%;
+    min-width: 0;
+    padding: 6px 12px;
+    font-size: clamp(14px, 4.5vw, 18px);
+    white-space: normal;
   }
 }
 
@@ -572,8 +588,8 @@ body:has(#recipe-detail:not([hidden])) {
   z-index: 12;
   inset: 0;
   width: 100%;
-  height: 956px;
-  min-height: 956px;
+  height: 100vh;
+  min-height: 100vh;
   overflow-x: hidden;
   background: var(--white);
 }
@@ -750,8 +766,8 @@ body:has(#recipe-detail:not([hidden])) {
   z-index: 14;
   inset: 0;
   width: 100%;
-  height: 956px;
-  min-height: 956px;
+  height: 100vh;
+  min-height: 100vh;
   overflow: hidden;
   background: #d9d9d9;
 }
@@ -929,11 +945,112 @@ body:has(#recipe-detail:not([hidden])) {
 }
 
 @media (max-width: 439px) {
+  .recipe-steps-screen,
+  .cooking-mode-screen {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .steps-card-content {
+    height: calc(100% - 120px);
+    overflow-y: auto;
+  }
+
+  .steps-recipe-title {
+    width: calc(100% - 32px);
+    height: auto;
+    min-height: 70px;
+    padding: 0 8px;
+    line-height: 1.15;
+  }
+
+  .mode-memasak-button {
+    width: min(216px, calc(100% - 32px));
+    margin-right: 16px;
+    font-size: clamp(16px, 5vw, 20px);
+  }
+
+  .cooking-mode-back {
+    left: 16px;
+  }
+
   .cooking-mode-page-title {
-    font-size: clamp(20px, 5.9vw, 26px);
+    right: 16px;
+    left: 64px;
+    width: auto;
+    font-size: clamp(18px, 5.9vw, 26px);
+  }
+
+  .cooking-mode-heading {
+    top: 96px;
+    left: 16px;
+    width: calc(100% - 32px);
+    height: 88px;
+    padding: 8px 12px;
+    transform: none;
+    font-size: clamp(18px, 5vw, 24px);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  .cooking-mode-step {
+    top: 212px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+    height: calc(100% - 300px);
+    min-height: 220px;
+    transform: none;
+  }
+
+  .cooking-mode-step-title {
+    top: 20px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+    transform: none;
+    font-size: clamp(22px, 7vw, 30px);
+    line-height: 1.25;
+    text-align: center;
   }
 
   .cooking-mode-step-description {
-    font-size: clamp(20px, 7.27vw, 32px);
+    top: 88px;
+    right: 12px;
+    bottom: 16px;
+    left: 12px;
+    width: auto;
+    height: auto;
+    font-size: clamp(18px, 6vw, 26px);
+    line-height: 1.35;
+  }
+
+  .cooking-mode-controls {
+    top: auto;
+    right: 16px;
+    bottom: 20px;
+    left: 16px;
+    width: auto;
+    height: 40px;
+    gap: 8px;
+    transform: none;
+  }
+
+  .cooking-mode-control:first-child,
+  .cooking-mode-control:last-child {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 0;
+    gap: 3px;
+    padding: 0 4px;
+    font-size: clamp(10px, 3.2vw, 13px);
+  }
+
+  .cooking-mode-control img {
+    width: 20px;
+    height: 20px;
+    flex-basis: 20px;
   }
 }

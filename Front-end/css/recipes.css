@@ -163,7 +163,21 @@
 }
 
 .recipe-availability {
-  display: none;
+  position: absolute;
+  top: 54px;
+  right: 12px;
+  display: inline-flex;
+  min-height: 20px;
+  align-items: center;
+  border-radius: 20px;
+  background: #D05756;
+  color: #FFFFFF;
+  padding: 0 7px;
+  font-family: var(--font-heading);
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
 }
 
 .pagination {
@@ -268,6 +282,10 @@
   }
 
   .recipe-likes {
+    top: 35px;
+  }
+
+  .recipe-availability {
     top: 35px;
   }
 }
