@@ -1,41 +1,3 @@
-function formatPreviewIngredient(ingredient) {
-  if (!ingredient || typeof ingredient !== "object") {
-    return String(ingredient || "Bahan");
-  }
-
-  const rawName = String(
-    ingredient.nama_bahan ?? ingredient.nama ?? "",
-  ).trim();
-  const amount = String(
-    ingredient.jumlah ??
-      ingredient.takaran ??
-      ingredient.kuantitas ??
-      ingredient.qty ??
-      "",
-  ).trim();
-  const unit = String(ingredient.satuan ?? "").trim();
-  const note = String(
-    ingredient.catatan ?? ingredient.keterangan ?? "",
-  ).trim();
-
-  if (rawName) {
-    const lowerName = rawName.toLocaleLowerCase("id");
-    const prefix = [amount, unit].filter(Boolean).join(" ");
-    const withAmount =
-      prefix && !lowerName.startsWith(prefix.toLocaleLowerCase("id"))
-        ? `${prefix} ${rawName}`
-        : rawName;
-
-    if (note && !withAmount.toLocaleLowerCase("id").includes(note.toLocaleLowerCase("id"))) {
-      return `${withAmount} (${note})`;
-    }
-    return withAmount;
-  }
-
-  const fallback = [amount, unit].filter(Boolean).join(" ");
-  return note ? `${fallback} (${note})` : fallback || "Bahan";
-}
-
 export function createRecipeCard(
   recipe,
   { searchedIngredientCount } = {},
@@ -51,7 +13,7 @@ export function createRecipeCard(
   card.dataset.availableIngredients = JSON.stringify(recipe.bahan_cocok || []);
   card.dataset.name = name.toLocaleLowerCase("id");
   card.dataset.ingredients = ingredients
-    .map((ingredient) => formatPreviewIngredient(ingredient))
+    .map((ingredient) => ingredient.nama_bahan || "")
     .join(" ")
     .toLocaleLowerCase("id");
   card.tabIndex = 0;
@@ -72,10 +34,12 @@ export function createRecipeCard(
   const ingredientSection = document.createElement("div");
   ingredientSection.className = "recipe-ingredients";
   const ingredientList = document.createElement("ol");
+  const mainIngredients = ingredients.slice(0, 5);
 
-  for (const ingredient of ingredients) {
+  for (const ingredient of mainIngredients) {
     const item = document.createElement("li");
-    item.textContent = formatPreviewIngredient(ingredient);
+    const ingredientName = ingredient.nama_bahan || "Bahan";
+    item.textContent = ingredientName;
     ingredientList.append(item);
   }
   ingredientSection.append(ingredientList);
