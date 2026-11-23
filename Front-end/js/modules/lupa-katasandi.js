@@ -1,4 +1,8 @@
-import { API_BASE_URL } from "./api.js";
+import {
+  API_BASE_URL,
+  isNetworkConnectionError,
+  NETWORK_CONNECTION_ERROR_MESSAGE,
+} from "./api.js";
 import {
   blockUnsupportedCharacters,
   containsUnsupportedCharacter,
@@ -288,8 +292,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 1200);
     } catch (error) {
       console.error("Gagal menghubungi server:", error);
-      status.textContent =
-        "Tidak dapat terhubung ke server. Periksa koneksi dan coba lagi.";
+      status.textContent = isNetworkConnectionError(error)
+        ? NETWORK_CONNECTION_ERROR_MESSAGE
+        : "Tidak dapat terhubung ke server. Periksa koneksi dan coba lagi.";
       status.hidden = false;
     } finally {
       submitButton.disabled = false;

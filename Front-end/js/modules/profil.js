@@ -1,5 +1,9 @@
 import { readViewState, updateViewState } from "./view-state.js";
-import { API_BASE_URL } from "./api.js";
+import {
+  API_BASE_URL,
+  isNetworkConnectionError,
+  NETWORK_CONNECTION_ERROR_MESSAGE,
+} from "./api.js";
 
 export function initProfile() {
   const appShell = document.querySelector(".app-shell");
@@ -180,7 +184,12 @@ export function initProfile() {
         openDialog(guestModal);
         return;
       }
-      showNameStatus(error.message || "Gagal memuat data profil.", true);
+      showNameStatus(
+        isNetworkConnectionError(error)
+          ? NETWORK_CONNECTION_ERROR_MESSAGE
+          : error.message || "Gagal memuat data profil.",
+        true,
+      );
     }
   }
 
@@ -230,7 +239,11 @@ export function initProfile() {
       openDialog(nameSuccessDialog);
     } catch (error) {
       console.error("Gagal mengubah nama:", error);
-      setNameError(error.message || "Gagal mengubah nama.");
+      setNameError(
+        isNetworkConnectionError(error)
+          ? NETWORK_CONNECTION_ERROR_MESSAGE
+          : error.message || "Gagal mengubah nama.",
+      );
     } finally {
       if (confirmBtn) {
         confirmBtn.disabled = false;

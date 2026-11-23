@@ -2,7 +2,11 @@ import { createRecipeCard, renderPagination } from "./recipe-view.js";
 import { renderRecipeDetail } from "./recipe-detail.js";
 import { initFilters } from "./filters.js";
 import { readViewState, updateViewState } from "./view-state.js";
-import { API_BASE_URL } from "./api.js";
+import {
+  API_BASE_URL,
+  isNetworkConnectionError,
+  NETWORK_CONNECTION_ERROR_MESSAGE,
+} from "./api.js";
 
 const UNSUPPORTED_CHARACTER_PATTERN = /[^\x00-\x7F]/;
 const EMOJI_PATTERN =
@@ -481,7 +485,7 @@ export function initInput() {
       return true;
     }
 
-    setDetailFeedback("Tidak ada koneksi internet. Coba lagi saat terhubung.");
+    setDetailFeedback(NETWORK_CONNECTION_ERROR_MESSAGE);
     return false;
   }
 
@@ -612,7 +616,11 @@ export function initInput() {
         return;
       }
       detailTitle.textContent = "Detail resep tidak tersedia";
-      setDetailFeedback(`Gagal memuat detail resep. ${error.message}`);
+      setDetailFeedback(
+        isNetworkConnectionError(error)
+          ? NETWORK_CONNECTION_ERROR_MESSAGE
+          : `idak ada koneksi internet. Coba lagi saat terhubung ${error.message}`,
+      );
     }
   }
 
@@ -660,7 +668,11 @@ export function initInput() {
       renderRecipeDetail(activeRecipe, activeAvailableIngredients);
       updateRecipeCardLikeCount(activeRecipe);
     } catch (error) {
-      setDetailFeedback(error.message);
+      setDetailFeedback(
+        isNetworkConnectionError(error)
+          ? NETWORK_CONNECTION_ERROR_MESSAGE
+          : error.message,
+      );
     } finally {
       isLikeSubmitting = false;
     }
@@ -711,7 +723,11 @@ export function initInput() {
         bookmarkSuccessDialog.showModal();
       }
     } catch (error) {
-      setDetailFeedback(error.message);
+      setDetailFeedback(
+        isNetworkConnectionError(error)
+          ? NETWORK_CONNECTION_ERROR_MESSAGE
+          : error.message,
+      );
     } finally {
       isBookmarkSubmitting = false;
     }
@@ -891,7 +907,9 @@ export function initInput() {
         return;
       }
 
-      emptyState.textContent = "Data Resep tidak tersedia";
+      emptyState.textContent = isNetworkConnectionError(error)
+        ? NETWORK_CONNECTION_ERROR_MESSAGE
+        : "idak ada koneksi internet. Coba lagi saat terhubung";
       emptyState.hidden = false;
       recipeGrid.style.opacity = "";
       updateRecipeListScrollbar();

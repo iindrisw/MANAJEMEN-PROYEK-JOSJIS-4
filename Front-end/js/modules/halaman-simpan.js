@@ -1,6 +1,10 @@
 import { createRecipeCard, renderPagination } from "./recipe-view.js";
 import { readViewState, updateViewState } from "./view-state.js";
-import { API_BASE_URL } from "./api.js";
+import {
+  API_BASE_URL,
+  isNetworkConnectionError,
+  NETWORK_CONNECTION_ERROR_MESSAGE,
+} from "./api.js";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -134,7 +138,9 @@ export function initHalamanSimpan() {
         return;
       }
       console.error("Gagal memuat resep tersimpan:", error);
-      emptyState.textContent = `Resep tersimpan tidak dapat dimuat. ${error.message}`;
+      emptyState.textContent = isNetworkConnectionError(error)
+        ? NETWORK_CONNECTION_ERROR_MESSAGE
+        : `Tidak ada koneksi internet. Coba lagi saat terhubung ${error.message}`;
       emptyState.hidden = false;
       recipeGrid.replaceChildren();
     }

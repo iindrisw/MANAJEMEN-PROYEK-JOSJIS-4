@@ -1,4 +1,8 @@
-import { API_BASE_URL } from "./api.js";
+import {
+  API_BASE_URL,
+  isNetworkConnectionError,
+  NETWORK_CONNECTION_ERROR_MESSAGE,
+} from "./api.js";
 import {
   blockUnsupportedCharacters,
   containsUnsupportedCharacter,
@@ -180,7 +184,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error("Gagal menghubungi server:", error);
-      alert(error.message || "Terjadi kesalahan koneksi ke server.");
+      alert(
+        isNetworkConnectionError(error)
+          ? NETWORK_CONNECTION_ERROR_MESSAGE
+          : error.message || "Tidak ada koneksi internet. Coba lagi saat terhubung",
+      );
       isValid = false;
     }
 

@@ -63,8 +63,27 @@ export function createRecipeCard(
   likeCountLabel.textContent = String(likeCount);
   likes.append(likeIcon, likeCountLabel);
 
-  // Masukkan bahan dan likes ke meta secara berurutan sekali saja
   meta.append(ingredientSection, likes);
+
+  if (Number.isInteger(searchedIngredientCount) && searchedIngredientCount > 0) {
+    const matchedIngredients = Array.isArray(recipe.bahan_cocok)
+      ? recipe.bahan_cocok
+      : [];
+    const matchedCount = matchedIngredients.length > 0
+      ? matchedIngredients.length
+      : Math.max(0, Number(recipe.jumlah_cocok) || 0);
+    const denominator = maxIngredientCount > 0
+      ? Math.max(searchedIngredientCount, maxIngredientCount)
+      : searchedIngredientCount;
+    const availability = document.createElement("span");
+    availability.className = "recipe-availability";
+    availability.textContent = `${matchedCount}/${denominator} bahan tersedia`;
+    availability.setAttribute(
+      "aria-label",
+      `${matchedCount} dari ${denominator} bahan tersedia`,
+    );
+    meta.append(availability);
+  }
 
   card.append(title, meta);
   return card;

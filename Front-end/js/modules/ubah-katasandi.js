@@ -1,5 +1,9 @@
 import { readViewState, updateViewState } from "./view-state.js";
-import { API_BASE_URL } from "./api.js";
+import {
+  API_BASE_URL,
+  isNetworkConnectionError,
+  NETWORK_CONNECTION_ERROR_MESSAGE,
+} from "./api.js";
 import {
   blockUnsupportedCharacters,
   containsUnsupportedCharacter,
@@ -197,7 +201,11 @@ export function initUbahKataSandi() {
       if (successModal instanceof HTMLDialogElement) successModal.showModal();
     } catch (error) {
       console.error("Gagal mengubah kata sandi:", error);
-      showFormError(error.message || "Terjadi kesalahan saat memperbarui kata sandi.");
+      showFormError(
+        isNetworkConnectionError(error)
+          ? NETWORK_CONNECTION_ERROR_MESSAGE
+          : error.message || "Terjadi kesalahan saat memperbarui kata sandi.",
+      );
     } finally {
       if (btnConfirmPassword instanceof HTMLButtonElement) {
         btnConfirmPassword.disabled = false;
