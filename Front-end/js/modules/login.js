@@ -1,4 +1,8 @@
-import { API_BASE_URL } from "./api.js";
+import {
+  API_BASE_URL,
+  isNetworkConnectionError,
+  NETWORK_CONNECTION_ERROR_MESSAGE,
+} from "./api.js";
 import {
   blockUnsupportedCharacters,
   containsUnsupportedCharacter,
@@ -174,8 +178,8 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Login gagal:", error);
       setError(
         inputPassword,
-        error instanceof TypeError
-          ? "Tidak dapat menghubungi server. Pastikan API berjalan dan alamatnya benar."
+        isNetworkConnectionError(error)
+          ? NETWORK_CONNECTION_ERROR_MESSAGE
           : error.message || "Login gagal. Silakan coba lagi."
       );
     } finally {
@@ -206,6 +210,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!ensureGoogleInit()) {
         const notification = document.querySelector("#google-auth-error");
         if (notification instanceof HTMLElement) {
+          notification.textContent =
+            "Layanan Google belum siap. Silakan coba beberapa saat lagi.";
           notification.hidden = false;
         }
         return;
@@ -274,6 +280,9 @@ async function handleGoogleCredentialResponse(googleResponse) {
       return;
     }
 
+    notification.textContent = isNetworkConnectionError(error)
+      ? NETWORK_CONNECTION_ERROR_MESSAGE
+      : error.message || "Gagal autentikasi via Google.";
     notification.hidden = false;
   }
 }
