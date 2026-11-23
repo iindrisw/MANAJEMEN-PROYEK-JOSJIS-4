@@ -112,7 +112,7 @@ export function initHalamanSimpan() {
       return;
     }
 
-    emptyState.textContent = "Memuat resep tersimpan...";
+    emptyState.textContent = "Memuat halaman resep tersimpan...";
     emptyState.hidden = false;
     recipeGrid.replaceChildren();
     paginationContainer.hidden = true;
