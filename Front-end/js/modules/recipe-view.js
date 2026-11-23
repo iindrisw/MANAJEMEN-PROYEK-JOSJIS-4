@@ -1,3 +1,31 @@
+function formatPreviewIngredient(ingredient) {
+  if (!ingredient || typeof ingredient !== "object") {
+    return String(ingredient || "Bahan");
+  }
+
+  const amount =
+    ingredient.jumlah ??
+    ingredient.takaran ??
+    ingredient.kuantitas ??
+    ingredient.qty ??
+    "";
+  const unit = ingredient.satuan ?? "";
+  const name = ingredient.nama_bahan ?? ingredient.nama ?? "Bahan";
+  const note = ingredient.catatan ?? ingredient.keterangan ?? "";
+
+  const quantityPart = [amount, unit]
+    .map((part) => String(part ?? "").trim())
+    .filter(Boolean)
+    .join(" ");
+
+  const mainText = [quantityPart, String(name ?? "").trim()]
+    .filter(Boolean)
+    .join(" ");
+
+  const noteText = String(note ?? "").trim();
+  return noteText ? `${mainText} (${noteText})` : mainText || "Bahan";
+}
+
 export function createRecipeCard(
   recipe,
   { searchedIngredientCount } = {},
@@ -13,7 +41,7 @@ export function createRecipeCard(
   card.dataset.availableIngredients = JSON.stringify(recipe.bahan_cocok || []);
   card.dataset.name = name.toLocaleLowerCase("id");
   card.dataset.ingredients = ingredients
-    .map((ingredient) => ingredient.nama_bahan || "")
+    .map((ingredient) => formatPreviewIngredient(ingredient))
     .join(" ")
     .toLocaleLowerCase("id");
   card.tabIndex = 0;
@@ -34,12 +62,10 @@ export function createRecipeCard(
   const ingredientSection = document.createElement("div");
   ingredientSection.className = "recipe-ingredients";
   const ingredientList = document.createElement("ol");
-  const mainIngredients = ingredients.slice(0, 5);
 
-  for (const ingredient of mainIngredients) {
+  for (const ingredient of ingredients) {
     const item = document.createElement("li");
-    const ingredientName = ingredient.nama_bahan || "Bahan";
-    item.textContent = ingredientName;
+    item.textContent = formatPreviewIngredient(ingredient);
     ingredientList.append(item);
   }
   ingredientSection.append(ingredientList);

@@ -1,13 +1,15 @@
 .recipe-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  height: 154px;
-  padding: 0;
+  min-height: 154px;
+  height: auto;
+  padding: 0 0 10px;
   border-radius: 20px;
   background: var(--page-yellow);
   box-shadow: 0 4px 5px rgb(0 0 0 / 25%);
   cursor: pointer;
-  overflow: hidden;
 }
 
 .recipe-card:focus-visible {
@@ -24,19 +26,16 @@
   border: 2px solid rgb(37 37 37 / 20%);
   border-radius: 10px;
   box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
+  pointer-events: none;
   content: "";
 }
 
 .recipe-card h2 {
-  position: absolute;
-  top: 5px;
-  left: 4px;
+  position: relative;
   display: grid;
   width: calc(100% - 8px);
-  height: 32px;
   min-height: 32px;
-  margin: 0;
-  overflow: hidden;
+  margin: 5px 4px 0;
   place-items: center;
   text-align: center;
 }
@@ -44,7 +43,6 @@
 .recipe-card h2 span {
   display: -webkit-box;
   width: 100%;
-  max-height: 32px;
   overflow: hidden;
   font-family: var(--font-heading);
   font-size: 12px;
@@ -59,14 +57,16 @@
 }
 
 .recipe-meta {
-  position: static;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 4px;
 }
 
 .recipe-ingredients {
-  position: absolute;
-  top: 79px;
-  left: 10px;
-  width: calc(100% - 20px);
+  position: relative;
+  width: 100%;
+  margin-top: 28px;
 }
 
 .recipe-meta h3 {
@@ -77,26 +77,22 @@
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  max-height: 65px;
   margin: 0;
-  overflow: hidden;
   padding: 0;
   list-style: none;
   counter-reset: recipe-ingredient;
   font-family: var(--font-body);
   font-size: 10px;
-  line-height: 13px;
-  text-transform: uppercase;
+  line-height: 14px;
 }
 
 .recipe-meta li {
   counter-increment: recipe-ingredient;
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   margin: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
   text-transform: capitalize;
 }
 
@@ -106,8 +102,8 @@
 
 .recipe-likes {
   position: absolute;
-  top: 54px;
-  left: 12px;
+  top: 2px;
+  left: 2px;
   display: inline-flex;
   isolation: isolate;
   flex: 0 0 auto;
@@ -166,8 +162,8 @@
 
 .recipe-availability {
   position: absolute;
-  top: 54px;
-  right: 12px;
+  top: 2px;
+  right: 2px;
   display: inline-flex;
   min-height: 20px;
   align-items: center;
@@ -265,15 +261,15 @@
   }
 
   .recipe-card.has-availability .recipe-likes {
-    top: 54px;
-    left: 10px;
+    top: 2px;
+    left: 0;
     min-width: 44px;
     padding: 0 4px 0 3px;
   }
 
   .recipe-card.has-availability .recipe-availability {
-    top: 54px;
-    right: 10px;
+    top: 2px;
+    right: 0;
     left: auto;
     max-width: calc(100% - 68px);
     min-height: 20px;
@@ -287,7 +283,8 @@
 
 @media (min-width: 768px) {
   .recipe-card {
-    height: clamp(130px, 8vw, 150px);
+    min-height: clamp(130px, 8vw, 150px);
+    height: auto;
     border-radius: 16px;
   }
 
@@ -297,23 +294,22 @@
   }
 
   .recipe-card h2 {
-    top: 3px;
+    margin-top: 3px;
   }
 
   .recipe-ingredients {
-    top: 58px;
+    margin-top: 24px;
   }
 
   .recipe-meta ol {
-    max-height: 68px;
-    line-height: 12px;
+    line-height: 13px;
   }
 
   .recipe-likes {
-    top: 35px;
+    top: 0;
   }
 
   .recipe-availability {
-    top: 35px;
+    top: 0;
   }
 }
