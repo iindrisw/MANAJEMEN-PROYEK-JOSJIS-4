@@ -2,11 +2,7 @@ import { createRecipeCard, renderPagination } from "./recipe-view.js";
 import { renderRecipeDetail } from "./recipe-detail.js";
 import { initFilters } from "./filters.js";
 import { readViewState, updateViewState } from "./view-state.js";
-import {
-  API_BASE_URL,
-  isNetworkConnectionError,
-  NETWORK_CONNECTION_ERROR_MESSAGE,
-} from "./api.js";
+import { API_BASE_URL } from "./api.js";
 
 const UNSUPPORTED_CHARACTER_PATTERN = /[^\x00-\x7F]/;
 const EMOJI_PATTERN =
@@ -378,6 +374,11 @@ export function initInput() {
   let previousScrollPosition = 0;
   let isCopyingMissingList = false;
   let lastMissingListCopyAt = 0;
+  let hasShownMultiRecipeWarning = false;
+
+  const filters = initFilters(() => {
+    void loadRecipes(currentSearch);
+  });
 
   function getCurrentSearchValues() {
     return {
@@ -485,7 +486,7 @@ export function initInput() {
       return true;
     }
 
-    setDetailFeedback(NETWORK_CONNECTION_ERROR_MESSAGE);
+    setDetailFeedback("Tidak ada koneksi internet. Coba lagi saat terhubung.");
     return false;
   }
 
@@ -616,11 +617,7 @@ export function initInput() {
         return;
       }
       detailTitle.textContent = "Detail resep tidak tersedia";
-      setDetailFeedback(
-        isNetworkConnectionError(error)
-          ? NETWORK_CONNECTION_ERROR_MESSAGE
-          : `idak ada koneksi internet. Coba lagi saat terhubung ${error.message}`,
-      );
+      setDetailFeedback(`Gagal memuat detail resep. ${error.message}`);
     }
   }
 
@@ -668,11 +665,7 @@ export function initInput() {
       renderRecipeDetail(activeRecipe, activeAvailableIngredients);
       updateRecipeCardLikeCount(activeRecipe);
     } catch (error) {
-      setDetailFeedback(
-        isNetworkConnectionError(error)
-          ? NETWORK_CONNECTION_ERROR_MESSAGE
-          : error.message,
-      );
+      setDetailFeedback(error.message);
     } finally {
       isLikeSubmitting = false;
     }
@@ -723,11 +716,7 @@ export function initInput() {
         bookmarkSuccessDialog.showModal();
       }
     } catch (error) {
-      setDetailFeedback(
-        isNetworkConnectionError(error)
-          ? NETWORK_CONNECTION_ERROR_MESSAGE
-          : error.message,
-      );
+      setDetailFeedback(error.message);
     } finally {
       isBookmarkSubmitting = false;
     }
@@ -870,6 +859,7 @@ export function initInput() {
         ...visibleRecipes.map((recipe) =>
           createRecipeCard(recipe, {
             searchedIngredientCount,
+            maxIngredientCount: MAX_TOTAL_INGREDIENTS,
           }),
         ),
       );
@@ -906,9 +896,7 @@ export function initInput() {
         return;
       }
 
-      emptyState.textContent = isNetworkConnectionError(error)
-        ? NETWORK_CONNECTION_ERROR_MESSAGE
-        : "idak ada koneksi internet. Coba lagi saat terhubung";
+      emptyState.textContent = "Data Resep tidak tersedia";
       emptyState.hidden = false;
       recipeGrid.style.opacity = "";
       updateRecipeListScrollbar();
@@ -956,7 +944,15 @@ export function initInput() {
 
   recipeQueryInput.addEventListener("input", () => {
     updateFilterButtonState();
-    if (getIngredients(recipeQueryInput.value).length > 1) {
+    const hasSeparator = /[,;\n]/.test(recipeQueryInput.value);
+
+    if (!hasSeparator) {
+      hasShownMultiRecipeWarning = false;
+      return;
+    }
+
+    if (!hasShownMultiRecipeWarning && !validationDialog.open) {
+      hasShownMultiRecipeWarning = true;
       showValidationDialog("Masukkan hanya 1 nama resep");
     }
   });
@@ -975,7 +971,7 @@ export function initInput() {
       return;
     }
 
-    if (getIngredients(recipeName).length > 1) {
+    if (/[,;\n]/.test(recipeName) || getIngredients(recipeName).length > 1) {
       showValidationDialog("Masukkan hanya 1 nama resep");
       return;
     }
@@ -1087,10 +1083,6 @@ export function initInput() {
     ) {
       closeRecipeDetail();
     }
-  });
-
-  const filters = initFilters(() => {
-    void loadRecipes(currentSearch);
   });
 
   desktopRecipeMedia.addEventListener("change", () => {
