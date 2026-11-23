@@ -304,7 +304,7 @@
   height: 26px;
   min-height: 26px;
   align-self: flex-end;
-  margin-top: 12px;
+  margin-top: 35px;
   padding: 0;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
@@ -552,6 +552,70 @@
 .filter-close:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    --filter-panel-top: max(16px, min(373px, calc(100vh - 314px)));
+    --filter-panel-left: 32px;
+    --filter-panel-width: min(376px, calc(100% - 64px));
+  }
+
+  .app-shell .filter-panel {
+    top: var(--filter-panel-top);
+    left: var(--filter-panel-left);
+    width: var(--filter-panel-width);
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+
+  .app-shell .button-filter.is-selected {
+    top: calc(var(--filter-panel-top) + 16px);
+    right: auto;
+    left: calc(var(--filter-panel-left) + 13px);
+  }
+
+  .app-shell .filter-group {
+    width: calc(100% - 26px);
+    height: auto;
+    min-height: 76px;
+  }
+
+  .app-shell .filter-options {
+    display: flex;
+    height: auto;
+    min-height: 17px;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-top: 10px;
+  }
+
+  .app-shell .filter-options .filter-option {
+    position: static;
+    left: auto;
+  }
+
+  .app-shell .filter-close {
+    right: 13px;
+    left: auto;
+  }
+
+  .app-shell .filter-apply {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+@supports (height: 100dvh) {
+  @media (max-width: 767px) {
+    .app-shell {
+      --filter-panel-top: max(16px, min(373px, calc(100dvh - 314px)));
+    }
+
+    .app-shell .filter-panel {
+      max-height: calc(100dvh - 32px);
+    }
+  }
 }
 
 @media (min-width: 768px) {
