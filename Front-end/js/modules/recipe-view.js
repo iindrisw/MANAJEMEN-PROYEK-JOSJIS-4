@@ -1,6 +1,6 @@
 export function createRecipeCard(
   recipe,
-  { searchedIngredientCount, maxIngredientCount } = {},
+  { searchedIngredientCount } = {},
 ) {
   const card = document.createElement("article");
   const name = recipe.nama_resep || "Resep tanpa nama";
@@ -69,12 +69,11 @@ export function createRecipeCard(
     const matchedIngredients = Array.isArray(recipe.bahan_cocok)
       ? recipe.bahan_cocok
       : [];
-    const matchedCount = matchedIngredients.length > 0
+    const availableCount = matchedIngredients.length > 0
       ? matchedIngredients.length
       : Math.max(0, Number(recipe.jumlah_cocok) || 0);
-    const denominator = maxIngredientCount > 0
-      ? Math.max(searchedIngredientCount, maxIngredientCount)
-      : searchedIngredientCount;
+    const denominator = searchedIngredientCount;
+    const matchedCount = Math.min(availableCount, denominator);
     const availability = document.createElement("span");
     availability.className = "recipe-availability";
     availability.textContent = `${matchedCount}/${denominator} bahan tersedia`;

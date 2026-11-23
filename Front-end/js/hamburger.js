@@ -104,18 +104,6 @@ export function initHumberger() {
     drawerBackdrop.classList.remove("is-open");
   }
 
-  function setActiveNavigation(action) {
-    for (const link of navigation.querySelectorAll("[data-nav-action]")) {
-      const isActive = link.dataset.navAction === action;
-      link.classList.toggle("is-active", isActive);
-      if (isActive) {
-        link.setAttribute("aria-current", "page");
-      } else {
-        link.removeAttribute("aria-current");
-      }
-    }
-  }
-
   // Pasang event listener ke semua tombol hamburger di setiap halaman
   menuButtons.forEach((menuButton) => {
     menuButton.addEventListener("click", () => {
@@ -160,7 +148,6 @@ export function initHumberger() {
     event.preventDefault();
 
     if (isGuest && (action === "bookmark" || action === "profile")) {
-      setActiveNavigation(action === "bookmark" ? "bookmark" : "home");
       window.dispatchEvent(
         new Event(
           action === "bookmark"
@@ -178,30 +165,18 @@ export function initHumberger() {
     if (action === "home") {
       window.location.assign(window.location.pathname);
     } else if (action === "bookmark") {
-      setActiveNavigation("bookmark");
       window.dispatchEvent(new Event("recipe:navigate-saved"));
     } else if (action === "profile") {
-      setActiveNavigation("profile");
       window.dispatchEvent(new Event("recipe:navigate-profile"));
     }
   });
 
-  // Halaman simpan / profil dipulihkan setelah refresh -> sorot menunya di drawer.
-  window.addEventListener("recipe:saved-view-restored", () => {
-    setActiveNavigation("bookmark");
-  });
-  window.addEventListener("recipe:profile-view-restored", () => {
-    setActiveNavigation("profile");
-  });
-
   window.addEventListener("recipe:login-request", () => {
-    setActiveNavigation("profile");
     window.dispatchEvent(new Event("recipe:auth-required"));
   });
 
   window.addEventListener("recipe:login-success", () => {
     updateSignupLink();
-    setActiveNavigation("home");
     window.dispatchEvent(new Event("recipe:navigate-home"));
   });
 

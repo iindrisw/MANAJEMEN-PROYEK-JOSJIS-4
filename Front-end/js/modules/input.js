@@ -870,7 +870,6 @@ export function initInput() {
         ...visibleRecipes.map((recipe) =>
           createRecipeCard(recipe, {
             searchedIngredientCount,
-            maxIngredientCount: MAX_TOTAL_INGREDIENTS,
           }),
         ),
       );

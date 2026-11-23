@@ -23,11 +23,6 @@ function getRecognitionErrorMessage(error) {
   return "Input suara gagal. Silakan coba lagi.";
 }
 
-const ACTIVE_MICROPHONE_ICON = new URL(
-  "../../assets/figma/microphone-active.svg",
-  import.meta.url,
-).href;
-
 export function initVoice() {
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -38,15 +33,6 @@ export function initVoice() {
     if (!(input instanceof HTMLInputElement)) {
       throw new Error(`Input suara "${button.dataset.voiceTarget}" tidak ditemukan.`);
     }
-    const microphoneIcon = button.querySelector(".field-icon");
-    if (!(microphoneIcon instanceof HTMLImageElement)) {
-      throw new Error(`Ikon mikrofon "${button.dataset.voiceTarget}" tidak ditemukan.`);
-    }
-    const idleMicrophoneIcon = microphoneIcon.getAttribute("src");
-    if (!idleMicrophoneIcon) {
-      throw new Error(`Sumber ikon mikrofon "${button.dataset.voiceTarget}" tidak valid.`);
-    }
-
     if (!SpeechRecognition) {
       button.addEventListener("click", () => {
         showVoiceError("Browser ini belum mendukung fitur input suara.");
@@ -63,10 +49,6 @@ export function initVoice() {
     let isListening = false;
 
     function updateButtonState() {
-      button.classList.toggle("is-recording", isListening);
-      microphoneIcon.src = isListening
-        ? ACTIVE_MICROPHONE_ICON
-        : idleMicrophoneIcon;
       button.setAttribute("aria-pressed", String(isListening));
       button.setAttribute(
         "aria-label",

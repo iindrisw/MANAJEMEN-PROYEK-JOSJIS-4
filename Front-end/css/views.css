@@ -29,7 +29,7 @@
   justify-content: stretch;
 }
 
-.app-shell > .search-panel button:not(.mix-button):hover:not(:disabled):not(:focus-visible),
+.app-shell > .search-panel button:not(.mix-button):not(.menu-button):not(.microphone-button):hover:not(:disabled):not(:focus-visible),
 .app-shell > .recipe-content button:hover:not(:disabled):not(:focus-visible) {
   outline: 1px solid var(--coral);
 }

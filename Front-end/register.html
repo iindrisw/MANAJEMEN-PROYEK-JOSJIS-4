@@ -68,10 +68,33 @@
       <button type="submit" id="btnDaftar" class="btn-submit-daftar">DAFTAR</button>
     </form>
 
+    <div class="divider-container">
+      <span class="divider-text">Atau Daftar Dengan</span>
+    </div>
 
+    <!-- Google Button Container (Dirender kustom oleh register.js) -->
+    <div
+      id="btnGoogleRegister"
+      style="display: flex; justify-content: center; width: 100%; margin-top: 10px;"
+    ></div>
 
     <div class="login-link-wrapper">
       Sudah Punya Akun? <a href="login.html" class="login-redirect-link">MASUK</a>
+    </div>
+
+    <div
+      class="google-auth-error"
+      id="google-auth-error"
+      role="alert"
+      aria-live="assertive"
+      hidden
+    >
+      <img
+        class="google-auth-error-icon"
+        src="assets/figma/google-auth-error.svg"
+        alt=""
+      />
+      <p>Gagal terhubung dengan Google, silakan coba beberapa saat lagi</p>
     </div>
 
     <dialog class="register-notice-dialog" id="register-notice-dialog" aria-labelledby="register-notice-message">
@@ -83,6 +106,8 @@
 
   </div>
 
+  <!-- Script Google Identity Services SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script type="module" src="js/modules/register.js"></script>
 </body>
 </html>

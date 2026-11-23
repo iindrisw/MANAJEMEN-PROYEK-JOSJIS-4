@@ -170,8 +170,8 @@
   min-height: 20px;
   align-items: center;
   border-radius: 20px;
-  background: rgb(208 87 86 / 60%);
-  color: #252525;
+  background: #D05756;
+  color: #FFFFFF;
   padding: 0 7px;
   font-family: var(--font-heading);
   font-size: 9px;
@@ -282,6 +282,10 @@
   }
 
   .recipe-likes {
+    top: 35px;
+  }
+
+  .recipe-availability {
     top: 35px;
   }
 }

@@ -116,15 +116,6 @@
   flex: 0 0 30px;
 }
 
-.drawer-link.is-active {
-  background: var(--coral);
-  color: var(--white);
-}
-
-.drawer-link.is-active img {
-  filter: brightness(0) invert(1);
-}
-
 .app-shell.is-saved-view .menu-button {
   top: 40px;
 }
