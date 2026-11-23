@@ -238,9 +238,9 @@ body:has(#recipe-detail:not([hidden])) {
 .detail-copy {
   position: absolute;
   top: 15px;
-  right: 60px;
-  display: flex;
-  width: 92px;
+  right: 24px;
+  display: inline-flex;
+  width: auto;
   height: 32px;
   align-items: center;
   justify-content: flex-end;
@@ -259,9 +259,9 @@ body:has(#recipe-detail:not([hidden])) {
 
 .detail-copy img {
   display: block;
-  width: 32px;
-  height: 32px;
-  flex: 0 0 32px;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
 }
 
 .detail-feedback {
@@ -551,6 +551,21 @@ body:has(#recipe-detail:not([hidden])) .recipe-list-scrollbar {
 
   .detail-ingredient-card {
     padding-left: 20px;
+  }
+
+  .detail-copy {
+    top: 12px;
+    right: 16px;
+    height: 28px;
+    gap: 4px;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .detail-copy img {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
   }
 
   .detail-footer {
