@@ -2,27 +2,33 @@
   position: absolute;
   z-index: 20;
   top: 322px;
-  right: auto;
-  bottom: auto;
-  left: 50%;
-  width: calc(100% - 64px);
-  max-width: calc(100vw - 32px);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-width: none;
   height: auto;
   max-height: none;
   margin: 0;
   padding: 0;
-  overflow: visible;
-  transform: translateX(-50%);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 0;
   background: transparent;
   color: var(--charcoal);
+}
+
+.profile-password-dialog .profile-password-card {
+  width: min(1000px, calc(100% - clamp(32px, 5vw, 64px)));
+  margin: 0 auto 16px;
 }
 
 .app-shell:has(#profile-password-dialog[open]) {
   height: 100vh;
   height: 100dvh;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 
 #profile-password-dialog::backdrop {
@@ -200,14 +206,16 @@
   #profile-password-dialog {
     position: absolute;
     top: clamp(258px, calc(100vh - 414px), 322px);
-    right: auto;
-    bottom: auto;
-    width: min(390px, calc(100vw - 32px));
-    height: auto;
-    max-height: none;
-    margin: 0;
-    overflow: visible;
-    transform: translateX(-50%);
+    right: 0;
+    bottom: max(0px, env(safe-area-inset-bottom, 0px));
+    left: 0;
+    width: 100%;
+    padding-bottom: 16px;
+  }
+
+  .profile-password-dialog .profile-password-card {
+    width: min(390px, calc(100% - 32px));
+    margin-bottom: 0;
   }
 
   .profile-password-card {
