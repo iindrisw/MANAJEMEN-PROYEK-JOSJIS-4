@@ -1,14 +1,19 @@
 #profile-password-dialog {
-  position: absolute;
+  position: fixed;
   z-index: 20;
   top: 322px;
+  right: auto;
+  bottom: 16px;
   left: 50%;
   width: calc(100% - 64px);
   max-width: calc(100vw - 32px);
-  max-height: none;
+  height: auto;
+  max-height: calc(100vh - 338px);
   margin: 0;
   padding: 0;
-  overflow: visible;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   transform: translateX(-50%);
   border: 0;
   background: transparent;
@@ -132,6 +137,19 @@
 
 #profile-password-dialog[open] ~ #view-profile .search-panel {
   height: 306px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+}
+
+#profile-password-dialog[open] ~ #view-profile {
+  overflow-y: hidden;
+}
+
+#profile-password-dialog[open] ~ #view-profile .profile-header {
+  position: fixed;
+  top: 142px;
 }
 
 #profile-password-dialog[open] ~ #view-profile .profile-container {
@@ -169,40 +187,56 @@
 }
 
 @media (max-width: 439px) {
+  #profile-password-dialog[open] ~ #view-profile .search-panel {
+    height: clamp(242px, calc(100vh - 430px), 306px);
+    flex-basis: clamp(242px, calc(100vh - 430px), 306px);
+  }
+
   #profile-password-dialog {
     position: fixed;
-    top: max(16px, env(safe-area-inset-top, 0px));
+    top: clamp(258px, calc(100vh - 414px), 322px);
     right: auto;
     bottom: max(16px, env(safe-area-inset-bottom, 0px));
     width: min(390px, calc(100vw - 32px));
     height: auto;
-    max-height: none;
+    max-height: calc(100vh - clamp(258px, calc(100vh - 414px), 322px) - 16px);
     margin: 0;
-    overflow: visible;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     transform: translateX(-50%);
   }
 
   .profile-password-card {
-    height: 100%;
-    min-height: 0;
+    height: auto;
     gap: 0;
     padding: 0;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .profile-password-content {
-    height: 100%;
-    min-height: 0;
+    height: auto;
     gap: clamp(16px, 3vh, 28px);
     padding: 52px 16px 24px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
+    overflow: visible;
   }
 
   .profile-password-card .password-input-group,
   .profile-password-card .profile-form-error,
   .profile-password-card .profile-dialog-actions {
     flex: 0 0 auto;
+  }
+}
+
+@supports (height: 100dvh) {
+  @media (max-width: 439px) {
+    #profile-password-dialog[open] ~ #view-profile .search-panel {
+      height: clamp(242px, calc(100dvh - 430px), 306px);
+      flex-basis: clamp(242px, calc(100dvh - 430px), 306px);
+    }
+
+    #profile-password-dialog {
+      top: clamp(258px, calc(100dvh - 414px), 322px);
+      max-height: calc(100dvh - clamp(258px, calc(100dvh - 414px), 322px) - 16px);
+    }
   }
 }
