@@ -132,6 +132,12 @@
 
 #profile-password-dialog[open] ~ #view-profile .search-panel {
   height: 306px;
+  position: sticky;
+  top: 0;
+}
+
+#profile-password-dialog[open] ~ #view-profile {
+  overflow-y: hidden;
 }
 
 #profile-password-dialog[open] ~ #view-profile .profile-container {
