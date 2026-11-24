@@ -247,6 +247,15 @@ export function initUbahKataSandi() {
     }
   }
 
+  function closePasswordPanel() {
+    if (passwordDialog instanceof HTMLDialogElement && passwordDialog.open) {
+      passwordDialog.close();
+    }
+  }
+
+  window.addEventListener("recipe:navigate-home", closePasswordPanel);
+  window.addEventListener("recipe:navigate-saved", closePasswordPanel);
+
   btnChangePassword?.addEventListener("click", () => {
     if (!localStorage.getItem("token")) {
       if (guestModal instanceof HTMLDialogElement && !guestModal.open) {

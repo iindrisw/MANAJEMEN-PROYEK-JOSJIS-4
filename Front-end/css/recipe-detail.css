@@ -352,17 +352,9 @@ body:has(#recipe-detail:not([hidden])) {
 }
 
 .bookmark-unavailable-dialog {
-  position: fixed;
-  top: 50%;
-  right: auto;
-  bottom: auto;
-  left: 50%;
   width: min(376px, calc(100vw - 40px));
-  height: max-content;
-  max-height: calc(100vh - 32px);
-  margin: 0;
-  overflow-y: auto;
-  transform: translate(-50%, calc(-50% - clamp(0px, 5vh, 39px)));
+  height: 184px;
+  transform: translateY(-39px);
 }
 
 .copy-success-dialog p,
@@ -385,19 +377,15 @@ body:has(#recipe-detail:not([hidden])) {
 
 .bookmark-unavailable-card {
   position: relative;
-  display: flex;
-  height: auto;
-  min-height: 184px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 52px 16px 16px;
+  height: 184px;
+  padding: 16px;
 }
 
 .bookmark-unavailable-card p {
-  position: static;
-  width: 100%;
+  position: absolute;
+  top: 72px;
+  left: 20px;
+  width: calc(100% - 40px);
   height: auto;
   margin: 0;
   padding: 0;
@@ -455,16 +443,17 @@ body:has(#recipe-detail:not([hidden])) {
 }
 
 .bookmark-unavailable-login {
-  position: static;
+  position: absolute;
+  top: 116px;
+  left: 50%;
   display: flex;
-  width: min(198px, 100%);
+  width: 198px;
   height: 39px;
-  flex: 0 0 39px;
   align-items: center;
   justify-content: center;
   margin: 0;
   padding: 0 12px;
-  box-sizing: border-box;
+  transform: translateX(-50%);
   border: 0;
   border-radius: 20px;
   background: var(--coral);
@@ -509,13 +498,6 @@ body:has(#recipe-detail:not([hidden])) {
 .bookmark-unavailable-login:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 3px;
-}
-
-@supports (height: 100dvh) {
-  .bookmark-unavailable-dialog {
-    max-height: calc(100dvh - 32px);
-    transform: translate(-50%, calc(-50% - clamp(0px, 5dvh, 39px)));
-  }
 }
 
 .detail-scrollbar {
