@@ -200,6 +200,7 @@ export function initHumberger() {
     event.preventDefault();
 
     if (isGuest && (action === "bookmark" || action === "profile")) {
+      setNavigationOpen(false);
       window.dispatchEvent(
         new Event(
           action === "bookmark"
