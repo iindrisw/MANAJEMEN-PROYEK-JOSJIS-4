@@ -1,23 +1,28 @@
 #profile-password-dialog {
-  position: fixed;
+  position: absolute;
   z-index: 20;
   top: 322px;
   right: auto;
-  bottom: 16px;
+  bottom: auto;
   left: 50%;
   width: calc(100% - 64px);
   max-width: calc(100vw - 32px);
   height: auto;
-  max-height: calc(100vh - 338px);
+  max-height: none;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  overflow: visible;
   transform: translateX(-50%);
   border: 0;
   background: transparent;
   color: var(--charcoal);
+}
+
+.app-shell:has(#profile-password-dialog[open]) {
+  height: 100vh;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #profile-password-dialog::backdrop {
@@ -193,16 +198,15 @@
   }
 
   #profile-password-dialog {
-    position: fixed;
+    position: absolute;
     top: clamp(258px, calc(100vh - 414px), 322px);
     right: auto;
-    bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    bottom: auto;
     width: min(390px, calc(100vw - 32px));
     height: auto;
-    max-height: calc(100vh - clamp(258px, calc(100vh - 414px), 322px) - 16px);
+    max-height: none;
     margin: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: visible;
     transform: translateX(-50%);
   }
 
@@ -236,7 +240,6 @@
 
     #profile-password-dialog {
       top: clamp(258px, calc(100dvh - 414px), 322px);
-      max-height: calc(100dvh - clamp(258px, calc(100dvh - 414px), 322px) - 16px);
     }
   }
 }
