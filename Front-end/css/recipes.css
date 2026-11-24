@@ -86,7 +86,6 @@
   font-family: var(--font-body);
   font-size: 10px;
   line-height: 13px;
-  text-transform: uppercase;
 }
 
 .recipe-meta li {

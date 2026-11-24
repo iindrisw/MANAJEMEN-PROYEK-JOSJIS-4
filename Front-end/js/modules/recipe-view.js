@@ -1,3 +1,42 @@
+const LEADING_UNIT_PATTERN =
+  /^(?:\d+(?:[.,/]\d+)?\s*)?(?:gram|grams|gr|g|kg|mg|ml|l|liter|sdt|sdm|sendok\s+teh|sendok\s+makan|buah|butir|siung|lembar|batang|potong|biji|bungkus|pack|kaleng|gelas|cup|ons|ikat)\b[\s\-:.)]*/i;
+
+function formatPreviewIngredient(ingredient) {
+  if (!ingredient || typeof ingredient !== "object") {
+    return String(ingredient || "Bahan").trim();
+  }
+
+  let text = String(
+    ingredient.nama_bahan ??
+      ingredient.nama ??
+      ingredient.bahan ??
+      "",
+  ).trim();
+
+  if (!text) {
+    text = String(
+      ingredient.jumlah ??
+        ingredient.takaran ??
+        ingredient.kuantitas ??
+        "",
+    ).trim();
+  }
+
+  // Bersihkan angka takaran di depan dan awalan satuan seperti "gram", "gr", "sdm", dll.
+  while (text) {
+    const cleaned = text.replace(LEADING_UNIT_PATTERN, "").trim();
+    if (cleaned === text) {
+      break;
+    }
+    text = cleaned;
+  }
+
+  // Jika setelah dibersihkan masih diawali angka/pecahan takaran, buang bagian depannya
+  text = text.replace(/^\d+(?:[.,/]\d+)?\s*/, "").trim();
+
+  return text || "Bahan";
+}
+
 export function createRecipeCard(
   recipe,
   { searchedIngredientCount } = {},
@@ -13,7 +52,7 @@ export function createRecipeCard(
   card.dataset.availableIngredients = JSON.stringify(recipe.bahan_cocok || []);
   card.dataset.name = name.toLocaleLowerCase("id");
   card.dataset.ingredients = ingredients
-    .map((ingredient) => ingredient.nama_bahan || "")
+    .map((ingredient) => formatPreviewIngredient(ingredient))
     .join(" ")
     .toLocaleLowerCase("id");
   card.tabIndex = 0;
@@ -38,8 +77,7 @@ export function createRecipeCard(
 
   for (const ingredient of mainIngredients) {
     const item = document.createElement("li");
-    const ingredientName = ingredient.nama_bahan || "Bahan";
-    item.textContent = ingredientName;
+    item.textContent = formatPreviewIngredient(ingredient);
     ingredientList.append(item);
   }
   ingredientSection.append(ingredientList);
