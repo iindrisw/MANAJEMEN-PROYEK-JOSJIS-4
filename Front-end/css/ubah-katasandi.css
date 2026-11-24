@@ -171,7 +171,7 @@
 @media (max-width: 439px) {
   #profile-password-dialog {
     position: fixed;
-    top: max(16px, env(safe-area-inset-top, 0px));
+    top: 322px;
     right: auto;
     bottom: max(16px, env(safe-area-inset-bottom, 0px));
     width: min(390px, calc(100vw - 32px));
