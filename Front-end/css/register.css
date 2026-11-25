@@ -467,6 +467,14 @@ body {
   font-size: 14px;
   font-weight: 500;
   line-height: 21px;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.register-notice-button:hover:not(:disabled) {
+  background: #ffffff;
+  color: #d05756;
 }
 
 .register-notice-button:focus-visible {

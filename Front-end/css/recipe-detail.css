@@ -510,6 +510,15 @@ body:has(#recipe-detail:not([hidden])) {
   font-size: 14px;
   font-weight: 400;
   letter-spacing: 1px;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.validation-dialog-button:hover:not(:disabled),
+.copy-success-button:hover:not(:disabled) {
+  background: var(--white);
+  color: var(--coral);
 }
 
 .copy-success-button:focus-visible {

@@ -158,10 +158,12 @@
   white-space: nowrap;
 }
 
+/* Recipe Availability Badge 
 .recipe-grid.is-most-liked .like-count {
   font-size: 9px;
   font-weight: 400;
 }
+  */
 
 .recipe-availability {
   position: absolute;
