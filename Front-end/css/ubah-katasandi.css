@@ -147,6 +147,15 @@
   line-height: 28px;
   text-transform: uppercase;
   box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.profile-password-card .profile-dialog-button:hover:not(:disabled) {
+  background: var(--white);
+  color: var(--coral);
 }
 
 #profile-password-dialog[open] ~ #view-profile .search-panel {
