@@ -224,7 +224,11 @@
   z-index: 1;
   transform: translateY(-50%);
   pointer-events: none;
-  transition: filter 160ms ease;
+  transition: opacity 160ms ease;
+}
+
+.mix-button-search-hover {
+  opacity: 0;
 }
 
 .mix-button:hover::before {
@@ -235,8 +239,12 @@
   color: var(--coral);
 }
 
-.mix-button:hover img {
-  filter: brightness(0) saturate(100%) invert(43%) sepia(8%) saturate(2827%) hue-rotate(313deg) brightness(90%) contrast(85%);
+.mix-button:hover .mix-button-search-default {
+  opacity: 0;
+}
+
+.mix-button:hover .mix-button-search-hover {
+  opacity: 1;
 }
 
 .mix-button:focus-visible {
@@ -529,6 +537,9 @@
   border-radius: 5px;
   background: var(--coral);
   box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
 }
 
 .filter-close span {
@@ -546,6 +557,11 @@
 .filter-apply span {
   width: 183px;
   height: 21px;
+}
+
+.filter-apply:hover:not(:disabled) span {
+  background: var(--white);
+  color: var(--coral);
 }
 
 .filter-apply:focus-visible,
