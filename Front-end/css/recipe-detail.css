@@ -73,9 +73,26 @@ body:has(#recipe-detail:not([hidden])) {
 }
 
 .detail-like img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 40px;
   height: 34px;
+  transition: opacity 160ms ease;
+}
+
+.detail-like-active {
+  opacity: 0;
+}
+
+.detail-like:hover .detail-like-default,
+.detail-like.is-active .detail-like-default {
+  opacity: 0;
+}
+
+.detail-like:hover .detail-like-active,
+.detail-like.is-active .detail-like-active {
+  opacity: 1;
 }
 
 .detail-bookmark {
@@ -410,6 +427,7 @@ body:has(#recipe-detail:not([hidden])) {
   cursor: pointer;
   font-family: var(--font-heading);
   font-size: 16px;
+  transition: color 160ms ease;
 }
 
 .bookmark-unavailable-close::before,
@@ -435,11 +453,20 @@ body:has(#recipe-detail:not([hidden])) {
   border-radius: 5px;
   background: var(--coral);
   box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
+  transition: background-color 160ms ease;
 }
 
 .bookmark-unavailable-close span {
   position: relative;
   z-index: 2;
+}
+
+.bookmark-unavailable-close:hover:not(:disabled) {
+  color: var(--coral);
+}
+
+.bookmark-unavailable-close:hover:not(:disabled)::after {
+  background: var(--white);
 }
 
 .bookmark-unavailable-login {
@@ -660,8 +687,7 @@ body:has(#recipe-detail:not([hidden])) .recipe-list-scrollbar {
   height: 34px;
 }
 
-.steps-like-button.is-active img,
-.detail-like.is-active img {
+.steps-like-button.is-active img {
   filter: brightness(0) saturate(100%) invert(40%) sepia(41%) saturate(1140%)
     hue-rotate(315deg) brightness(91%) contrast(88%);
 }
