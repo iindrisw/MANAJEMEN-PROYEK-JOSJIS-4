@@ -113,6 +113,14 @@
   font-family: var(--font-heading);
   font-size: 14px;
   text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.drawer-link:hover {
+  background: var(--coral);
+  color: var(--white);
 }
 
 .drawer-link.is-active {
@@ -124,11 +132,16 @@
   filter: brightness(0) invert(1);
 }
 
+.drawer-link:hover img {
+  filter: brightness(0) invert(1);
+}
+
 .drawer-link img {
   display: block;
   width: 30px;
   height: 30px;
   flex: 0 0 30px;
+  transition: filter 160ms ease;
 }
 
 .app-shell.is-saved-view .menu-button {
