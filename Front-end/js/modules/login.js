@@ -32,9 +32,9 @@ function renderCustomGoogleButton(container, onTriggerPrompt) {
     "padding: 0 16px",
     "background: #FFEEB5",
     "color: #1f1f1f",
-    "border: 1px solid rgb(37 37 37 / 2%)",
+    "border: 1px solid rgb(37 37 37 / 20%)",
     "border-radius: 10px",
-    "font-size: 14px",
+    "font-size: clamp(12px, 3.9vw, 14px)",
     "font-weight: 500",
     "cursor: pointer",
   ].join(";");
@@ -53,6 +53,7 @@ function renderCustomGoogleButton(container, onTriggerPrompt) {
 
   const label = document.createElement("span");
   label.textContent = "Masuk dengan Google";
+  label.style.whiteSpace = "nowrap";
 
   button.append(icon, label);
   button.addEventListener("click", onTriggerPrompt);
