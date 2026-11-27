@@ -51,7 +51,7 @@ a {
   position: absolute;
   z-index: 100;
   top: 20px;
-  right: max(20px, calc((100vw - 440px) / 2 + 32px));
+  left: max(20px, calc((100vw - 440px) / 2 + 32px));
   display: grid;
   width: 40px;
   height: 40px;
@@ -74,10 +74,10 @@ a {
 .forgot-logo {
   position: absolute;
   z-index: 101;
-  top: 28px;
+  top: 24px;
   left: 50%;
   display: block;
-  width: 92px;
+  width: 160px;
   height: auto;
   transform: translateX(-50%);
   object-fit: contain;
@@ -319,7 +319,11 @@ a {
   }
 
   .forgot-back {
-    right: max(20px, calc((100vw - 760px) / 2 + 80px));
+    left: max(20px, calc((100vw - 760px) / 2 + 80px));
+  }
+
+  .forgot-logo {
+    top: 80px;
   }
 }
 
