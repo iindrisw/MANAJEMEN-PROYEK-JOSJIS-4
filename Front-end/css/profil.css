@@ -342,11 +342,19 @@
   font-size: 14px;
   line-height: 21px;
   letter-spacing: 1px;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
 }
 
 .profile-logout-card .profile-dialog-button-secondary {
   background: var(--coral);
   color: var(--white);
+}
+
+.profile-logout-card .profile-dialog-button:hover:not(:disabled) {
+  background: var(--white);
+  color: var(--coral);
 }
 
 .profile-dialog-button:disabled {
