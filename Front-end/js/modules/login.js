@@ -32,7 +32,7 @@ function renderCustomGoogleButton(container, onTriggerPrompt) {
     "padding: 0 16px",
     "background: #FFEEB5",
     "color: #1f1f1f",
-    "border: 1px solid rgb(37 37 37 / 20%)",
+    "border: 1px solid rgb(37 37 37 / 2%)",
     "border-radius: 10px",
     "font-size: 14px",
     "font-weight: 500",
