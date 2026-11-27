@@ -331,8 +331,8 @@
     font-size 220ms ease;
 }
 
-.button-filter:hover,
-.button-filter.is-selected:hover {
+.button-filter:hover:not(:disabled),
+.button-filter.is-selected:hover:not(:disabled) {
   background: var(--white);
   color: var(--coral);
 }

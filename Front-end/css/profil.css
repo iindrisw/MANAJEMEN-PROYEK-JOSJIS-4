@@ -436,6 +436,7 @@
   color: var(--white);
   cursor: pointer;
   font-family: var(--font-heading);
+  transition: color 160ms ease;
 }
 
 .profile-close-button::before {
@@ -445,6 +446,15 @@
   background: var(--coral);
   box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
   content: "";
+  transition: background-color 160ms ease;
+}
+
+.profile-password-dialog .profile-close-button:hover:not(:disabled) {
+  color: var(--coral);
+}
+
+.profile-password-dialog .profile-close-button:hover:not(:disabled)::before {
+  background: var(--white);
 }
 
 .profile-close-button span {

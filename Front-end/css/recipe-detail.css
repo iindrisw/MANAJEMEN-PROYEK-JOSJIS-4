@@ -505,6 +505,14 @@ body:has(#recipe-detail:not([hidden])) {
   letter-spacing: 1px;
   opacity: 1;
   text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.bookmark-unavailable-login:hover {
+  background: var(--white);
+  color: var(--coral);
 }
 
 .validation-dialog-button,
