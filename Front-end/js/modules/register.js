@@ -10,6 +10,8 @@ import {
 const GOOGLE_CLIENT_ID =
   "105928934373-ai6hsqd7o7h985it0v6ngja0f62qs1aa.apps.googleusercontent.com";
 
+const GMAIL_REGEX = /^[a-z0-9._%+-]+@gmail\.com$/;
+
 const NETWORK_CONNECTION_ERROR_MESSAGE =
   "Tidak dapat menghubungi server. Periksa koneksi internet Anda lalu coba lagi.";
 
@@ -218,18 +220,15 @@ document.addEventListener("DOMContentLoaded", () => {
       isValid = false;
     }
 
-    // 2. Validasi Email (Format lokal)
+    // 2. Validasi Email (Wajib @gmail.com)
     if (!email) {
       setError(inputEmail, "Kolom ini wajib diisi");
       isValid = false;
     } else if (containsUnsupportedEmailCharacter(enteredEmail)) {
       setError(inputEmail, EMAIL_ERROR_MESSAGE);
       isValid = false;
-    } else if (
-      email.length > 100 ||
-      !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
-    ) {
-      setError(inputEmail, EMAIL_ERROR_MESSAGE);
+    } else if (email.length > 100 || !GMAIL_REGEX.test(email)) {
+      setError(inputEmail, "Email harus menggunakan domain @gmail.com");
       isValid = false;
     }
 

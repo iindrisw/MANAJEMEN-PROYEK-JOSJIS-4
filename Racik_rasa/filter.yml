@@ -1,0 +1,21 @@
+info:
+  name: filter
+  type: http
+
+http:
+  method: GET
+  url: https://manajemen-proyek-josjis-4-in7vl4rau-indri-racik-rasa.vercel.app/api/most-liked?page=1&filters=chili
+  params:
+    - name: page
+      value: "1"
+      type: query
+    - name: filters
+      value: chili
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

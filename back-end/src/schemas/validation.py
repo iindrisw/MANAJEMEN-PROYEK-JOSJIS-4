@@ -4,7 +4,7 @@ import re
 from src.config.settings import Settings
 from src.utils.errors import AppError
 
-EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+GMAIL_RE = re.compile(r"^[a-z0-9._%+-]+@gmail\.com$")
 MIN_PASSWORD = 8
 PASSWORD_ALNUM_RE = re.compile(r"^[A-Za-z0-9]{8,64}$")
 HAS_LETTER_RE = re.compile(r"[A-Za-z]")
@@ -139,8 +139,8 @@ def validasi_register(data):
         raise AppError("Nama wajib diisi.", 400)
     if len(nama) > 100:
         raise AppError("Nama maksimal 100 karakter.", 400)
-    if not EMAIL_RE.match(email) or len(email) > 100:
-        raise AppError("Format email tidak valid.", 400)
+    if not GMAIL_RE.match(email) or len(email) > 100:
+        raise AppError("Email harus menggunakan domain @gmail.com.", 400)
     if len(password) < MIN_PASSWORD:
         raise AppError(f"Password minimal {MIN_PASSWORD} karakter.", 400)
     return nama, email, password
@@ -185,9 +185,9 @@ def validasi_lupa_password(data):
     if len(nama) > 64:
         raise AppError("Nama Lengkap maksimal 64 karakter", 400, code="NAMA_TERLALU_PANJANG")
 
-    if not EMAIL_RE.match(email) or len(email) > 100:
+    if not GMAIL_RE.match(email) or len(email) > 100:
         raise AppError(
-            "Format email tidak sesuai (contoh: madinatul@gmail.com)",
+            "Email harus menggunakan @gmail.com (contoh: madinatul@gmail.com)",
             400,
             code="EMAIL_TIDAK_VALID",
         )

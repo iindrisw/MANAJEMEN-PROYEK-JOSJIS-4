@@ -14,6 +14,8 @@ import {
 const GOOGLE_CLIENT_ID =
   "105928934373-ai6hsqd7o7h985it0v6ngja0f62qs1aa.apps.googleusercontent.com";
 
+const GMAIL_REGEX = /^[a-z0-9._%+-]+@gmail\.com$/;
+
 function renderCustomGoogleButton(container, onTriggerPrompt) {
   container.replaceChildren();
 
@@ -128,9 +130,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!identifier) {
       setError(inputIdentifier, "Kolom ini wajib diisi");
       isValid = false;
-    } else if (identifier.includes("@") && containsUnsupportedEmailCharacter(identifier)) {
-      setError(inputIdentifier, EMAIL_ERROR_MESSAGE);
-      isValid = false;
+    } else if (identifier.includes("@")) {
+      const normalizedIdentifier = identifier.toLowerCase();
+      if (containsUnsupportedEmailCharacter(identifier)) {
+        setError(inputIdentifier, EMAIL_ERROR_MESSAGE);
+        isValid = false;
+      } else if (!GMAIL_REGEX.test(normalizedIdentifier)) {
+        setError(inputIdentifier, "Email harus menggunakan domain @gmail.com");
+        isValid = false;
+      }
     }
     if (!password) {
       setError(inputPassword, "Kolom ini wajib diisi");
