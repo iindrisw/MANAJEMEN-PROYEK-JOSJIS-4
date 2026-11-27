@@ -75,10 +75,11 @@ a {
   position: fixed;
   z-index: 101;
   top: 28px;
-  left: clamp(14px, 2vw, 32px);
+  left: 50%;
   display: block;
-  width: 92px;
+  width: 120px;
   height: auto;
+  transform: translateX(-50%);
   object-fit: contain;
 }
 
