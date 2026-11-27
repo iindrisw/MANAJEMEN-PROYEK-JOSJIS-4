@@ -72,12 +72,12 @@ a {
 }
 
 .forgot-logo {
-  position: fixed;
+  position: absolute;
   z-index: 101;
   top: 28px;
   left: 50%;
   display: block;
-  width: 120px;
+  width: 92px;
   height: auto;
   transform: translateX(-50%);
   object-fit: contain;
