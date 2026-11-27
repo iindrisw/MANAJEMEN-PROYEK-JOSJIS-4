@@ -304,6 +304,9 @@ export function initInput() {
   const bookmarkSuccessDialog = document.querySelector(
     "#bookmark-success-dialog",
   );
+  const bookmarkSuccessMessage = document.querySelector(
+    "#bookmark-success-message",
+  );
   const bookmarkSuccessClose = document.querySelector(
     "#bookmark-success-close",
   );
@@ -337,6 +340,7 @@ export function initInput() {
     !(bookmarkUnavailableDialog instanceof HTMLDialogElement) ||
     !(bookmarkUnavailableClose instanceof HTMLButtonElement) ||
     !(bookmarkSuccessDialog instanceof HTMLDialogElement) ||
+    !(bookmarkSuccessMessage instanceof HTMLElement) ||
     !(bookmarkSuccessClose instanceof HTMLButtonElement)
   ) {
     throw new Error("Elemen pencarian atau dialog validasi tidak ditemukan.");
@@ -712,9 +716,10 @@ export function initInput() {
         sudah_simpan: result.sudah_simpan === true,
       };
       renderRecipeDetail(activeRecipe, activeAvailableIngredients);
-      if (!wasSaved && activeRecipe.sudah_simpan) {
-        bookmarkSuccessDialog.showModal();
-      }
+      bookmarkSuccessMessage.textContent = activeRecipe.sudah_simpan
+        ? "Resep berhasil disimpan."
+        : "Resep berhasil dihapus dari daftar tersimpan.";
+      bookmarkSuccessDialog.showModal();
     } catch (error) {
       setDetailFeedback(error.message);
     } finally {
