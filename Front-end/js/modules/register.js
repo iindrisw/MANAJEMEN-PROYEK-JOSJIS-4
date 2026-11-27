@@ -230,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setError(inputEmail, EMAIL_ERROR_MESSAGE);
       isValid = false;
     } else if (email.length > 100 || !GMAIL_REGEX.test(email)) {
-      setError(inputEmail, "Email harus menggunakan domain @gmail.com");
+      setError(inputEmail, "Format email tidak valid (contoh: madinatul@gmail.com)");
       isValid = false;
     }
 
