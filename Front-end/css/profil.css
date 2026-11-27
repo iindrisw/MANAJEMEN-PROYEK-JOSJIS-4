@@ -152,7 +152,7 @@
 }
 
 .profile-name-edit-button:hover {
-  transform: scale(1.03);
+  transform: scale(1.15);
 }
 
 .profile-name-edit-button img {
@@ -521,6 +521,10 @@
 .profile-name-save:hover:not(:disabled) {
   background: var(--white);
   color: var(--coral);
+}
+
+.profile-name-save:hover:not(:disabled):not(:focus-visible) {
+  outline: 1px solid var(--coral);
 }
 
 .profile-password-dialog {
