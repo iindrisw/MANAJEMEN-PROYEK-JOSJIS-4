@@ -112,6 +112,18 @@ body:has(#recipe-detail:not([hidden])) {
   height: 40px;
   border: none;
   object-fit: contain;
+  transition: opacity 160ms ease;
+}
+
+.detail-bookmark:hover:not(:disabled) {
+  background-image: url("../assets/figma/bookmark-save.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.detail-bookmark:hover:not(:disabled) img {
+  opacity: 0;
 }
 
 .detail-bookmark.is-active img {
