@@ -171,9 +171,9 @@ body {
 .login-container .form-group.error .input-wrapper::after {
   position: absolute;
   top: 50%;
-  right: -36px;
+  right: -32px;
   display: block;
-  width: 24px;
+  width: 26px;
   height: 24px;
   transform: translateY(-50%);
   background: url("../assets/figma/icon-warning.svg") center / contain no-repeat;

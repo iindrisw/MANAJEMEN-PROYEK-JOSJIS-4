@@ -245,7 +245,7 @@ a {
   top: 50%;
   right: -32px;
   display: block;
-  width: 25px;
+  width: 26px;
   height: 24px;
   transform: translateY(-50%);
   background: url("../assets/figma/icon-warning.svg") center / contain no-repeat;
