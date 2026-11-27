@@ -109,8 +109,6 @@ body {
 
 .brand-logo-wrapper {
   display: flex;
-  height: 90px;
-  flex: 0 0 90px;
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -118,10 +116,6 @@ body {
 }
 
 .brand-logo-img {
-  position: fixed;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
   width: 160px;
   height: auto;
   object-fit: contain;
@@ -177,9 +171,9 @@ body {
 .login-container .form-group.error .input-wrapper::after {
   position: absolute;
   top: 50%;
-  right: -36px;
+  right: -32px;
   display: block;
-  width: 24px;
+  width: 26px;
   height: 24px;
   transform: translateY(-50%);
   background: url("../assets/figma/icon-warning.svg") center / contain no-repeat;
@@ -381,10 +375,6 @@ body {
   .login-container {
     max-width: 760px;
     padding: 40px 80px;
-  }
-
-  .brand-logo-img {
-    top: 80px;
   }
 
   .auth-back {

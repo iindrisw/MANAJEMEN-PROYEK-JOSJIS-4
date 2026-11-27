@@ -40,21 +40,22 @@ function renderCustomGoogleRegisterButton(container, onTriggerPrompt) {
     "align-items: center",
     "justify-content: center",
     "gap: 10px",
-    "width: 100%",
-    "min-height: 44px",
-    "padding: 10px 16px",
-    "background: #ffffff",
+    "width: 224px",
+    "max-width: 100%",
+    "height: 40px",
+    "padding: 0 16px",
+    "background: rgb(255 238 181 / 2%)",
     "color: #1f1f1f",
-    "border: 1px solid #dadce0",
-    "border-radius: 6px",
-    "font-size: 14px",
+    "border: 1px solid rgb(37 37 37 / 20%)",
+    "border-radius: 10px",
+    "font-size: clamp(12px, 3.9vw, 14px)",
     "font-weight: 500",
     "cursor: pointer",
   ].join(";");
 
   const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  icon.setAttribute("width", "18");
-  icon.setAttribute("height", "18");
+  icon.setAttribute("width", "24");
+  icon.setAttribute("height", "24");
   icon.setAttribute("viewBox", "0 0 48 48");
   icon.setAttribute("aria-hidden", "true");
   icon.innerHTML = `
@@ -66,6 +67,7 @@ function renderCustomGoogleRegisterButton(container, onTriggerPrompt) {
 
   const label = document.createElement("span");
   label.textContent = "Daftar dengan Google";
+  label.style.whiteSpace = "nowrap";
 
   button.append(icon, label);
   button.addEventListener("click", onTriggerPrompt);
