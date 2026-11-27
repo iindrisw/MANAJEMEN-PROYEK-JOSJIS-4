@@ -717,8 +717,8 @@ export function initInput() {
       };
       renderRecipeDetail(activeRecipe, activeAvailableIngredients);
       bookmarkSuccessMessage.textContent = activeRecipe.sudah_simpan
-        ? "Resep berhasil disimpan."
-        : "Resep berhasil dihapus dari daftar tersimpan.";
+        ? "Resep berhasil disimpan"
+        : "Resep dihapus dari daftar simpanan";
       bookmarkSuccessDialog.showModal();
     } catch (error) {
       setDetailFeedback(error.message);
