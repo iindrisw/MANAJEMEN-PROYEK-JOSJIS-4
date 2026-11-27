@@ -42,7 +42,7 @@ function renderCustomGoogleRegisterButton(container, onTriggerPrompt) {
     "max-width: 100%",
     "height: 40px",
     "padding: 0 16px",
-    "background: #FFEEB5",
+    "background: rgb(255 238 181 / 2%)",
     "color: #1f1f1f",
     "border: 1px solid rgb(37 37 37 / 20%)",
     "border-radius: 10px",
