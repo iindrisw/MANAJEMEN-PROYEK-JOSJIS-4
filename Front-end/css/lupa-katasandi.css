@@ -51,7 +51,7 @@ a {
   position: absolute;
   z-index: 100;
   top: 20px;
-  left: max(20px, calc((100vw - 440px) / 2 + 32px));
+  right: max(20px, calc((100vw - 440px) / 2 + 32px));
   display: grid;
   width: 40px;
   height: 40px;
@@ -72,12 +72,21 @@ a {
 }
 
 .forgot-logo {
+  position: fixed;
+  z-index: 101;
+  top: 28px;
+  left: clamp(14px, 2vw, 32px);
   display: block;
-  width: 163px;
-  height: 92px;
-  align-self: center;
-  margin-bottom: 30px;
+  width: 92px;
+  height: auto;
   object-fit: contain;
+}
+
+.forgot-page::before {
+  height: 92px;
+  flex: 0 0 92px;
+  margin-bottom: 30px;
+  content: "";
 }
 
 .forgot-title {
@@ -309,7 +318,7 @@ a {
   }
 
   .forgot-back {
-    left: max(20px, calc((100vw - 760px) / 2 + 80px));
+    right: max(20px, calc((100vw - 760px) / 2 + 80px));
   }
 }
 

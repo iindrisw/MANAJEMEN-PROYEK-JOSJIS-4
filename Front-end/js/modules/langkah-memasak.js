@@ -56,7 +56,8 @@ export function setupLangkahMemasak(recipe, detailScreen) {
       .replace(/\\r\\n|\\n/g, "\n")
       .replace(/\r\n?/g, "\n")
       .replace(/^\s*Langkah\s*(?:\n|$)/i, "")
-      .trim();
+      .trim()
+      .replace(/,(?=\S)/g, ", ");
 
     return normalizedDescription
       .split(/(?:^|\n)\s*\d+[.)]\s*/)

@@ -41,12 +41,6 @@
   display: none !important;
 }
 
-.profile-screen .brand {
-  top: 28px;
-  left: 14px;
-  width: 92px;
-}
-
 .profile-screen .menu-button {
   top: 36px;
 }
@@ -154,6 +148,11 @@
   border-radius: 4px;
   background: transparent;
   cursor: pointer;
+  transition: transform 160ms ease;
+}
+
+.profile-name-edit-button:hover {
+  transform: scale(1.03);
 }
 
 .profile-name-edit-button img {
@@ -449,11 +448,13 @@
   transition: background-color 160ms ease;
 }
 
-.profile-password-dialog .profile-close-button:hover:not(:disabled) {
+.profile-password-dialog .profile-close-button:hover:not(:disabled),
+.profile-name-edit-card .profile-close-button:hover:not(:disabled) {
   color: var(--coral);
 }
 
-.profile-password-dialog .profile-close-button:hover:not(:disabled)::before {
+.profile-password-dialog .profile-close-button:hover:not(:disabled)::before,
+.profile-name-edit-card .profile-close-button:hover:not(:disabled)::before {
   background: var(--white);
 }
 
@@ -512,6 +513,14 @@
   font-size: 20px;
   line-height: 28px;
   box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.profile-name-save:hover:not(:disabled) {
+  background: var(--white);
+  color: var(--coral);
 }
 
 .profile-password-dialog {

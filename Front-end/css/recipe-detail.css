@@ -875,8 +875,9 @@ body:has(#recipe-detail:not([hidden])) .recipe-list-scrollbar {
 .cooking-mode-page-title {
   position: absolute;
   top: 29px;
-  left: 62px;
+  left: 50%;
   width: 316px;
+  transform: translateX(-50%);
   margin: 0;
   font-family: var(--font-heading);
   font-size: 26px;
