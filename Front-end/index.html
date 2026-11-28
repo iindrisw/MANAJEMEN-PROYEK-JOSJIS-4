@@ -24,10 +24,39 @@
     <link rel="stylesheet" href="css/profil.css" />
     <link rel="stylesheet" href="css/tailwind.css" />
     <link rel="stylesheet" href="css/ubah-katasandi.css" />
+    <script>
+      const startupParams = new URLSearchParams(window.location.search);
+      const recipeId = startupParams.get("recipe");
+      if (/^\d+$/.test(recipeId || "")) {
+        const startupScreen = startupParams.get("screen");
+        document.documentElement.classList.add("is-restoring-recipe-route");
+        document.documentElement.classList.add(
+          startupScreen === "steps"
+            ? "is-restoring-steps"
+            : startupScreen === "cooking"
+              ? "is-restoring-cooking"
+              : "is-restoring-recipe",
+        );
+      } else if (startupParams.get("view") === "saved") {
+        document.documentElement.classList.add("is-restoring-saved");
+      } else if (startupParams.get("view") === "profile") {
+        document.documentElement.classList.add("is-restoring-profile");
+      }
+    </script>
     <script type="module" src="js/main.js"></script>
   </head>
   <body>
     <div class="app-shell">
+      <script>
+        const startupAppShell = document.currentScript.parentElement;
+        if (document.documentElement.classList.contains("is-restoring-saved")) {
+          startupAppShell.classList.add("is-saved-view");
+        } else if (
+          document.documentElement.classList.contains("is-restoring-profile")
+        ) {
+          startupAppShell.classList.add("is-profile-view");
+        }
+      </script>
       
       <header class="search-panel">
         <div class="panel-heading">
@@ -260,7 +289,14 @@
         </header>
 
         <div class="detail-body" id="detail-body">
-          <p class="detail-feedback" id="detail-feedback" role="status" aria-live="polite" hidden></p>
+          <p
+            class="detail-feedback"
+            id="detail-feedback"
+            role="status"
+            aria-live="polite"
+          >
+            Memuat detail resep...
+          </p>
           <section class="detail-ingredient-section" id="detail-missing-section">
             <h2 class="detail-section-title" id="detail-missing-title">Bahan tidak tersedia:</h2>
             <div class="detail-ingredient-card">
@@ -338,7 +374,9 @@
           id="saved-recipe-grid"
           aria-label="Daftar resep tersimpan"
         ></section>
-        <p class="empty-state" id="saved-empty-state" role="status" aria-live="polite" hidden></p>
+        <p class="empty-state" id="saved-empty-state" role="status" aria-live="polite">
+          Memuat halaman resep tersimpan...
+        </p>
         <nav class="pagination" id="saved-pagination" aria-label="Halaman resep tersimpan" hidden></nav>
       </section>
 
@@ -415,12 +453,13 @@
               MODE MEMASAK
             </button>
             <p
-              class="steps-empty-state"
+              class="steps-empty-state is-loading"
               id="recipe-steps-empty-state"
               role="status"
               aria-live="polite"
-              hidden
-            ></p>
+            >
+              Memuat Langkah memasak...
+            </p>
             <ol
               class="recipe-steps-list"
               id="recipe-steps-list"
@@ -445,9 +484,11 @@
         </button>
         <h1 class="cooking-mode-page-title">DETAIL RESEP</h1>
         <h2 class="cooking-mode-heading">MODE MEMASAK</h2>
-        <article class="cooking-mode-step">
+        <article class="cooking-mode-step is-loading">
           <h3 class="cooking-mode-step-title" id="cooking-mode-step-title"></h3>
-          <p class="cooking-mode-step-description" id="cooking-mode-step-description"></p>
+          <p class="cooking-mode-step-description" id="cooking-mode-step-description">
+            Memuat Mode memasak...
+          </p>
         </article>
         <footer class="cooking-mode-controls">
           <button class="cooking-mode-control" id="cooking-mode-previous" type="button">
@@ -774,7 +815,7 @@
             <div class="user-info-group">
               <p class="info-label" id="profile-name-label">NAMA</p>
               <div class="info-value-box" aria-labelledby="profile-name-label">
-                <span id="profile-fullname"></span>
+                <span id="profile-fullname">Memuat...</span>
                 <button
                   class="profile-name-edit-button"
                   id="btn-ubah-nama"
@@ -788,7 +829,7 @@
             </div>
             <div class="user-info-group">
               <p class="info-label" id="profile-email-label">EMAIL</p>
-              <div class="info-value-box" id="profile-email"></div>
+              <div class="info-value-box" id="profile-email">Memuat...</div>
             </div>
             <div class="profile-actions">
               <button class="btn-action" id="btn-ubah-sandi" type="button">UBAH KATA SANDI</button>

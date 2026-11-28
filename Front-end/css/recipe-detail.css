@@ -2,6 +2,40 @@ body:has(#recipe-detail:not([hidden])) {
   overflow-y: hidden;
 }
 
+
+html.is-restoring-recipe-route body {
+  overflow-y: hidden;
+}
+
+html.is-restoring-recipe-route .search-panel,
+html.is-restoring-recipe-route .recipe-content,
+html.is-restoring-recipe-route #view-saved,
+html.is-restoring-recipe-route #view-profile {
+  display: none !important;
+}
+
+html.is-restoring-recipe #recipe-detail {
+  display: flex !important;
+}
+
+html.is-restoring-steps #recipe-detail,
+html.is-restoring-cooking #recipe-detail {
+  display: none !important;
+}
+
+html.is-restoring-steps #recipe-steps-screen {
+  display: block !important;
+}
+
+html.is-restoring-steps #recipe-steps-empty-state,
+html.is-restoring-recipe-route #detail-feedback {
+  display: block !important;
+}
+
+html.is-restoring-cooking #cooking-mode-screen {
+  display: block !important;
+}
+
 .recipe-detail {
   position: absolute;
   z-index: 8;
@@ -316,9 +350,10 @@ body:has(#recipe-detail:not([hidden])) {
   display: none;
 }
 
-.recipe-detail.is-loading .detail-feedback {
+.recipe-detail.is-loading .detail-feedback,
+html.is-restoring-recipe-route #detail-feedback {
   position: absolute;
-  z-index: 1;
+  z-index: 4;
   top: calc(50% + 147.5px);
   left: 50%;
   width: 254px;

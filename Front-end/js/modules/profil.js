@@ -79,6 +79,7 @@ export function initProfile() {
   }
 
   function setProfileView(isOpen) {
+    document.documentElement.classList.remove("is-restoring-profile");
     if (appShell) appShell.classList.toggle("is-profile-view", isOpen);
     if (profileView) profileView.hidden = !isOpen;
     if (searchPanel) searchPanel.hidden = false;
@@ -372,6 +373,7 @@ export function initProfile() {
   if (restored.view === "profile") {
     if (restored.recipe || !localStorage.getItem("token")) {
       updateViewState({ view: null });
+      setProfileView(false);
     } else {
       setProfileView(true);
       window.dispatchEvent(new Event("recipe:profile-view-restored"));

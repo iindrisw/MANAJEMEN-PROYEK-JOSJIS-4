@@ -1194,7 +1194,18 @@ export function initInput() {
      */
     restoreFromUrl() {
       const state = readViewState();
+      const clearRestoringRoute = () => {
+        document.documentElement.classList.remove(
+          "is-restoring-recipe-route",
+          "is-restoring-recipe",
+          "is-restoring-steps",
+          "is-restoring-cooking",
+          "is-restoring-saved",
+          "is-restoring-profile",
+        );
+      };
       if (!state.recipe) {
+        clearRestoringRoute();
         return Promise.resolve();
       }
 
@@ -1210,7 +1221,7 @@ export function initInput() {
       recipeCard.dataset.recipeId = state.recipe;
       return openRecipeDetail(recipeCard, {
         restore: { screen: state.screen, step: state.step },
-      });
+      }).finally(clearRestoringRoute);
     },
   };
 }

@@ -17,6 +17,10 @@
   display: none !important;
 }
 
+html.is-restoring-profile .profile-screen {
+  display: flex !important;
+}
+
 .app-shell.is-profile-view > .search-panel {
   display: none;
 }

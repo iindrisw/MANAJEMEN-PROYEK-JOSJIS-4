@@ -49,6 +49,7 @@ export function initHalamanSimpan() {
   function setSavedView(isOpen) {
     const profileView = document.querySelector("#view-profile");
 
+    document.documentElement.classList.remove("is-restoring-saved");
     appShell.classList.toggle("is-saved-view", isOpen);
     savedScreen.hidden = !isOpen;
     searchPanel.hidden = false;
@@ -291,6 +292,7 @@ export function initHalamanSimpan() {
   if (readViewState().view === "saved") {
     if (!localStorage.getItem("token")) {
       updateViewState({ view: null });
+      setSavedView(false);
     } else {
       setSavedView(true);
       window.dispatchEvent(new Event("recipe:saved-view-restored"));

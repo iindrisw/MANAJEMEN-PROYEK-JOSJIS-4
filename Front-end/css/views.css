@@ -51,6 +51,37 @@
   text-align: center;
 }
 
+html.is-restoring-saved .recipe-content,
+html.is-restoring-profile .recipe-content {
+  display: none !important;
+}
+
+html.is-restoring-saved #view-saved {
+  display: flex !important;
+}
+
+html.is-restoring-saved .panel-heading > .section-label {
+  color: transparent;
+}
+
+html.is-restoring-saved .panel-heading > .section-label::after {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--white);
+  content: "SIMPAN RESEP";
+  font-family: var(--font-heading);
+  font-size: clamp(20px, 5.5vw, 24px);
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+}
+
+html.is-restoring-saved #saved-empty-state {
+  display: block !important;
+}
+
 .app-shell.is-saved-view .search-panel {
   height: 306px;
 }
