@@ -270,8 +270,10 @@ export function renderRecipeDetail(
     }
   }
 
-  feedback.hidden = true;
-  feedback.textContent = "";
+  if (!detailScreen.classList.contains("is-loading")) {
+    feedback.hidden = true;
+    feedback.textContent = "";
+  }
   setupDetailScrollbar(detailScreen, detailScrollbar);
 
   if (restoreState) {

@@ -36,7 +36,12 @@ initUbahKataSandi();
 const restoredRecipeReady = input.restoreFromUrl();
 
 const startupLoader = document.querySelector("#startup-loader");
-if (startupLoader instanceof HTMLElement) {
+const hasRestoredPage = Boolean(
+  initialViewState.recipe ||
+    initialViewState.view === "saved" ||
+    initialViewState.view === "profile",
+);
+if (startupLoader instanceof HTMLElement && hasRestoredPage) {
   const startupReady = initialViewState.recipe
     ? restoredRecipeReady
     : initialViewState.view === "saved"

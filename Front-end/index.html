@@ -24,6 +24,16 @@
     <link rel="stylesheet" href="css/profil.css" />
     <link rel="stylesheet" href="css/tailwind.css" />
     <link rel="stylesheet" href="css/ubah-katasandi.css" />
+    <script>
+      const startupParams = new URLSearchParams(window.location.search);
+      if (
+        /^\d+$/.test(startupParams.get("recipe") || "") ||
+        startupParams.get("view") === "saved" ||
+        startupParams.get("view") === "profile"
+      ) {
+        document.documentElement.classList.add("has-startup-loader");
+      }
+    </script>
     <script type="module" src="js/main.js"></script>
   </head>
   <body>
@@ -316,7 +326,9 @@
           aria-live="polite"
           hidden
         ></p>
-        <p class="empty-state" id="empty-state" role="status" aria-live="polite" hidden></p>
+        <p class="empty-state" id="empty-state" role="status" aria-live="polite">
+          Memuat resep...
+        </p>
         <nav class="pagination" aria-label="Halaman resep">
         </nav>
         <img

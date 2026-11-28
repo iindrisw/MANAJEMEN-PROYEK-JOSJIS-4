@@ -38,7 +38,7 @@ body {
   position: fixed;
   z-index: 1000;
   inset: 0;
-  display: grid;
+  display: none;
   align-content: center;
   justify-items: center;
   gap: 16px;
@@ -48,6 +48,10 @@ body {
   transition:
     opacity 360ms ease,
     visibility 0s linear 360ms;
+}
+
+html.has-startup-loader .startup-loader {
+  display: grid;
 }
 
 .startup-loader.is-hidden {

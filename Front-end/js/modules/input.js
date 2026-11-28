@@ -668,10 +668,10 @@ export function initInput() {
 
       activeRecipe = recipe;
       activeAvailableIngredients = availableIngredients;
+      renderRecipeDetail(recipe, activeAvailableIngredients, restore);
       detailScreen.classList.remove("is-loading");
       detailScreen.removeAttribute("aria-busy");
       setDetailFeedback("");
-      renderRecipeDetail(recipe, activeAvailableIngredients, restore);
     } catch (error) {
       if (requestId !== latestDetailRequestId) {
         return;
