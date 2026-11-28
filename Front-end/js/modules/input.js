@@ -2,7 +2,11 @@ import { createRecipeCard, renderPagination } from "./recipe-view.js";
 import { renderRecipeDetail } from "./recipe-detail.js";
 import { initFilters } from "./filters.js";
 import { readViewState, updateViewState } from "./view-state.js";
-import { API_BASE_URL } from "./api.js";
+import {
+  API_BASE_URL,
+  isNetworkConnectionError,
+  NETWORK_CONNECTION_ERROR_MESSAGE,
+} from "./api.js";
 
 const UNSUPPORTED_CHARACTER_PATTERN = /[^\x00-\x7F]/;
 const EMOJI_PATTERN =
@@ -490,9 +494,33 @@ export function initInput() {
       return true;
     }
 
-    setDetailFeedback("Tidak ada koneksi internet. Coba lagi saat terhubung.");
+    setDetailFeedback(NETWORK_CONNECTION_ERROR_MESSAGE);
     return false;
   }
+
+  function isHomeListVisible() {
+    return !isSavedViewActive && !recipeContent.hidden && detailScreen.hidden;
+  }
+
+  function showNetworkFeedback() {
+    emptyState.textContent = NETWORK_CONNECTION_ERROR_MESSAGE;
+    emptyState.hidden = false;
+  }
+
+  function handleOffline() {
+    if (isHomeListVisible()) {
+      showNetworkFeedback();
+    }
+  }
+
+  function handleOnline() {
+    if (isHomeListVisible()) {
+      void loadRecipes(currentSearch, currentPage);
+    }
+  }
+
+  window.addEventListener("offline", handleOffline);
+  window.addEventListener("online", handleOnline);
 
   function closeRecipeDetail() {
     updateViewState({ recipe: null });
@@ -872,6 +900,7 @@ export function initInput() {
         recipeGrid.style.opacity = "";
       });
       if (visibleRecipes.length === 0) {
+        emptyState.textContent = "Data resep tidak tersedia";
         emptyState.hidden = false;
         if (search?.type === "ingredients" && page === 1) {
           showValidationDialog(
@@ -900,6 +929,9 @@ export function initInput() {
         return;
       }
 
+      emptyState.textContent = isNetworkConnectionError(error)
+        ? NETWORK_CONNECTION_ERROR_MESSAGE
+        : "Data Resep tidak tersedia";
       emptyState.hidden = false;
       recipeGrid.style.opacity = "";
       updateRecipeListScrollbar();
@@ -1108,6 +1140,9 @@ export function initInput() {
 
   updateFilterButtonState();
   void loadRecipes(null);
+  if (!navigator.onLine) {
+    handleOffline();
+  }
 
   return {
     /**
