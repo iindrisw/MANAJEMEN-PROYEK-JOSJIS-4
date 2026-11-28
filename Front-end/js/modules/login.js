@@ -32,7 +32,7 @@ function renderCustomGoogleButton(container, onTriggerPrompt) {
     "max-width: 100%",
     "height: 40px",
     "padding: 0 16px",
-    "background: rgb(255 238 181 / 2%)",
+    "background: #FCEFB4",
     "color: #1f1f1f",
     "border: 1px solid rgb(37 37 37 / 20%)",
     "border-radius: 10px",
