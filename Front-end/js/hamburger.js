@@ -174,7 +174,7 @@ export function initHumberger() {
   brandLinks.forEach((brandLink) => {
     brandLink.addEventListener("click", (event) => {
       event.preventDefault();
-      window.location.assign(window.location.pathname);
+      window.dispatchEvent(new Event("recipe:navigate-home"));
     });
   });
 
@@ -219,7 +219,7 @@ export function initHumberger() {
     currentMenuButton.focus();
 
     if (action === "home") {
-      window.location.assign(window.location.pathname);
+      window.dispatchEvent(new Event("recipe:navigate-home"));
     } else if (action === "bookmark") {
       window.dispatchEvent(new Event("recipe:navigate-saved"));
     } else if (action === "profile") {

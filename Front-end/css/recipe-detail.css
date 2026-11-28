@@ -319,7 +319,7 @@ body:has(#recipe-detail:not([hidden])) {
 .recipe-detail.is-loading .detail-feedback {
   position: absolute;
   z-index: 1;
-  top: calc(50% - 99px);
+  top: calc(50% + 147.5px);
   left: 50%;
   width: 254px;
   margin: 0;

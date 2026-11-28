@@ -641,6 +641,13 @@ export function initInput() {
     window.scrollTo(0, 0);
 
     try {
+      await new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      });
+      if (requestId !== latestDetailRequestId || detailScreen.hidden) {
+        return;
+      }
+
       const result = await fetchRecipes(`recipes/${recipeId}`);
       if (requestId !== latestDetailRequestId || detailScreen.hidden) {
         return;
