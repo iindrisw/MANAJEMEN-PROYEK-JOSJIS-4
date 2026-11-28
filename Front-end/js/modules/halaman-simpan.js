@@ -45,6 +45,7 @@ export function initHalamanSimpan() {
   let currentSearchQuery = "";
   let latestRequestId = 0;
   let renderTimer = 0;
+  let startupReady = Promise.resolve();
 
   function setSavedView(isOpen) {
     const profileView = document.querySelector("#view-profile");
@@ -184,7 +185,10 @@ export function initHalamanSimpan() {
         card.addEventListener("click", () => {
           window.dispatchEvent(
             new CustomEvent("recipe:open-detail-from-saved", {
-              detail: recipe.id_resep,
+              detail: {
+                id: recipe.id_resep,
+                title: recipe.nama_resep,
+              },
             }),
           );
         });
@@ -193,7 +197,10 @@ export function initHalamanSimpan() {
             event.preventDefault();
             window.dispatchEvent(
               new CustomEvent("recipe:open-detail-from-saved", {
-                detail: recipe.id_resep,
+                detail: {
+                  id: recipe.id_resep,
+                  title: recipe.nama_resep,
+                },
               }),
             );
           }
@@ -288,7 +295,9 @@ export function initHalamanSimpan() {
     } else {
       setSavedView(true);
       window.dispatchEvent(new Event("recipe:saved-view-restored"));
-      void loadSavedRecipes();
+      startupReady = loadSavedRecipes();
     }
   }
+
+  return startupReady;
 }

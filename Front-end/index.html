@@ -27,6 +27,10 @@
     <script type="module" src="js/main.js"></script>
   </head>
   <body>
+    <div class="startup-loader" id="startup-loader" role="status" aria-live="polite">
+      <span class="startup-loader-spinner" aria-hidden="true"></span>
+      <p id="startup-loader-message">Memuat halaman...</p>
+    </div>
     <div class="app-shell">
       
       <header class="search-panel">
@@ -305,6 +309,13 @@
           id="recipe-grid"
           aria-label="Daftar resep"
         ></section>
+        <p
+          class="empty-state"
+          id="network-status"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></p>
         <p class="empty-state" id="empty-state" role="status" aria-live="polite" hidden></p>
         <nav class="pagination" aria-label="Halaman resep">
         </nav>
@@ -405,6 +416,13 @@
             <button class="mode-memasak-button" id="mode-memasak-button" type="button">
               MODE MEMASAK
             </button>
+            <p
+              class="steps-empty-state"
+              id="recipe-steps-empty-state"
+              role="status"
+              aria-live="polite"
+              hidden
+            ></p>
             <ol
               class="recipe-steps-list"
               id="recipe-steps-list"
@@ -778,6 +796,13 @@
               <button class="btn-action" id="btn-ubah-sandi" type="button">UBAH KATA SANDI</button>
               <button class="btn-danger-outline" id="btn-trigger-logout" type="button">KELUAR</button>
             </div>
+            <p
+              class="profile-empty-state"
+              id="profile-empty-state"
+              role="status"
+              aria-live="polite"
+              hidden
+            ></p>
           </div>
         </div>
       </section>

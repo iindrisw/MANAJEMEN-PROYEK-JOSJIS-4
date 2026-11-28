@@ -5,12 +5,14 @@ export function setupLangkahMemasak(recipe, detailScreen) {
   const stepsScreen = document.querySelector("#recipe-steps-screen");
   const stepsBackButton = document.querySelector("#steps-back");
   const stepsList = document.querySelector("#recipe-steps-list");
+  const stepsEmptyState = document.querySelector("#recipe-steps-empty-state");
   const stepsRecipeTitle = document.querySelector("#steps-recipe-title");
   const detailStepsButton = document.querySelector("#detail-steps");
   const stepsLikeButton = document.querySelector("#steps-like");
   const stepsContent = document.querySelector(".steps-card-content");
   const modeButton = document.querySelector("#mode-memasak-button");
   const modeScreen = document.querySelector("#cooking-mode-screen");
+  const modeStep = document.querySelector(".cooking-mode-step");
   const modeBackButton = document.querySelector("#cooking-mode-back");
   const modeStepTitle = document.querySelector("#cooking-mode-step-title");
   const modeStepDescription = document.querySelector(
@@ -25,12 +27,14 @@ export function setupLangkahMemasak(recipe, detailScreen) {
     !(stepsScreen instanceof HTMLElement) ||
     !(stepsBackButton instanceof HTMLButtonElement) ||
     !(stepsList instanceof HTMLOListElement) ||
+    !(stepsEmptyState instanceof HTMLElement) ||
     !(stepsRecipeTitle instanceof HTMLElement) ||
     !(detailStepsButton instanceof HTMLButtonElement) ||
     !(stepsLikeButton instanceof HTMLButtonElement) ||
     !(stepsContent instanceof HTMLElement) ||
     !(modeButton instanceof HTMLButtonElement) ||
     !(modeScreen instanceof HTMLElement) ||
+    !(modeStep instanceof HTMLElement) ||
     !(modeBackButton instanceof HTMLButtonElement) ||
     !(modeStepTitle instanceof HTMLElement) ||
     !(modeStepDescription instanceof HTMLElement) ||
@@ -43,6 +47,10 @@ export function setupLangkahMemasak(recipe, detailScreen) {
   }
 
   const recipeSteps = Array.isArray(recipe.langkah) ? recipe.langkah : [];
+  const emptyModeMessage =
+    recipeSteps.length > 0
+      ? "Tidak ada Langkah-Langkah"
+      : "Mode memasak tidak tersedia";
   let currentStepIndex = 0;
 
   function getStepDescriptions(step) {
@@ -66,6 +74,8 @@ export function setupLangkahMemasak(recipe, detailScreen) {
   }
 
   const steps = recipeSteps.flatMap(getStepDescriptions);
+  let stepsRenderToken = 0;
+  let cookingRenderToken = 0;
 
   function fitRecipeTitle() {
     for (let fontSize = 36; fontSize >= 18; fontSize -= 1) {
@@ -80,14 +90,17 @@ export function setupLangkahMemasak(recipe, detailScreen) {
   }
 
   function renderScrollableSteps() {
+    stepsEmptyState.classList.remove("is-loading");
+    stepsScreen.removeAttribute("aria-busy");
+
     if (steps.length === 0) {
-      const item = document.createElement("li");
-      item.className = "step-item";
-      item.textContent = "Langkah memasak belum tersedia untuk resep ini.";
-      stepsList.replaceChildren(item);
+      stepsList.replaceChildren();
+      stepsEmptyState.textContent = "Langkah memasak tidak tersedia";
+      stepsEmptyState.hidden = false;
       return;
     }
 
+    stepsEmptyState.hidden = true;
     stepsList.replaceChildren(
       ...steps.map((step, index) => {
         const item = document.createElement("li");
@@ -107,8 +120,8 @@ export function setupLangkahMemasak(recipe, detailScreen) {
     );
   }
 
-  detailStepsButton.onclick = () => {
-    renderScrollableSteps();
+  function openStepsScreen(showLoading = true) {
+    const renderToken = ++stepsRenderToken;
     void releaseWakeLock();
     modeScreen.hidden = true;
     stepsScreen.hidden = false;
@@ -117,9 +130,38 @@ export function setupLangkahMemasak(recipe, detailScreen) {
     stepsContent.scrollTop = 0;
     window.scrollTo(0, 0);
     updateViewState({ screen: "steps" });
-  };
+
+    if (!showLoading) {
+      renderScrollableSteps();
+      return;
+    }
+
+    stepsList.replaceChildren();
+    stepsEmptyState.textContent = "Memuat Langkah memasak...";
+    stepsEmptyState.classList.add("is-loading");
+    stepsEmptyState.hidden = false;
+    stepsScreen.setAttribute("aria-busy", "true");
+
+    requestAnimationFrame(() => {
+      if (renderToken !== stepsRenderToken || stepsScreen.hidden) {
+        return;
+      }
+      requestAnimationFrame(() => {
+        if (renderToken !== stepsRenderToken || stepsScreen.hidden) {
+          return;
+        }
+        renderScrollableSteps();
+      });
+    });
+  }
+
+  detailStepsButton.onclick = () => openStepsScreen();
 
   stepsBackButton.onclick = () => {
+    stepsRenderToken += 1;
+    stepsScreen.removeAttribute("aria-busy");
+    stepsEmptyState.classList.remove("is-loading");
+    stepsEmptyState.hidden = true;
     void releaseWakeLock();
     stepsScreen.hidden = true;
     modeScreen.hidden = true;
@@ -129,47 +171,89 @@ export function setupLangkahMemasak(recipe, detailScreen) {
   };
 
   function renderCookingStep() {
+    modeStep.classList.remove("is-loading");
+    modeStep.removeAttribute("aria-busy");
     const step = steps[currentStepIndex];
+    const hasSteps = steps.length > 0;
+    modeStep.classList.toggle("is-empty", !hasSteps);
     modeStepTitle.textContent = step
       ? `Langkah ${currentStepIndex + 1}:`
-      : "Langkah belum tersedia";
+      : "";
     modeStepDescription.textContent = step
       ? step
-      : "Langkah memasak belum tersedia untuk resep ini.";
-    previousStepButton.disabled = currentStepIndex === 0;
+      : emptyModeMessage;
+    previousStepButton.disabled = !hasSteps || currentStepIndex === 0;
     const isLastStep = currentStepIndex >= steps.length - 1;
-    nextStepLabel.textContent = isLastStep ? "SELESAI" : "SELANJUTNYA";
-    nextStepIcon.hidden = isLastStep;
-    nextStepButton.disabled = steps.length === 0;
+    nextStepLabel.textContent =
+      hasSteps && isLastStep ? "SELESAI" : "SELANJUTNYA";
+    nextStepIcon.hidden = hasSteps && isLastStep;
+    nextStepButton.disabled = !hasSteps;
     updateViewState({ screen: "cooking", step: currentStepIndex + 1 });
   }
 
+  function openCookingMode(startIndex, showLoading = true) {
+    currentStepIndex = startIndex;
+    const renderToken = ++cookingRenderToken;
+    if (stepsScreen.getAttribute("aria-busy") === "true") {
+      stepsRenderToken += 1;
+      renderScrollableSteps();
+    }
+    stepsScreen.hidden = true;
+    modeScreen.hidden = false;
+    void requestWakeLock();
+    window.scrollTo(0, 0);
+
+    if (!showLoading) {
+      renderCookingStep();
+      return;
+    }
+
+    modeStep.classList.remove("is-empty");
+    modeStep.classList.add("is-loading");
+    modeStep.setAttribute("aria-busy", "true");
+    modeStepTitle.textContent = "";
+    modeStepDescription.textContent = "Memuat Mode memasak...";
+    previousStepButton.disabled = true;
+    nextStepButton.disabled = false;
+    nextStepLabel.textContent = "SELANJUTNYA";
+    nextStepIcon.hidden = false;
+
+    requestAnimationFrame(() => {
+      if (renderToken !== cookingRenderToken || modeScreen.hidden) {
+        return;
+      }
+      requestAnimationFrame(() => {
+        if (renderToken !== cookingRenderToken || modeScreen.hidden) {
+          return;
+        }
+        renderCookingStep();
+      });
+    });
+  }
+
   function returnToSteps() {
+    cookingRenderToken += 1;
+    modeStep.classList.remove("is-loading");
+    modeStep.removeAttribute("aria-busy");
     void releaseWakeLock();
     modeScreen.hidden = true;
     stepsScreen.hidden = false;
     updateViewState({ screen: "steps" });
   }
 
-  function openCookingMode(startIndex) {
-    currentStepIndex = startIndex;
-    renderCookingStep();
-    stepsScreen.hidden = true;
-    modeScreen.hidden = false;
-    void requestWakeLock();
-    window.scrollTo(0, 0);
-  }
-
   modeButton.onclick = () => openCookingMode(0);
 
   modeBackButton.onclick = returnToSteps;
   previousStepButton.onclick = () => {
-    if (currentStepIndex > 0) {
+    if (!modeStep.classList.contains("is-loading") && currentStepIndex > 0) {
       currentStepIndex -= 1;
       renderCookingStep();
     }
   };
   nextStepButton.onclick = () => {
+    if (modeStep.classList.contains("is-loading")) {
+      return;
+    }
     if (currentStepIndex >= steps.length - 1) {
       returnToSteps();
       return;
@@ -188,11 +272,11 @@ export function setupLangkahMemasak(recipe, detailScreen) {
     if (state?.screen !== "steps" && state?.screen !== "cooking") {
       return;
     }
-    detailStepsButton.onclick(); // buka daftar langkah dulu (tujuan tombol kembali)
+    openStepsScreen(false);
     if (state.screen === "cooking") {
       const lastIndex = Math.max(0, steps.length - 1);
       const wanted = Number.isInteger(state.step) ? state.step - 1 : 0;
-      openCookingMode(Math.min(Math.max(wanted, 0), lastIndex));
+      openCookingMode(Math.min(Math.max(wanted, 0), lastIndex), false);
     }
   }
 

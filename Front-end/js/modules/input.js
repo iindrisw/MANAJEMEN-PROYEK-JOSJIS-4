@@ -289,6 +289,7 @@ export function initInput() {
   const stepsDialog = document.querySelector("#recipe-steps-screen");
   const copySuccessDialog = document.querySelector("#copy-success-dialog");
   const copySuccessClose = document.querySelector("#copy-success-close");
+  const networkStatus = document.querySelector("#network-status");
   const emptyState = document.querySelector("#empty-state");
   const pagination = document.querySelector(".pagination");
   const ingredientCount = document.querySelector("#ingredient-count");
@@ -333,6 +334,7 @@ export function initInput() {
     !(stepsDialog instanceof HTMLElement) ||
     !(copySuccessDialog instanceof HTMLDialogElement) ||
     !(copySuccessClose instanceof HTMLButtonElement) ||
+    !(networkStatus instanceof HTMLElement) ||
     !(emptyState instanceof HTMLElement) ||
     !(pagination instanceof HTMLElement) ||
     !(ingredientCount instanceof HTMLElement) ||
@@ -503,8 +505,14 @@ export function initInput() {
   }
 
   function showNetworkFeedback() {
-    emptyState.textContent = NETWORK_CONNECTION_ERROR_MESSAGE;
-    emptyState.hidden = false;
+    networkStatus.textContent = NETWORK_CONNECTION_ERROR_MESSAGE;
+    networkStatus.hidden = false;
+    emptyState.hidden = true;
+  }
+
+  function hideNetworkFeedback() {
+    networkStatus.hidden = true;
+    networkStatus.textContent = "";
   }
 
   function handleOffline() {
@@ -514,6 +522,7 @@ export function initInput() {
   }
 
   function handleOnline() {
+    hideNetworkFeedback();
     if (isHomeListVisible()) {
       void loadRecipes(currentSearch, currentPage);
     }
@@ -535,6 +544,9 @@ export function initInput() {
     }
     activeRecipe = null;
     activeAvailableIngredients = [];
+    if (!isSavedViewActive && !navigator.onLine) {
+      showNetworkFeedback();
+    }
     if (stepsDialog && !stepsDialog.hidden) {
       stepsDialog.hidden = true;
     }
@@ -580,7 +592,12 @@ export function initInput() {
   });
 
   window.addEventListener("recipe:open-detail-from-saved", (event) => {
-    if (!(event instanceof CustomEvent) || !/^\d+$/.test(String(event.detail))) {
+    if (
+      !(event instanceof CustomEvent) ||
+      !event.detail ||
+      typeof event.detail !== "object" ||
+      !/^\d+$/.test(String(event.detail.id))
+    ) {
       return;
     }
     const savedScreen = document.querySelector("#view-saved");
@@ -588,7 +605,8 @@ export function initInput() {
       savedScreen.hidden = true;
     }
     const card = document.createElement("article");
-    card.dataset.recipeId = String(event.detail);
+    card.dataset.recipeId = String(event.detail.id);
+    card.dataset.recipeTitle = String(event.detail.title || "");
     void openRecipeDetail(card);
   });
 
@@ -601,18 +619,25 @@ export function initInput() {
 
     updateViewState(restore ? { recipe: recipeId } : { recipe: recipeId, screen: null });
 
+    const titleFromCard =
+      card.dataset.recipeTitle ||
+      card.querySelector("h2")?.textContent?.trim() ||
+      "";
     const requestId = ++latestDetailRequestId;
     previousScrollPosition = window.scrollY;
     searchPanel.hidden = true;
     recipeContent.hidden = true;
     detailScreen.hidden = false;
     detailScreen.scrollTop = 0;
-    detailTitle.textContent = "Memuat resep...";
+    detailScreen.classList.remove("is-unavailable");
+    detailScreen.classList.add("is-loading");
+    detailScreen.setAttribute("aria-busy", "true");
+    detailTitle.textContent = titleFromCard || "Memuat resep...";
     activeRecipe = null;
     activeAvailableIngredients = [];
     document.querySelector("#detail-missing-list")?.replaceChildren();
     document.querySelector("#detail-available-list")?.replaceChildren();
-    setDetailFeedback("");
+    setDetailFeedback("Memuat detail resep...");
     window.scrollTo(0, 0);
 
     try {
@@ -643,13 +668,21 @@ export function initInput() {
 
       activeRecipe = recipe;
       activeAvailableIngredients = availableIngredients;
+      detailScreen.classList.remove("is-loading");
+      detailScreen.removeAttribute("aria-busy");
+      setDetailFeedback("");
       renderRecipeDetail(recipe, activeAvailableIngredients, restore);
     } catch (error) {
       if (requestId !== latestDetailRequestId) {
         return;
       }
-      detailTitle.textContent = "Detail resep tidak tersedia";
-      setDetailFeedback(`Gagal memuat detail resep. ${error.message}`);
+      detailScreen.classList.remove("is-loading");
+      detailScreen.removeAttribute("aria-busy");
+      if (!titleFromCard) {
+        detailTitle.textContent = "Detail resep tidak tersedia";
+      }
+      detailScreen.classList.add("is-unavailable");
+      setDetailFeedback("Detail resep tidak tersedia");
     }
   }
 
@@ -813,7 +846,7 @@ export function initInput() {
     currentPage = page;
     recipeGrid.classList.toggle("is-most-liked", !search);
     emptyState.textContent = "Memuat resep...";
-    emptyState.hidden = false;
+    emptyState.hidden = !networkStatus.hidden;
     recipeGrid.replaceChildren();
     recipeGrid.style.opacity = "0";
     pagination.replaceChildren();
@@ -901,7 +934,7 @@ export function initInput() {
       });
       if (visibleRecipes.length === 0) {
         emptyState.textContent = "Data resep tidak tersedia";
-        emptyState.hidden = false;
+        emptyState.hidden = networkStatus.hidden;
         if (search?.type === "ingredients" && page === 1) {
           showValidationDialog(
             "Kombinasi bahan yang anda masukkan tidak tersedia, mau coba kombinasi bahan lain?",
@@ -929,10 +962,12 @@ export function initInput() {
         return;
       }
 
-      emptyState.textContent = isNetworkConnectionError(error)
-        ? NETWORK_CONNECTION_ERROR_MESSAGE
-        : "Data Resep tidak tersedia";
-      emptyState.hidden = false;
+      if (isNetworkConnectionError(error)) {
+        showNetworkFeedback();
+      } else {
+        emptyState.textContent = "Data Resep tidak tersedia";
+        emptyState.hidden = false;
+      }
       recipeGrid.style.opacity = "";
       updateRecipeListScrollbar();
     }
@@ -1139,12 +1174,13 @@ export function initInput() {
   });
 
   updateFilterButtonState();
-  void loadRecipes(null);
+  const initialLoad = loadRecipes(null);
   if (!navigator.onLine) {
     handleOffline();
   }
 
   return {
+    initialLoad,
     /**
 - Pulihkan layar detail / langkah / mode memasak dari URL setelah refresh.
 - Dipanggil main.js PALING AKHIR: halaman simpan atau profil yang dipulihkan
@@ -1153,7 +1189,7 @@ export function initInput() {
     restoreFromUrl() {
       const state = readViewState();
       if (!state.recipe) {
-        return;
+        return Promise.resolve();
       }
 
       if (state.view === "saved" && localStorage.getItem("token")) {
@@ -1166,7 +1202,7 @@ export function initInput() {
 
       const recipeCard = document.createElement("article");
       recipeCard.dataset.recipeId = state.recipe;
-      void openRecipeDetail(recipeCard, {
+      return openRecipeDetail(recipeCard, {
         restore: { screen: state.screen, step: state.step },
       });
     },

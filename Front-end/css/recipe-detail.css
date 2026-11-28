@@ -300,6 +300,38 @@ body:has(#recipe-detail:not([hidden])) {
   line-height: 1.5;
 }
 
+.recipe-detail.is-unavailable .detail-ingredient-section,
+.recipe-detail.is-unavailable .detail-scrollbar {
+  display: none;
+}
+
+.recipe-detail.is-unavailable .detail-feedback {
+  margin: 0;
+  color: #686868;
+  text-align: center;
+}
+
+.recipe-detail.is-loading .detail-ingredient-section,
+.recipe-detail.is-loading .detail-scrollbar {
+  display: none;
+}
+
+.recipe-detail.is-loading .detail-feedback {
+  position: absolute;
+  z-index: 1;
+  top: calc(50% - 99px);
+  left: 50%;
+  width: 254px;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  color: var(--charcoal);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  line-height: 1;
+  text-align: center;
+  opacity: 0.6;
+}
+
 .detail-footer {
   display: flex;
   flex: 0 0 42px;
@@ -782,6 +814,28 @@ body:has(#recipe-detail:not([hidden])) .recipe-list-scrollbar {
   list-style: none;
 }
 
+.steps-empty-state {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(100% - 32px);
+  margin: 0;
+  transform: translate(-50%, -50%);
+  color: #777777;
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.steps-empty-state.is-loading {
+  top: calc(50% - 25px);
+  color: var(--charcoal);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  opacity: 0.6;
+}
+
 .recipe-steps-list .step-item {
   min-width: 0;
   min-height: 140px;
@@ -947,6 +1001,40 @@ body:has(#recipe-detail:not([hidden])) .recipe-list-scrollbar {
   line-height: 40px;
   text-align: center;
   overflow-wrap: anywhere;
+}
+
+.cooking-mode-step.is-empty .cooking-mode-step-title {
+  display: none;
+}
+
+.cooking-mode-step.is-empty .cooking-mode-step-description {
+  top: 50%;
+  right: 12px;
+  left: 12px;
+  width: auto;
+  height: auto;
+  transform: translateY(-50%);
+  color: #777777;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cooking-mode-step.is-loading .cooking-mode-step-title {
+  display: none;
+}
+
+.cooking-mode-step.is-loading .cooking-mode-step-description {
+  top: 50%;
+  right: 12px;
+  left: 12px;
+  width: auto;
+  height: auto;
+  transform: translateY(-50%);
+  color: var(--charcoal);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  line-height: 1.5;
+  opacity: 0.6;
 }
 
 .cooking-mode-controls {

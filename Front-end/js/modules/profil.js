@@ -32,10 +32,20 @@ export function initProfile() {
   const btnChangeName = document.querySelector("#btn-ubah-nama");
   const btnCancelName = document.querySelector("#btn-cancel-name");
   const btnConfirmName = document.querySelector("#btn-confirm-name");
+  const profileCard = document.querySelector(".profile-card");
+  const profileEmptyState = document.querySelector("#profile-empty-state");
   const fullnameBox = document.querySelector("#profile-fullname");
   const emailBox = document.querySelector("#profile-email");
   const nameStatus = document.querySelector("#profile-name-status");
   const homeTitle = sectionLabel ? sectionLabel.textContent : "Cari Resep";
+  let startupReady = Promise.resolve();
+
+  if (
+    !(profileCard instanceof HTMLElement) ||
+    !(profileEmptyState instanceof HTMLElement)
+  ) {
+    throw new Error("Elemen empty state profil tidak ditemukan.");
+  }
 
   function clearAuthState() {
     localStorage.removeItem("token");
@@ -88,6 +98,14 @@ export function initProfile() {
     nameStatus.textContent = message;
     nameStatus.classList.toggle("is-error", isError);
     nameStatus.hidden = !message;
+  }
+
+  function setProfileUnavailable(isUnavailable) {
+    profileCard.classList.toggle("is-unavailable", isUnavailable);
+    profileEmptyState.textContent = isUnavailable
+      ? "Data Profile tidak tersedia"
+      : "";
+    profileEmptyState.hidden = !isUnavailable;
   }
 
   function clearNameError() {
@@ -162,6 +180,8 @@ export function initProfile() {
     }
 
     try {
+      setProfileUnavailable(false);
+      showNameStatus("");
       if (fullnameBox) fullnameBox.textContent = "Memuat...";
       if (emailBox) emailBox.textContent = "Memuat...";
 
@@ -175,6 +195,7 @@ export function initProfile() {
           user.nama || user.nama_lengkap || user.name || "Pengguna Racik Rasa";
       }
       if (emailBox) emailBox.textContent = user.email || "-";
+      setProfileUnavailable(false);
     } catch (error) {
       console.error("Gagal mengambil profil:", error);
       if (error.status === 401 || error.status === 403) {
@@ -184,12 +205,7 @@ export function initProfile() {
         openDialog(guestModal);
         return;
       }
-      showNameStatus(
-        isNetworkConnectionError(error)
-          ? NETWORK_CONNECTION_ERROR_MESSAGE
-          : error.message || "Gagal memuat data profil.",
-        true,
-      );
+      setProfileUnavailable(true);
     }
   }
 
@@ -360,7 +376,9 @@ export function initProfile() {
     } else {
       setProfileView(true);
       window.dispatchEvent(new Event("recipe:profile-view-restored"));
-      void fetchUserData();
+      startupReady = fetchUserData();
     }
   }
+
+  return startupReady;
 }
