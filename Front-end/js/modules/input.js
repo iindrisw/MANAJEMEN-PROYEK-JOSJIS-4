@@ -595,7 +595,7 @@ export function initInput() {
 
       const recipe = result.data;
       if (!recipe || typeof recipe !== "object") {
-        throw new Error("Data detail resep tidak tersedia.");
+        throw new Error("Data detail resep tidak tersedia");
       }
       if (!localStorage.getItem("token")) {
         Object.assign(recipe, applyAnonymousLikeState(recipe));
@@ -609,7 +609,7 @@ export function initInput() {
             ? matchedIngredients
             : getIngredients(currentSearch.query);
         } catch (error) {
-          throw new Error("Data bahan yang cocok pada resep tidak valid.", { cause: error });
+          throw new Error("Kombinasi bahan yang anda masukkan tidak tersedia, mau coba kombinasi bahan lain?", { cause: error });
         }
       }
 
@@ -872,7 +872,6 @@ export function initInput() {
         recipeGrid.style.opacity = "";
       });
       if (visibleRecipes.length === 0) {
-        emptyState.textContent = "Data resep tidak tersedia";
         emptyState.hidden = false;
         if (search?.type === "ingredients" && page === 1) {
           showValidationDialog(
@@ -901,7 +900,6 @@ export function initInput() {
         return;
       }
 
-      emptyState.textContent = "Data Resep tidak tersedia";
       emptyState.hidden = false;
       recipeGrid.style.opacity = "";
       updateRecipeListScrollbar();

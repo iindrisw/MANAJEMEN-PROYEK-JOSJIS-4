@@ -510,9 +510,10 @@ body:has(#recipe-detail:not([hidden])) {
     color 160ms ease;
 }
 
-.bookmark-unavailable-login:hover {
+.bookmark-unavailable-login:hover:not(:focus-visible) {
   background: var(--white);
   color: var(--coral);
+  outline: 1px solid var(--coral);
 }
 
 .validation-dialog-button,
