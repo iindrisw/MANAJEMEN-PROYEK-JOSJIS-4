@@ -45,7 +45,6 @@ export function initHalamanSimpan() {
   let currentSearchQuery = "";
   let latestRequestId = 0;
   let renderTimer = 0;
-  let startupReady = Promise.resolve();
 
   function setSavedView(isOpen) {
     const profileView = document.querySelector("#view-profile");
@@ -295,9 +294,8 @@ export function initHalamanSimpan() {
     } else {
       setSavedView(true);
       window.dispatchEvent(new Event("recipe:saved-view-restored"));
-      startupReady = loadSavedRecipes();
+      void loadSavedRecipes();
     }
   }
 
-  return startupReady;
 }

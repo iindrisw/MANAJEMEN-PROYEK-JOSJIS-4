@@ -38,7 +38,6 @@ export function initProfile() {
   const emailBox = document.querySelector("#profile-email");
   const nameStatus = document.querySelector("#profile-name-status");
   const homeTitle = sectionLabel ? sectionLabel.textContent : "Cari Resep";
-  let startupReady = Promise.resolve();
 
   if (
     !(profileCard instanceof HTMLElement) ||
@@ -376,9 +375,8 @@ export function initProfile() {
     } else {
       setProfileView(true);
       window.dispatchEvent(new Event("recipe:profile-view-restored"));
-      startupReady = fetchUserData();
+      void fetchUserData();
     }
   }
 
-  return startupReady;
 }

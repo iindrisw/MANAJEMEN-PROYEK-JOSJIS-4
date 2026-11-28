@@ -34,65 +34,6 @@ body {
   background: var(--charcoal);
 }
 
-.startup-loader {
-  position: fixed;
-  z-index: 1000;
-  inset: 0;
-  display: none;
-  align-content: center;
-  justify-items: center;
-  gap: 16px;
-  background: var(--white);
-  opacity: 1;
-  visibility: visible;
-  transition:
-    opacity 360ms ease,
-    visibility 0s linear 360ms;
-}
-
-html.has-startup-loader .startup-loader {
-  display: grid;
-}
-
-.startup-loader.is-hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.startup-loader p {
-  margin: 0;
-  color: #686868;
-  font-family: var(--font-heading);
-  font-size: 16px;
-  text-align: center;
-}
-
-.startup-loader-spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid rgb(208 87 86 / 20%);
-  border-top-color: var(--coral);
-  border-radius: 50%;
-  animation: startup-loader-spin 800ms linear infinite;
-}
-
-@keyframes startup-loader-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .startup-loader {
-    transition: none;
-  }
-
-  .startup-loader-spinner {
-    animation: none;
-  }
-}
-
 button,
 input {
   font: inherit;

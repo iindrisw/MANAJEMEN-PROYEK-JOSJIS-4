@@ -1174,17 +1174,16 @@ export function initInput() {
   });
 
   updateFilterButtonState();
-  const initialLoad = loadRecipes(null);
+  void loadRecipes(null);
   if (!navigator.onLine) {
     handleOffline();
   }
 
   return {
-    initialLoad,
     /**
-- Pulihkan layar detail / langkah / mode memasak dari URL setelah refresh.
-- Dipanggil main.js PALING AKHIR: halaman simpan atau profil yang dipulihkan
-- lebih dulu tidak boleh menimpa layar detail yang ada di atasnya.
+     * Pulihkan layar detail / langkah / mode memasak dari URL setelah refresh.
+     * Dipanggil main.js paling akhir agar halaman simpan atau profil tidak
+     * menimpa detail resep yang dipulihkan.
      */
     restoreFromUrl() {
       const state = readViewState();
