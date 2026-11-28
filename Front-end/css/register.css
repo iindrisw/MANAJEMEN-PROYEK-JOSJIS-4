@@ -338,6 +338,7 @@ body {
 .btn-submit-daftar:hover:not(:disabled) {
   background-color: #FFFFFF;
   color: #D05756;
+  outline: 1px solid #D05756;
 }
 
 .btn-submit-masuk:active,
